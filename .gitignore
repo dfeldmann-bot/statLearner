@@ -1,0 +1,6 @@
+node_modules/
+authoring/out/
+statbot/index.json
+__pycache__/
+*.pyc
+.DS_Store

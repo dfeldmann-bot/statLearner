@@ -1,0 +1,229 @@
+{
+  "id": "s03",
+  "slug": "random-variables-normal",
+  "title": "Random variables, the binomial and the normal model",
+  "summary": "Expected value, the binomial model for counts, z-scores and the 68-95-99.7 rule.",
+  "bookRef": "OpenIntro Statistics 4e, §3.4 (Random variables), §4.1 (Normal distribution), §4.3 (Binomial distribution)",
+  "minutes": 30,
+  "objectives": [
+    "Compute the expected value (and SD) of a discrete random variable.",
+    "Check the four binomial conditions and compute binomial probabilities, mean and SD.",
+    "Standardise a value with a z-score to compare across scales.",
+    "Use the 68-95-99.7 rule to estimate normal probabilities."
+  ],
+  "warmup": [
+    {
+      "id": "s03-w1",
+      "type": "choice",
+      "prompt": "**Predict.** A lottery ticket costs €2. It pays €100 with probability 1/100 and nothing otherwise. Over many tickets, what do you gain on average per ticket?",
+      "options": [
+        "Lose €1",
+        "Break even (€0)",
+        "Win €1",
+        "Lose €2"
+      ],
+      "answer": 0,
+      "explain": "On average a ticket returns $100 \\times 0.01 = €1$, and you paid €2, so you lose €1 per ticket in the long run. That long-run average is the **expected value** - this session's first idea."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "md": "## Random variables and expected value\nA **random variable** $X$ assigns a number to each outcome of a random process: the prize of a lottery ticket, the number of heads in 10 flips. Its **probability distribution** lists the possible values and their probabilities (which add to 1).\n\nThe **expected value** is the long-run average of $X$:\n$$E(X) = \\mu = \\sum x \\, P(X = x)$$\nand the variance measures spread around it:\n$$\\operatorname{Var}(X) = \\sigma^2 = \\sum (x - \\mu)^2 \\, P(X = x), \\qquad \\sigma = \\sqrt{\\sigma^2}$$"
+    },
+    {
+      "type": "example",
+      "title": "A fair die",
+      "steps": [
+        "Values 1-6, each with probability $1/6$.",
+        "$E(X) = (1 + 2 + 3 + 4 + 5 + 6)/6 = 3.5$ - a value you can never roll, yet the long-run average.",
+        "Squared deviations from 3.5: $6.25, 2.25, 0.25, 0.25, 2.25, 6.25$; their average is $17.5/6 = 2.917$.",
+        "$\\sigma = \\sqrt{2.917} = 1.71$."
+      ],
+      "reflect": {
+        "prompt": "Why can an expected value be a number the variable never takes?",
+        "answer": "It is an average over many repetitions, not a prediction for a single outcome - just as an average family can have 1.6 children."
+      }
+    },
+    {
+      "type": "practice",
+      "exercise": "expected-value",
+      "count": 3
+    },
+    {
+      "type": "text",
+      "md": "## The binomial model: counting successes\nUse the **binomial distribution** for the number of successes $X$ when four conditions hold (remember **BINS**):\n\n- **B**inary: each trial is success or failure;\n- **I**ndependent trials;\n- **N**umber of trials $n$ fixed in advance;\n- **S**ame success probability $p$ on every trial.\n\nThen\n$$P(X = k) = \\binom{n}{k} p^k (1-p)^{n-k}, \\qquad \\mu = np, \\qquad \\sigma = \\sqrt{np(1-p)}$$\n$\\binom{n}{k}$ (\"$n$ choose $k$\") counts the orders in which $k$ successes can appear among $n$ trials."
+    },
+    {
+      "type": "example",
+      "title": "Exactly 3 heads in 5 flips",
+      "steps": [
+        "One particular order, such as HHHTT, has probability $0.5^3 \\times 0.5^2 = 1/32$.",
+        "There are $\\binom{5}{3} = 10$ orders (HHHTT, HHTHT, ..., TTHHH).",
+        "$P(X = 3) = 10 \\times 1/32 = 0.3125$."
+      ]
+    },
+    {
+      "type": "sim",
+      "sim": "binomial-explorer",
+      "md": "**Predict:** with $n = 10$ and $p = 0.3$, which count is most likely? What happens to the shape as $n$ grows to 60? Check your guess."
+    },
+    {
+      "type": "practice",
+      "exercise": "binomial-prob",
+      "count": 3
+    },
+    {
+      "type": "practice",
+      "exercise": "binomial-mean-sd",
+      "count": 2
+    },
+    {
+      "type": "text",
+      "md": "## The normal model and z-scores\nMany measurements - heights, measurement errors, averages of many values - follow a bell-shaped **normal distribution** $N(\\mu, \\sigma)$: symmetric around the mean $\\mu$, with spread set by $\\sigma$.\n\nA **z-score** says how many SDs a value lies from the mean:\n$$z = \\frac{x - \\mu}{\\sigma}$$\nz-scores put different scales on one ruler. For any normal distribution:\n\n| Within | of the mean | holds about |\n|---|---|---|\n| 1 SD | $\\mu \\pm \\sigma$ | 68% |\n| 2 SD | $\\mu \\pm 2\\sigma$ | 95% |\n| 3 SD | $\\mu \\pm 3\\sigma$ | 99.7% |"
+    },
+    {
+      "type": "example",
+      "title": "Which result is more impressive?",
+      "steps": [
+        "Ana scores 650 on test A (mean 500, SD 100). Ben scores 25 on test B (mean 20, SD 4).",
+        "Ana: $z = (650 - 500)/100 = 1.5$.",
+        "Ben: $z = (25 - 20)/4 = 1.25$.",
+        "Ana's result is further above her test's mean, measured in SDs: relatively more impressive."
+      ]
+    },
+    {
+      "type": "sim",
+      "sim": "normal-explorer",
+      "md": "**Predict:** what share of values fall below $\\mu + 1\\sigma$? (Hint: 68% are within one SD, split symmetrically.) Set the cut-off one SD above the mean and check."
+    },
+    {
+      "type": "practice",
+      "exercise": "z-score",
+      "count": 3
+    },
+    {
+      "type": "practice",
+      "exercise": "empirical-rule",
+      "count": 3
+    },
+    {
+      "type": "callout",
+      "kind": "tip",
+      "md": "The normal model is an **approximation**. Before you use it, look at a histogram: strongly skewed data (incomes, waiting times) are not normal, and the 68-95-99.7 rule will mislead you there."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "s03-q1",
+      "type": "generated",
+      "exercise": "expected-value"
+    },
+    {
+      "id": "s03-q2",
+      "type": "generated",
+      "exercise": "binomial-prob"
+    },
+    {
+      "id": "s03-q3",
+      "type": "generated",
+      "exercise": "z-score"
+    },
+    {
+      "id": "s03-q4",
+      "type": "generated",
+      "exercise": "empirical-rule"
+    },
+    {
+      "id": "s03-q5",
+      "type": "generated",
+      "exercise": "binomial-mean-sd"
+    },
+    {
+      "id": "s03-q6",
+      "type": "choice",
+      "prompt": "Which situation fits the binomial model?",
+      "options": [
+        "The number of heads in 20 flips of a coin",
+        "The number of flips until the first head",
+        "The heights of 20 students",
+        "The number of red cards among 5 cards dealt from a 10-card pile"
+      ],
+      "answer": 0,
+      "explain": "Coin flips are binary, independent, fixed in number and share the same $p$.",
+      "feedback": [
+        "All four BINS conditions hold.",
+        "The number of trials is not fixed in advance (that is the geometric distribution).",
+        "Heights are measurements, not success/failure counts.",
+        "Dealing without replacement from a small pile changes $p$ after every card, so trials are not independent."
+      ]
+    },
+    {
+      "id": "s03-q7",
+      "type": "choice",
+      "prompt": "Exam scores are approximately $N(70, 10)$. Which score is more unusual: 95 or 50?",
+      "options": [
+        "95",
+        "50",
+        "Equally unusual",
+        "Cannot tell without the data"
+      ],
+      "answer": 0,
+      "explain": "$z_{95} = (95 - 70)/10 = 2.5$ and $z_{50} = (50 - 70)/10 = -2$. The score 95 lies further from the mean in SD units."
+    }
+  ],
+  "cards": [
+    {
+      "id": "s03-c1",
+      "kind": "formula",
+      "front": "Expected value of a discrete random variable?",
+      "back": "$E(X) = \\sum x\\,P(X = x)$: the probability-weighted average, i.e. the long-run mean."
+    },
+    {
+      "id": "s03-c2",
+      "kind": "concept",
+      "front": "The four binomial conditions (BINS)?",
+      "back": "Binary outcomes, Independent trials, fixed Number of trials $n$, Same success probability $p$."
+    },
+    {
+      "id": "s03-c3",
+      "kind": "formula",
+      "front": "Binomial probability $P(X = k)$?",
+      "back": "$\\binom{n}{k} p^k (1-p)^{n-k}$."
+    },
+    {
+      "id": "s03-c4",
+      "kind": "formula",
+      "front": "Mean and SD of a binomial count?",
+      "back": "$\\mu = np$, $\\sigma = \\sqrt{np(1-p)}$."
+    },
+    {
+      "id": "s03-c5",
+      "kind": "formula",
+      "front": "z-score formula and meaning?",
+      "back": "$z = (x - \\mu)/\\sigma$: how many SDs $x$ lies above (+) or below (−) the mean."
+    },
+    {
+      "id": "s03-c6",
+      "kind": "concept",
+      "front": "The 68-95-99.7 rule?",
+      "back": "For a normal distribution about 68%, 95% and 99.7% of values lie within 1, 2 and 3 SDs of the mean."
+    },
+    {
+      "id": "s03-c7",
+      "kind": "concept",
+      "front": "About what share of a normal distribution lies more than 2 SDs above the mean?",
+      "back": "About 2.5%: 95% lies within 2 SDs, so 5% lies outside, half in each tail."
+    },
+    {
+      "id": "s03-c8",
+      "kind": "exercise",
+      "exercise": "z-score"
+    },
+    {
+      "id": "s03-c9",
+      "kind": "exercise",
+      "exercise": "binomial-prob"
+    }
+  ]
+}

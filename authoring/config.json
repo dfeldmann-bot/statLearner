@@ -1,0 +1,14 @@
+{
+  "roles": {
+    "drafter": "claude",
+    "reviewer": "openai",
+    "solvers": ["claude", "openai"]
+  },
+  "providers": {
+    "claude": { "model": "claude-opus-5-5", "effort": "high" },
+    "openai": { "model": "gpt-5", "reasoningEffort": "high" }
+  },
+  "maxReviewRounds": 2,
+  "maxRepairAttempts": 2,
+  "outDir": "authoring/out"
+}

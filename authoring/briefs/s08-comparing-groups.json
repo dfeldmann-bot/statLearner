@@ -1,0 +1,28 @@
+{
+  "id": "s08",
+  "slug": "comparing-groups",
+  "title": "Comparing two groups",
+  "bookRef": "OpenIntro Statistics 4e, §6.2 (Difference of two proportions), §7.3 (Difference of two means)",
+  "minutes": 30,
+  "audience": "Adults who finished sessions s01-s07 of this course (center/spread, probability, normal model, standard error, confidence intervals, z tests, regression).",
+  "objectives": [
+    "Estimate the difference between two proportions and its standard error.",
+    "Build and interpret a confidence interval for a difference of two proportions.",
+    "Test whether two proportions differ, using the pooled proportion under H0.",
+    "Explain when the difference of two means uses the t-distribution and why the groups must be independent."
+  ],
+  "keyIdeas": [
+    "A difference of two independent estimates has variance equal to the sum of the variances.",
+    "SE of p̂1 − p̂2 = sqrt(p1(1−p1)/n1 + p2(1−p2)/n2); in a test of H0: p1 = p2 use the pooled p̂.",
+    "Randomised experiments allow causal conclusions; observational comparisons do not.",
+    "Paired data (before/after on the same people) are NOT two independent groups."
+  ],
+  "misconceptions": [
+    "Subtracting the standard errors instead of adding the variances.",
+    "Concluding 'no difference' from overlapping individual confidence intervals.",
+    "Treating paired measurements as independent samples."
+  ],
+  "simsToReuse": ["ci-coverage", "null-sim"],
+  "exercisesToReuse": ["se-proportion", "decision", "error-type"],
+  "notes": "Write your own short notes from the book chapter here - in your own words. Do not paste book text: the pipeline sends this brief to two external AI services."
+}

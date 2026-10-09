@@ -1,0 +1,204 @@
+{
+  "id": "s04",
+  "slug": "sampling-clt",
+  "title": "Sampling distributions and the central limit theorem",
+  "summary": "Why sample statistics vary, how much they vary (standard error), and why averages become normal.",
+  "bookRef": "OpenIntro Statistics 4e, §5.1 (Point estimates and sampling variability); means: §7.1",
+  "minutes": 25,
+  "objectives": [
+    "Distinguish a population parameter from a sample statistic.",
+    "Explain sampling variability and what a sampling distribution is.",
+    "Compute the standard error of a sample mean and of a sample proportion.",
+    "State the central limit theorem and check its conditions."
+  ],
+  "warmup": [
+    {
+      "id": "s04-w1",
+      "type": "choice",
+      "prompt": "**Predict.** One die roll can be anything from 1 to 6. Now roll 30 dice, average them, and repeat this many times. How will these averages be spread?",
+      "options": [
+        "Mostly close to 3.5, in a bell shape",
+        "Evenly from 1 to 6, like a single die",
+        "Always exactly 3.5",
+        "Mostly near 1 or near 6"
+      ],
+      "answer": 0,
+      "explain": "High and low rolls cancel inside each average, so averages cluster around 3.5 and form a bell shape even though a single die is flat. This session explains why - and how tight the cluster is."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "md": "## Parameters and statistics\nA **parameter** describes the whole population: the mean height $\\mu$ of all adults, the proportion $p$ of all voters who back a policy. We almost never know it.\n\nA **statistic** is computed from a sample: the sample mean $\\bar x$, the sample proportion $\\hat p$ (\"p-hat\"). We use statistics as **point estimates** of parameters.\n\nDraw a different random sample and you get a different $\\bar x$. This **sampling variability** is not a mistake; it is unavoidable. The distribution of a statistic over all possible samples is its **sampling distribution**."
+    },
+    {
+      "type": "text",
+      "md": "## Standard error: how much a statistic varies\nThe SD of a sampling distribution has its own name: the **standard error (SE)**.\n\n$$SE_{\\bar x} = \\frac{\\sigma}{\\sqrt{n}} \\qquad\\qquad SE_{\\hat p} = \\sqrt{\\frac{p(1-p)}{n}}$$\n\nIn practice we do not know $\\sigma$ or $p$, so we plug in the sample's $s$ or $\\hat p$.\n\nNotice the $\\sqrt{n}$: **to halve the standard error you need four times the data.**"
+    },
+    {
+      "type": "example",
+      "title": "Average height",
+      "steps": [
+        "Adult heights have SD $\\sigma = 7$ cm. You measure a random sample of $n = 49$ adults.",
+        "$SE = 7/\\sqrt{49} = 7/7 = 1$ cm.",
+        "Interpretation: sample means typically land within about 1 cm of the true mean $\\mu$ - although single people vary by 7 cm.",
+        "To get $SE = 0.5$ cm you would need $n = 196$ people: four times as many."
+      ]
+    },
+    {
+      "type": "practice",
+      "exercise": "se-mean",
+      "count": 3
+    },
+    {
+      "type": "practice",
+      "exercise": "se-proportion",
+      "count": 2
+    },
+    {
+      "type": "practice",
+      "exercise": "se-scaling",
+      "count": 2
+    },
+    {
+      "type": "text",
+      "md": "## The central limit theorem (CLT)\n> When observations are independent and $n$ is large enough, the sampling distribution of $\\bar x$ is approximately **normal**, centred at $\\mu$ with standard error $\\sigma/\\sqrt{n}$ - **whatever the shape of the population**.\n\n**Conditions**\n- **Independence:** a random sample (and, without replacement, less than 10% of the population).\n- **Large enough $n$:** $n \\ge 30$ is a common rule of thumb; strongly skewed populations need more.\n- For a proportion, the **success-failure condition**: $np \\ge 10$ and $n(1-p) \\ge 10$."
+    },
+    {
+      "type": "sim",
+      "sim": "clt",
+      "md": "**Predict:** with the right-skewed population and $n = 2$, what will the histogram of sample means look like? And with $n = 30$? Try $n = 1, 2, 5, 30$ - and compare the printed SD of the means with $\\sigma/\\sqrt{n}$."
+    },
+    {
+      "type": "callout",
+      "kind": "misconception",
+      "md": "**\"With a big sample, the data become normal.\"** No - a large sample of incomes is still skewed, just like the population. The CLT is about the **sample mean**: if you repeated the whole study many times, the *averages* would form a bell curve."
+    },
+    {
+      "type": "check",
+      "question": {
+        "id": "s04-k1",
+        "type": "choice",
+        "prompt": "Which of these gets smaller when you increase the sample size?",
+        "options": [
+          "The standard error of $\\bar x$",
+          "The population SD $\\sigma$",
+          "The sample SD $s$, systematically",
+          "The population mean $\\mu$"
+        ],
+        "answer": 0,
+        "explain": "$\\sigma$ and $\\mu$ describe the population and do not depend on your sample. $s$ estimates $\\sigma$, so it does not shrink systematically. Only $SE = \\sigma/\\sqrt{n}$ falls as $n$ grows."
+      }
+    },
+    {
+      "type": "reflect",
+      "prompt": "Why do averages vary less than single observations?",
+      "answer": "Within a sample, unusually high and low values partly cancel when you average them. The more observations, the more cancellation, so the average stays closer to $\\mu$ - by a factor of $\\sqrt{n}$."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "s04-q1",
+      "type": "generated",
+      "exercise": "se-mean"
+    },
+    {
+      "id": "s04-q2",
+      "type": "generated",
+      "exercise": "se-proportion"
+    },
+    {
+      "id": "s04-q3",
+      "type": "generated",
+      "exercise": "se-scaling"
+    },
+    {
+      "id": "s04-q4",
+      "type": "choice",
+      "prompt": "You take a random sample of 500 incomes from a strongly right-skewed population. Which of these is approximately normal?",
+      "options": [
+        "The sampling distribution of the sample mean",
+        "The 500 incomes in your sample",
+        "The population of incomes",
+        "None of them"
+      ],
+      "answer": 0,
+      "explain": "The sample looks like the population: skewed. The CLT says the *distribution of $\\bar x$ across repeated samples* is approximately normal for large $n$."
+    },
+    {
+      "id": "s04-q5",
+      "type": "choice",
+      "prompt": "The true proportion is $p = 0.02$ and $n = 100$. Can you use the normal model for $\\hat p$?",
+      "options": [
+        "No: $np = 2$ is below 10",
+        "Yes: $n = 100$ is larger than 30",
+        "Yes: proportions are always normal",
+        "No: $n(1-p)$ is below 10"
+      ],
+      "answer": 0,
+      "explain": "The success-failure condition needs $np \\ge 10$ and $n(1-p) \\ge 10$. Here $np = 2$, so the sampling distribution of $\\hat p$ is still clearly skewed."
+    },
+    {
+      "id": "s04-q6",
+      "type": "numeric",
+      "prompt": "Individual values have SD $\\sigma = 12$. How large must $n$ be for the standard error of $\\bar x$ to equal 2?",
+      "answer": 36,
+      "explain": "$12/\\sqrt{n} = 2 \\Rightarrow \\sqrt{n} = 6 \\Rightarrow n = 36$.",
+      "tolerance": 0
+    }
+  ],
+  "cards": [
+    {
+      "id": "s04-c1",
+      "kind": "concept",
+      "front": "Parameter vs. statistic?",
+      "back": "A parameter ($\\mu$, $p$) describes the population and is usually unknown; a statistic ($\\bar x$, $\\hat p$) is computed from a sample and estimates it."
+    },
+    {
+      "id": "s04-c2",
+      "kind": "concept",
+      "front": "What is a sampling distribution?",
+      "back": "The distribution of a statistic (such as $\\bar x$) over all possible random samples of the same size."
+    },
+    {
+      "id": "s04-c3",
+      "kind": "formula",
+      "front": "Standard error of a sample mean?",
+      "back": "$SE = \\sigma/\\sqrt{n}$, estimated by $s/\\sqrt{n}$."
+    },
+    {
+      "id": "s04-c4",
+      "kind": "formula",
+      "front": "Standard error of a sample proportion?",
+      "back": "$SE = \\sqrt{p(1-p)/n}$, estimated with $\\hat p$."
+    },
+    {
+      "id": "s04-c5",
+      "kind": "concept",
+      "front": "State the central limit theorem.",
+      "back": "For independent observations and large enough $n$, $\\bar x$ is approximately normal with mean $\\mu$ and $SE = \\sigma/\\sqrt{n}$, whatever the population's shape."
+    },
+    {
+      "id": "s04-c6",
+      "kind": "concept",
+      "front": "Success-failure condition?",
+      "back": "To use the normal model for $\\hat p$: $np \\ge 10$ and $n(1-p) \\ge 10$."
+    },
+    {
+      "id": "s04-c7",
+      "kind": "concept",
+      "front": "How much more data do you need to halve the standard error?",
+      "back": "Four times as much, because SE shrinks with $\\sqrt{n}$."
+    },
+    {
+      "id": "s04-c8",
+      "kind": "exercise",
+      "exercise": "se-mean"
+    },
+    {
+      "id": "s04-c9",
+      "kind": "exercise",
+      "exercise": "se-proportion"
+    }
+  ]
+}

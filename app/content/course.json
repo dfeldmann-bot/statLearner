@@ -1,0 +1,24 @@
+{
+  "id": "statlearner-foundations",
+  "title": "Statistics Foundations",
+  "subtitle": "Seven short sessions, unlimited practice, spaced repetition.",
+  "version": 1,
+  "book": {
+    "title": "OpenIntro Statistics",
+    "edition": "4th edition",
+    "authors": "David Diez, Mine Çetinkaya-Rundel, Christopher Barr",
+    "url": "https://www.openintro.org/book/os/",
+    "license": "CC BY-SA 3.0",
+    "note": "Free to read online and as PDF. Each session lists the matching book sections as optional reading. Swap the book by editing this block and each session's bookRef."
+  },
+  "passMark": 0.8,
+  "sessions": [
+    "s01-describing-data",
+    "s02-probability",
+    "s03-random-variables-normal",
+    "s04-sampling-clt",
+    "s05-confidence-intervals",
+    "s06-hypothesis-tests",
+    "s07-regression"
+  ]
+}

@@ -1,0 +1,201 @@
+{
+  "id": "s05",
+  "slug": "confidence-intervals",
+  "title": "Confidence intervals",
+  "summary": "Estimate ± margin of error: building, interpreting and planning confidence intervals.",
+  "bookRef": "OpenIntro Statistics 4e, §5.2 (Confidence intervals for a proportion); means with the t-distribution: §7.1",
+  "minutes": 25,
+  "objectives": [
+    "Build a confidence interval as point estimate ± z* × SE.",
+    "Interpret the confidence level correctly as a long-run capture rate.",
+    "Compute a margin of error and the sample size needed for a target margin.",
+    "Explain how sample size and confidence level change the width."
+  ],
+  "warmup": [
+    {
+      "id": "s05-w1",
+      "type": "choice",
+      "prompt": "**Predict.** A poll reports 52% ± 3 points with 95% confidence. Which reading is correct?",
+      "options": [
+        "The method used captures the true share in about 95% of polls like this",
+        "There is a 95% chance that 52% is exactly the true share",
+        "95% of voters are within 3 points of 52%",
+        "The true share is certainly between 49% and 55%"
+      ],
+      "answer": 0,
+      "explain": "The 95% describes the *method*: across many polls, about 95% of intervals built this way contain the true share. Hold on to that sentence; this session shows why it is the right one."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "md": "## From a point to a range\nA point estimate such as $\\hat p = 0.56$ is almost never exactly right. A **confidence interval** gives a range of plausible values:\n\n$$\\text{point estimate} \\pm \\underbrace{z^* \\times SE}_{\\text{margin of error}}$$\n\n$z^*$ sets the confidence level: it is the number of standard errors needed to capture the central part of a normal curve.\n\n| Confidence | 90% | 95% | 99% |\n|---|---|---|---|\n| $z^*$ | 1.645 | 1.96 | 2.576 |"
+    },
+    {
+      "type": "text",
+      "md": "## A confidence interval for a proportion\n$$\\hat p \\pm z^* \\sqrt{\\frac{\\hat p(1-\\hat p)}{n}}$$\n\n**Conditions:** independent observations (a random sample) and the success-failure condition with $\\hat p$: at least 10 successes and 10 failures."
+    },
+    {
+      "type": "example",
+      "title": "A survey of 1,000 adults",
+      "steps": [
+        "560 of 1,000 randomly sampled adults support a policy: $\\hat p = 0.56$. Successes 560 and failures 440 are both at least 10.",
+        "$SE = \\sqrt{0.56 \\times 0.44 / 1000} = \\sqrt{0.000246} = 0.0157$.",
+        "95% margin of error: $1.96 \\times 0.0157 = 0.031$.",
+        "Interval: $0.56 \\pm 0.031 = (0.529,\\ 0.591)$.",
+        "Conclusion: we are 95% confident that between 52.9% and 59.1% of all adults support the policy."
+      ]
+    },
+    {
+      "type": "practice",
+      "exercise": "ci-proportion",
+      "count": 3
+    },
+    {
+      "type": "sim",
+      "sim": "ci-coverage",
+      "md": "**Predict:** if you draw 40 intervals at 95% confidence, how many will miss the true $p$? Draw several batches. Then switch to 99%: what happens to the width, and to the number of misses?"
+    },
+    {
+      "type": "callout",
+      "kind": "misconception",
+      "md": "**\"There is a 95% probability that $p$ is in (0.529, 0.591).\"** The true $p$ is a fixed number; it does not jump around. Before sampling, the *procedure* had a 95% chance of producing an interval that captures $p$. Afterwards, this particular interval either contains $p$ or it does not. That is why we say \"95% **confident**\"."
+    },
+    {
+      "type": "text",
+      "md": "## Width: confidence versus precision\n- **Higher confidence → wider interval.** To be right more often you must cast a wider net.\n- **Larger sample → narrower interval**, but only by $\\sqrt{n}$: four times the data halves the width.\n\n**Planning a study.** To get a margin of error of at most $m$ for a proportion, solve $m = z^*\\sqrt{p(1-p)/n}$ for $n$:\n$$n \\ge \\frac{(z^*)^2\\, p(1-p)}{m^2}$$\nIf you have no idea what $p$ is, use $p = 0.5$: it makes $p(1-p)$ as large as possible, so the sample is big enough whatever the truth. Always round **up**."
+    },
+    {
+      "type": "example",
+      "title": "How big should the poll be?",
+      "steps": [
+        "Target: margin of error at most 3 points (0.03) at 95% confidence, no prior guess for $p$.",
+        "$n \\ge 1.96^2 \\times 0.25 / 0.03^2 = 0.9604 / 0.0009 = 1067.1$.",
+        "Round up: sample at least 1,068 people. (That is why so many national polls use about 1,000-1,100 respondents.)"
+      ]
+    },
+    {
+      "type": "practice",
+      "exercise": "sample-size",
+      "count": 2
+    },
+    {
+      "type": "text",
+      "md": "## Intervals for a mean\nFor a mean with a large sample, the same recipe works: $\\bar x \\pm z^*\\, s/\\sqrt{n}$. With small samples, replace $z^*$ by a slightly larger $t^*$ from the **t-distribution**, which accounts for the extra uncertainty of estimating $\\sigma$ by $s$ (book §7.1)."
+    },
+    {
+      "type": "practice",
+      "exercise": "ci-mean",
+      "count": 2
+    },
+    {
+      "type": "reflect",
+      "prompt": "Why not always report 99.9% confidence intervals?",
+      "answer": "Higher confidence makes the interval wider and less informative: '(10%, 90%)' is almost certainly right but useless. Confidence trades against precision; only more data buys both."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "s05-q1",
+      "type": "generated",
+      "exercise": "ci-proportion"
+    },
+    {
+      "id": "s05-q2",
+      "type": "generated",
+      "exercise": "sample-size"
+    },
+    {
+      "id": "s05-q3",
+      "type": "generated",
+      "exercise": "ci-mean"
+    },
+    {
+      "id": "s05-q4",
+      "type": "choice",
+      "prompt": "A 95% confidence interval for a proportion is (0.41, 0.47). Which interpretation is correct?",
+      "options": [
+        "If we repeated the sampling many times, about 95% of intervals built this way would contain the true proportion",
+        "There is a 95% probability that the true proportion lies between 0.41 and 0.47",
+        "95% of the sample lies between 0.41 and 0.47",
+        "The sample proportion lies in this interval with probability 0.95"
+      ],
+      "answer": 0,
+      "explain": "The confidence level is a property of the method across repeated samples. The sample proportion (0.44) is always at the centre of its own interval."
+    },
+    {
+      "id": "s05-q5",
+      "type": "choice",
+      "prompt": "The sample size goes from 100 to 400, at the same confidence level. The interval becomes:",
+      "options": [
+        "About half as wide",
+        "About a quarter as wide",
+        "Four times as wide",
+        "Unchanged"
+      ],
+      "answer": 0,
+      "explain": "The width is proportional to $1/\\sqrt{n}$, and $\\sqrt{400/100} = 2$."
+    },
+    {
+      "id": "s05-q6",
+      "type": "choice",
+      "prompt": "Using the same data, you switch from 95% to 99% confidence. The interval:",
+      "options": [
+        "Gets wider",
+        "Gets narrower",
+        "Stays the same",
+        "Moves its centre"
+      ],
+      "answer": 0,
+      "explain": "$z^*$ grows from 1.96 to 2.576, so the margin of error grows. The centre $\\hat p$ stays put."
+    }
+  ],
+  "cards": [
+    {
+      "id": "s05-c1",
+      "kind": "formula",
+      "front": "General form of a confidence interval?",
+      "back": "point estimate ± $z^* \\times SE$; the second part is the margin of error."
+    },
+    {
+      "id": "s05-c2",
+      "kind": "formula",
+      "front": "Confidence interval for a proportion?",
+      "back": "$\\hat p \\pm z^* \\sqrt{\\hat p(1-\\hat p)/n}$, if independence and success-failure (≥10 each) hold."
+    },
+    {
+      "id": "s05-c3",
+      "kind": "concept",
+      "front": "$z^*$ for 90%, 95% and 99% confidence?",
+      "back": "1.645, 1.96 and 2.576."
+    },
+    {
+      "id": "s05-c4",
+      "kind": "concept",
+      "front": "Correct interpretation of '95% confidence'?",
+      "back": "The method captures the true parameter in about 95% of repeated samples. A single computed interval either contains it or not."
+    },
+    {
+      "id": "s05-c5",
+      "kind": "formula",
+      "front": "Sample size for margin of error $m$ (proportion)?",
+      "back": "$n \\ge (z^*)^2 p(1-p)/m^2$; use $p = 0.5$ if unknown, and round up."
+    },
+    {
+      "id": "s05-c6",
+      "kind": "concept",
+      "front": "What makes a confidence interval narrower?",
+      "back": "A larger sample (width ∝ $1/\\sqrt{n}$) or a lower confidence level."
+    },
+    {
+      "id": "s05-c7",
+      "kind": "exercise",
+      "exercise": "ci-proportion"
+    },
+    {
+      "id": "s05-c8",
+      "kind": "exercise",
+      "exercise": "sample-size"
+    }
+  ]
+}

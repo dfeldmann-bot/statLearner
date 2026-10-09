@@ -1,0 +1,21 @@
+{
+  "name": "statlearner",
+  "version": "0.1.0",
+  "description": "A small, gamified statistics course with spaced repetition that runs fully offline, plus an LLM authoring pipeline (Claude + ChatGPT) and a curated-source StatBot prototype.",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-or-later",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "validate": "node tools/validate-content.mjs",
+    "serve": "node tools/serve.mjs",
+    "author": "node authoring/cli.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
+    "openai": "^7.32.0"
+  }
+}

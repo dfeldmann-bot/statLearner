@@ -1,0 +1,11 @@
+{
+  "name": "statLearner",
+  "short_name": "statLearner",
+  "description": "A small, gamified statistics course with spaced repetition. Works offline.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f7fb",
+  "theme_color": "#4f46e5",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
