@@ -39,3 +39,20 @@ export function checkChoice(selected, answer) {
 export function checkQuestion(question, raw) {
   return question.type === "numeric" ? checkNumeric(raw, question.answer, question.tolerance) : checkChoice(raw, question.answer);
 }
+
+// Show choice options in a fresh random order each time, carrying the answer
+// key and per-option feedback along, so "the first option" is never a pattern.
+export function shuffleChoice(q, random = Math.random) {
+  if (q.type !== "choice") return q;
+  const order = q.options.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return {
+    ...q,
+    options: order.map((i) => q.options[i]),
+    answer: order.indexOf(q.answer),
+    ...(q.feedback ? { feedback: order.map((i) => q.feedback[i]) } : {}),
+  };
+}

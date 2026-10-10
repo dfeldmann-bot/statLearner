@@ -9,7 +9,7 @@
 //   npm run author -- review <session.json> [--brief <brief>]
 //   npm run author -- revise <session.json> <review.json>
 //   npm run author -- crosscheck <session.json>
-//   npm run author -- promote <session.json>      validate and add to the course
+//   npm run author -- promote <session.json>      validate and add to the course (--force replaces)
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -68,12 +68,15 @@ async function outDir(config, id) {
 
 const log = (msg) => console.log(msg);
 
-async function promote(file) {
+async function promote(file, { force = false } = {}) {
   const session = (await readJson(file)).session ?? (await readJson(file));
   const errors = validateSession(session, ctx);
   if (errors.length) throw new Error(`Session is invalid:\n${errors.map((e) => `  - ${e}`).join("\n")}`);
   const name = `${session.id}-${session.slug ?? "session"}`;
-  await writeJson(path.join(root, "app/content/sessions", `${name}.json`), session);
+  const target = path.join(root, "app/content/sessions", `${name}.json`);
+  const existing = await readFile(target, "utf8").catch(() => null);
+  if (existing && !force) throw new Error(`${path.relative(root, target)} already exists. Re-run with --force to replace it.`);
+  await writeJson(target, session);
   const coursePath = path.join(root, "app/content/course.json");
   const course = await readJson(coursePath);
   course.sessions = [...course.sessions.filter((s) => !s.startsWith(`${session.id}-`)), name].sort();
@@ -95,7 +98,7 @@ async function main() {
     console.log((await readFile(fileURLToPath(import.meta.url), "utf8")).split("\n").slice(1, 13).join("\n").replace(/^\/\/ ?/gm, ""));
     return;
   }
-  if (cmd === "promote") return promote(a);
+  if (cmd === "promote") return promote(a, { force: !!args.force });
   const { config, drafter, reviewer, solvers } = await setup(args);
   const maxRepair = config.maxRepairAttempts;
 

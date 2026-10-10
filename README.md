@@ -11,7 +11,7 @@ Two companions:
 
 ```bash
 npm run serve          # http://localhost:8080 - no install needed (Node.js 20+)
-npm test               # 104 JavaScript tests
+npm test               # 110 JavaScript tests
 npm run validate       # check all course content against the schema
 npm run fetch-book     # optional: personal offline copy of the book (git-ignored)
 ```
@@ -37,6 +37,7 @@ Open the app, pick a daily goal and a reminder time, and start. The **Book** tab
 | 11 | Maximum likelihood, error bars and the Gaussian | ch. 22, 24, 27 | 11 |
 | 12 | Monte Carlo methods | ch. 29 | 12, 13 |
 | 13 | Bayesian inference vs sampling theory | ch. 36, 37 | - |
+| 14 | Clustering as inference: K-means and soft K-means | ch. 20, 22 | 11 |
 
 Every session is open: jump to any session, step or exam, and pick up an unfinished lesson or exam where you left it. Learners who know the basics can begin with Part B. Details, the book's copyright terms and the full lecture list are in [docs/BOOK.md](docs/BOOK.md).
 
@@ -45,7 +46,7 @@ Every session follows the same research-based rhythm (details in [docs/LEARNING-
 1. **Recall warm-up** from earlier sessions (spaced retrieval, interleaving).
 2. **Predict first:** a question before the explanation (pretesting effect).
 3. **Short explanations alternating with active steps:** checks, simulations ("predict, then observe"), self-explanation prompts.
-4. **Worked examples revealed step by step,** then **faded practice:** study a full solution, finish a half-solved one, then solve alone. 46 generators create fresh numbers, so practice never runs out. A 🧮 calculator next to every answer field does the arithmetic and fills the field in.
+4. **Worked examples revealed step by step,** then **faded practice:** study a full solution, finish a half-solved one, then solve alone. 49 generators create fresh numbers, so practice never runs out. A 🧮 calculator next to every answer field does the arithmetic and fills the field in.
 5. **Session exam:** 8 multiple-choice questions, no hints, 80% to pass, new questions and numbers on every retake.
 6. **Flashcards** for concepts and equations join a review deck scheduled by **FSRS-6**, a modern memory model, just before you would forget them.
 
@@ -80,8 +81,12 @@ tools/               serve.mjs, validate-content.mjs
 ```bash
 npm install
 export ANTHROPIC_API_KEY=... OPENAI_API_KEY=...
-npm run author -- run authoring/briefs/s14-clustering.json
-npm run author -- promote authoring/out/s14/session.json
+# have ChatGPT review a Claude-written session and blind-check its answer keys
+npm run author -- review app/content/sessions/s14-clustering.json --brief authoring/briefs/s14-clustering.json
+npm run author -- crosscheck app/content/sessions/s14-clustering.json
+# write a new session from your own brief
+npm run author -- run authoring/briefs/<your-brief>.json
+npm run author -- promote authoring/out/<id>/session.json
 ```
 
 No API keys? Add `--drafter manual --reviewer manual --solvers manual`: the CLI writes each prompt to a file for you to paste into claude.ai or chatgpt.com. See [docs/AUTHORING.md](docs/AUTHORING.md).

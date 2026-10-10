@@ -8,7 +8,7 @@ import { cardsOf, introduceCards, buildQueue, dueCards, mastery, forecast } from
 import { generate, EXERCISES } from "./exercises.js";
 import { SIMS } from "./sims.js";
 import { makeRng } from "./rng.js";
-import { buildExam, scoreExam, shuffleChoice } from "./exam.js";
+import { buildExam, scoreExam } from "./exam.js";
 import { load, save, exportJson, importJson, reset } from "./store.js";
 import { buildDailyReminderIcs, shouldNotify, requestNotificationPermission, notify } from "./reminders.js";
 
@@ -341,9 +341,6 @@ function recapView(blocks) {
   return h("details", { class: "card recap" }, h("summary", {}, `Recap of steps 1-${blocks.length}`), body);
 }
 
-// Hand-written choice questions list the right answer first; show the options in random order.
-const mixed = (q) => (q.type === "choice" ? shuffleChoice(q, app.rng) : q);
-
 function renderStep(step, next) {
   const wrap = h("section", { class: "card step" });
   if (step.kind === "recall") {
@@ -361,7 +358,7 @@ function renderStep(step, next) {
   }
   if (step.kind === "warmup") {
     wrap.append(
-      questionView(mixed(step.question), {
+      questionView(step.question, {
         label: "🤔 Predict first: a wrong guess is fine",
         continueLabel: "Start the lesson",
         onDone: () => {
@@ -417,7 +414,7 @@ function renderStep(step, next) {
       break;
     case "check":
       wrap.append(
-        questionView(mixed(b.question), {
+        questionView(b.question, {
           label: "✅ Check your understanding",
           onDone: (r) => {
             if (r.ok) {
@@ -551,6 +548,7 @@ function viewExam(id) {
       questionView(exam.questions[i], {
         label: `Question ${i + 1} of ${n}`,
         hints: false,
+        shuffle: false, // buildExam shuffled the options; answers are saved as indexes into that order
         continueLabel: i + 1 < n ? "Next question" : "See result",
         onAnswer: (r) => {
           exam.answers.push(r.value);

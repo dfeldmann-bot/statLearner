@@ -51,3 +51,19 @@ test("spot-check known answers", () => {
 });
 
 test("unknown exercise throws", () => assert.throws(() => generate("nope", makeRng(1))));
+
+test("clustering generators match a direct computation", () => {
+  for (let seed = 0; seed < 200; seed++) {
+    const ex = generate("soft-responsibility", makeRng(seed));
+    const num = (re) => Number(ex.prompt.match(re)[1]);
+    const [beta, m1, m2, x] = [num(/beta = ([\d.]+)/), num(/m_1 = ([\d.]+)/), num(/m_2 = ([\d.]+)/), num(/x = ([\d.]+)\$\?/)];
+    const e = (m) => Math.exp((-beta * (x - m) ** 2) / 2);
+    assert.ok(Math.abs(ex.answer - e(m1) / (e(m1) + e(m2))) < 1e-12);
+    const km = generate("kmeans-update", makeRng(seed));
+    const xs = km.prompt.match(/\*\*([\d, ]+)\*\*/)[1].split(", ").map(Number);
+    const [a, b] = [Number(km.prompt.match(/m_1 = (\d+)/)[1]), Number(km.prompt.match(/m_2 = (\d+)/)[1])];
+    const j = Number(km.prompt.match(/value of \$m_(\d)/)[1]);
+    const mine = xs.filter((v) => (Math.abs(v - a) < Math.abs(v - b)) === (j === 1));
+    assert.ok(Math.abs(km.answer - mine.reduce((s, v) => s + v, 0) / mine.length) < 1e-12);
+  }
+});

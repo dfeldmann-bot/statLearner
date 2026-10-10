@@ -2,7 +2,7 @@
 // Inference, and Learning Algorithms" (ITILA). Same contract as exercises.js.
 
 import { entropy, bayesFactorCoin, choose, mean } from "./stats.js";
-import { fmt, sci, numeric, choice, shuffled } from "./exkit.js";
+import { fmt, sci, pct, numeric, choice, shuffled } from "./exkit.js";
 
 const log2 = Math.log2;
 
@@ -456,6 +456,115 @@ export const BOOK_EXERCISES = {
           `Treat: $(1-${q}) \\times ${L1} = ${fmt(treat, 2)}$.`,
           `Don't treat: $${q} \\times ${L2} = ${fmt(wait, 2)}$.`,
           `${best} has the smaller expected loss. The posterior alone does not decide; the losses matter too.`,
+        ],
+      });
+    },
+  },
+
+  // ---------- s14 clustering: K-means and soft K-means (ITILA ch. 20, 22) ----------
+  // Distances follow MacKay's convention d(x, m) = ½(x − m)², half the squared distance.
+  "kmeans-update": {
+    session: "s14",
+    title: "One round of K-means in 1-D",
+    generate(rng) {
+      let m1, m2, mid, xs, c1, c2;
+      do {
+        m1 = rng.int(1, 6);
+        m2 = m1 + rng.int(4, 8);
+        mid = (m1 + m2) / 2;
+        const pool = [];
+        for (let v = Math.max(0, m1 - 3); v <= m2 + 4; v++) if (v !== mid) pool.push(v);
+        xs = rng.shuffle(pool).slice(0, rng.int(5, 7)).sort((a, b) => a - b);
+        c1 = xs.filter((x) => x < mid);
+        c2 = xs.filter((x) => x > mid);
+      } while (c1.length < 2 || c2.length < 2 || !xs.some((x) => x > m1 && x < m2));
+      const j = rng.int(1, 2);
+      const mine = j === 1 ? c1 : c2;
+      const other = j === 1 ? c2 : c1;
+      const total = mine.reduce((a, b) => a + b, 0);
+      const ans = total / mine.length;
+      return numeric({
+        prompt: `K-means with $K = 2$ on one-dimensional data: **${xs.join(", ")}**. The current means are $m_1 = ${m1}$ and $m_2 = ${m2}$. Do one assignment step, then one update step. What is the new value of $m_${j}$? Round to 2 decimals.`,
+        answer: ans,
+        tolerance: 0.01,
+        hint: "Assignment: each point joins its nearest mean (in 1-D, check which side of the midpoint between the two means it lies on). Update: average the points in the cluster.",
+        steps: [
+          `Assignment step: the midpoint between the means is $(${m1} + ${m2})/2 = ${fmt(mid)}$. Points below it are closer to $m_1$, points above it closer to $m_2$. Cluster 1: ${c1.join(", ")}. Cluster 2: ${c2.join(", ")}.`,
+          `Update step: $m_${j} = \\dfrac{${mine.join(" + ")}}{${mine.length}} = \\dfrac{${total}}{${mine.length}}$.`,
+          `$m_${j} = ${fmt(ans, 3)}$. (The other mean moves to $${fmt(other.reduce((a, b) => a + b, 0) / other.length, 3)}$.) In the next round the points are assigned again, to the moved means.`,
+        ],
+      });
+    },
+  },
+  "soft-responsibility": {
+    session: "s14",
+    title: "Soft K-means: the responsibility of a cluster",
+    generate(rng) {
+      let m1, m2, x, beta, d1, d2, r1;
+      do {
+        m1 = rng.int(0, 5);
+        m2 = m1 + rng.int(2, 6);
+        x = m1 + 0.5 * rng.int(1, 2 * (m2 - m1) - 1);
+        beta = rng.pick([0.25, 0.5, 1, 2]);
+        d1 = 0.5 * (x - m1) ** 2;
+        d2 = 0.5 * (x - m2) ** 2;
+        r1 = 1 / (1 + Math.exp(-beta * (d2 - d1)));
+      } while (d1 === d2 || r1 < 0.02 || r1 > 0.98);
+      const dd = d2 - d1;
+      const z = -beta * dd;
+      return numeric({
+        prompt: `Soft K-means with stiffness $\\beta = ${beta}$ and distance $d(x, m) = \\tfrac12 (x - m)^2$. The two cluster means are $m_1 = ${m1}$ and $m_2 = ${m2}$. What is the responsibility $r_1$ of cluster 1 for the point $x = ${x}$? Round to 3 decimals.`,
+        answer: r1,
+        tolerance: 0.005,
+        hint: "r₁ = e^(−βd₁) / (e^(−βd₁) + e^(−βd₂)) with d = ½(x − m)². Dividing top and bottom by e^(−βd₁) leaves 1 / (1 + e^(−β(d₂ − d₁))).",
+        steps: [
+          `Distances: $d_1 = \\tfrac12(${x} - ${m1})^2 = ${fmt(d1, 3)}$ and $d_2 = \\tfrac12(${x} - ${m2})^2 = ${fmt(d2, 3)}$.`,
+          "$r_1 = \\dfrac{e^{-\\beta d_1}}{e^{-\\beta d_1} + e^{-\\beta d_2}} = \\dfrac{1}{1 + e^{-\\beta (d_2 - d_1)}}$ (divide top and bottom by $e^{-\\beta d_1}$).",
+          `$\\beta (d_2 - d_1) = ${beta} \\times ${dd < 0 ? `(${fmt(dd, 3)})` : fmt(dd, 3)} = ${fmt(-z, 4)}$, so $r_1 = \\dfrac{1}{1 + e^{${fmt(z, 4)}}} = \\dfrac{1}{1 + ${fmt(Math.exp(z), 4)}} = ${fmt(r1, 3)}$.`,
+          r1 > 0.5
+            ? `The point is closer to $m_1$, so $r_1 > 0.5$, but cluster 2 still keeps a share $r_2 = 1 - r_1 = ${fmt(1 - r1, 3)}$.`
+            : `The point is closer to $m_2$, so $r_1 < 0.5$ and cluster 2 takes the larger share $r_2 = 1 - r_1 = ${fmt(1 - r1, 3)}$.`,
+        ],
+      });
+    },
+  },
+  "mixture-posterior": {
+    session: "s14",
+    title: "Which cluster? Bayes' theorem with Gaussian clusters",
+    generate(rng) {
+      const story = rng.pick([
+        { intro: "A forest has two species of beetle.", group: "species", verb: "makes up", items: "beetles", item: "beetle", measure: "body length", unit: "mm", lo: 8, hi: 14 },
+        { intro: "A box holds bolts from two machines.", group: "machine", verb: "made", items: "bolts", item: "bolt", measure: "length", unit: "mm", lo: 40, hi: 60 },
+        { intro: "A market sells trout from two lakes.", group: "lake", verb: "supplies", items: "trout", item: "trout", measure: "length", unit: "cm", lo: 22, hi: 34 },
+      ]);
+      const sig = (v) => (v >= 1e-4 ? String(Number(v.toPrecision(4))) : sci(v, 4));
+      let s, mA, mB, x, pA, eA, eB, PA, PB, post;
+      do {
+        s = rng.pick([1, 2]);
+        mA = rng.int(story.lo, story.hi);
+        mB = mA + s * rng.int(2, 4);
+        x = mA + 0.5 * s * rng.int(1, (2 * (mB - mA)) / s - 1);
+        pA = rng.pick([0.2, 0.3, 0.4, 0.6, 0.7, 0.8]);
+        eA = (x - mA) ** 2 / (2 * s * s);
+        eB = (x - mB) ** 2 / (2 * s * s);
+        PA = pA * Math.exp(-eA);
+        PB = (1 - pA) * Math.exp(-eB);
+        post = PA / (PA + PB);
+      } while (post < 0.03 || post > 0.97);
+      const LA = Math.exp(-eA);
+      const LB = Math.exp(-eB);
+      const G = story.group;
+      const Gcap = G[0].toUpperCase() + G.slice(1);
+      return numeric({
+        prompt: `${story.intro} ${Gcap} A ${story.verb} ${pct(pA)} of the ${story.items}, with ${story.measure}s that are Gaussian with mean ${mA} ${story.unit}; ${G} B ${story.verb} the other ${pct(1 - pA)}, with mean ${mB} ${story.unit}. Both have standard deviation ${s} ${story.unit}. One ${story.item} measures ${x} ${story.unit}. What is the probability that it comes from ${G} A? Round to 3 decimals.`,
+        answer: post,
+        tolerance: 0.005,
+        hint: "Posterior ∝ prior × likelihood. With equal standard deviations the Gaussian's front factor cancels, so each group's likelihood is proportional to e^(−(x − m)²/(2σ²)).",
+        steps: [
+          `Likelihoods: both groups have $\\sigma = ${s}$, so the factor $1/(\\sigma\\sqrt{2\\pi})$ cancels and only $e^{-(x - m)^2/(2\\sigma^2)}$ matters. A: $e^{-(${x} - ${mA})^2/${2 * s * s}} = e^{-${fmt(eA, 4)}} = ${sig(LA)}$. B: $e^{-(${x} - ${mB})^2/${2 * s * s}} = e^{-${fmt(eB, 4)}} = ${sig(LB)}$.`,
+          `Prior × likelihood: A: $${pA} \\times ${sig(LA)} = ${sig(PA)}$. B: $${fmt(1 - pA, 2)} \\times ${sig(LB)} = ${sig(PB)}$.`,
+          `$P(A \\mid x) = \\dfrac{${sig(PA)}}{${sig(PA)} + ${sig(PB)}} = ${fmt(post, 3)}$.`,
+          `This is a soft K-means responsibility with prior weights: $r_k \\propto \\pi_k\\, e^{-\\beta d_k}$ with $d_k = \\tfrac12 (x - m_k)^2$ and $\\beta = 1/\\sigma^2 = ${fmt(1 / (s * s), 2)}$.`,
         ],
       });
     },

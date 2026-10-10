@@ -111,3 +111,66 @@ export const entropy = (ps) => ps.reduce((h, p) => (p > 0 ? h + p * Math.log2(1 
 
 // Evidence ratio P(D | p uniform) / P(D | p = 1/2) for h heads in n tosses.
 export const bayesFactorCoin = (n, h) => Math.exp(-Math.log(n + 1) - logChoose(n, h) + n * Math.log(2));
+
+// ---------- clustering (ITILA ch. 20, 22) ----------
+// Points and means are arrays of coordinates ([x] in 1-D, [x, y] in 2-D).
+
+// MacKay's distance: half the squared Euclidean distance, d(x, m) = ½ Σᵢ (xᵢ − mᵢ)².
+export function halfSqDist(x, m) {
+  let s = 0;
+  for (let i = 0; i < x.length; i++) s += (x[i] - m[i]) ** 2;
+  return s / 2;
+}
+
+// Responsibilities r[n][k] of each mean for each point: softmax of −β·d over the means.
+// beta = Infinity gives hard K-means (1 for the nearest mean, ties go to the lower k).
+export function responsibilities(points, means, beta = Infinity) {
+  return points.map((x) => {
+    const d = means.map((m) => halfSqDist(x, m));
+    if (beta === Infinity) {
+      let best = 0;
+      for (let k = 1; k < d.length; k++) if (d[k] < d[best]) best = k;
+      return d.map((_, k) => (k === best ? 1 : 0));
+    }
+    const a = d.map((dk) => -beta * dk);
+    const top = Math.max(...a);
+    const e = a.map((v) => Math.exp(v - top)); // log-sum-exp trick: no underflow for large β
+    const z = e.reduce((s, v) => s + v, 0);
+    return e.map((v) => v / z);
+  });
+}
+
+// Update step: each mean moves to the responsibility-weighted average of the points.
+// A mean with no responsibility at all stays where it is.
+export function updateMeans(points, r, means) {
+  return means.map((m, k) => {
+    let total = 0;
+    const acc = m.map(() => 0);
+    points.forEach((x, n) => {
+      total += r[n][k];
+      x.forEach((xi, i) => (acc[i] += r[n][k] * xi));
+    });
+    return total > 1e-12 ? acc.map((v) => v / total) : m.slice();
+  });
+}
+
+// Σₙ Σₖ r[n][k]·d(xₙ, mₖ). With hard responsibilities this is the K-means objective J.
+export function clusterObjective(points, means, r) {
+  let J = 0;
+  points.forEach((x, n) => means.forEach((m, k) => (J += r[n][k] ? r[n][k] * halfSqDist(x, m) : 0)));
+  return J;
+}
+
+// Log-likelihood of an equal-weight mixture of K Gaussians with variance σ² = 1/β on every axis:
+// P(x) = (1/K) Σₖ (β/2π)^(D/2) exp(−β·d(x, mₖ)). Soft K-means updates never decrease it.
+export function mixtureLogLik(points, means, beta) {
+  const K = means.length;
+  let L = 0;
+  for (const x of points) {
+    const a = means.map((m) => -beta * halfSqDist(x, m));
+    const top = Math.max(...a);
+    const lse = top + Math.log(a.reduce((s, v) => s + Math.exp(v - top), 0));
+    L += lse - Math.log(K) + (x.length / 2) * Math.log(beta / (2 * Math.PI));
+  }
+  return L;
+}

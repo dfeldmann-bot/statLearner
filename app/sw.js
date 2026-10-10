@@ -1,7 +1,7 @@
 // Service worker: precache the whole app so it works offline after one visit.
 // Strategy: stale-while-revalidate - answer from cache instantly, refresh in the
 // background. Bump VERSION when files are added or removed (a test checks the list).
-const VERSION = "statlearner-v3";
+const VERSION = "statlearner-v4";
 const PRECACHE = [
   "./",
   "index.html",
@@ -22,6 +22,7 @@ const PRECACHE = [
   "content/sessions/s11-likelihood-error-bars.json",
   "content/sessions/s12-monte-carlo.json",
   "content/sessions/s13-bayes-vs-sampling-theory.json",
+  "content/sessions/s14-clustering.json",
   "src/calc.js",
   "src/calculator.js",
   "src/check.js",

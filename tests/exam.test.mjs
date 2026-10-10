@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { loadCourse } from "../tools/validate-content.mjs";
-import { buildExam, numericToChoice, scoreExam, shuffleChoice, EXAM_SIZE } from "../app/src/exam.js";
+import { buildExam, numericToChoice, scoreExam, EXAM_SIZE } from "../app/src/exam.js";
 import { EXERCISES, generate } from "../app/src/exercises.js";
 import { checkNumeric } from "../app/src/check.js";
 import { makeRng } from "../app/src/rng.js";
@@ -61,17 +61,6 @@ test("wrong options respect the kind of answer", () => {
     const z = numericToChoice({ type: "numeric", prompt: "Give the z-score.", answer: -1.5, tolerance: 0.01 }, rng);
     assert.equal(z.options[z.answer], "−1.5");
   }
-});
-
-test("shuffleChoice keeps the right answer and its feedback together", () => {
-  const q = { type: "choice", prompt: "p", options: ["right", "w1", "w2", "w3"], answer: 0, feedback: ["f0", "f1", "f2", "f3"], explain: "e" };
-  const rng = makeRng(3);
-  for (let k = 0; k < 20; k++) {
-    const m = shuffleChoice(q, rng);
-    assert.equal(m.options[m.answer], "right");
-    m.options.forEach((o, i) => assert.equal(m.feedback[i], `f${o === "right" ? 0 : o[1]}`));
-  }
-  assert.deepEqual(q.options, ["right", "w1", "w2", "w3"], "the original is unchanged");
 });
 
 test("scoreExam counts answers so far", () => {

@@ -5,12 +5,15 @@
 //   "independent" - learner solves alone (hint available)
 
 import { h, md, mdInline } from "./dom.js";
-import { checkQuestion } from "./check.js";
+import { checkQuestion, shuffleChoice } from "./check.js";
 import { fmt } from "./exercises.js";
 import { calculatorPanel } from "./calculator.js";
 
 // onAnswer fires as soon as the learner answers; onDone when they press Continue.
-export function questionView(q, { onDone, onAnswer, mode = "independent", label = "", continueLabel = "Continue", hints = true } = {}) {
+// Choice options appear in a fresh random order unless `shuffle` is false (the
+// exam fixes its order when it is built, so a resumed exam looks the same).
+export function questionView(q, { onDone, onAnswer, mode = "independent", label = "", continueLabel = "Continue", hints = true, shuffle = true } = {}) {
+  if (shuffle) q = shuffleChoice(q);
   const root = h("div", { class: `question ${mode}` });
   if (label) root.append(h("div", { class: "q-label" }, label));
   root.append(md(q.prompt, "prose q-prompt"));

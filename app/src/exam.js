@@ -6,21 +6,10 @@
 
 import { EXERCISES, generate } from "./exercises.js";
 import { fmt } from "./exkit.js";
-import { defaultTolerance } from "./check.js";
+import { defaultTolerance, shuffleChoice } from "./check.js";
 
 export const EXAM_SIZE = 8;
 const WRONG_OPTIONS = 3;
-
-// Reorder a choice question's options (and per-option feedback) at random.
-export function shuffleChoice(q, rng) {
-  const order = rng.shuffle(q.options.map((_, i) => i));
-  return {
-    ...q,
-    options: order.map((i) => q.options[i]),
-    feedback: q.feedback ? order.map((i) => q.feedback[i]) : undefined,
-    answer: order.indexOf(q.answer),
-  };
-}
 
 // Decimals to show: the prompt's "Round to N decimals", else what the tolerance can tell apart.
 function decimalsFor(q, tol) {
@@ -91,12 +80,12 @@ export function numericToChoice(q, rng, alternatives = () => []) {
 export function asChoice(q, rng) {
   if (q.type === "generated") {
     const fresh = generate(q.exercise, rng);
-    if (fresh.type === "choice") return shuffleChoice(fresh, rng);
+    if (fresh.type === "choice") return shuffleChoice(fresh, rng.next);
     const others = () => Array.from({ length: 6 }, () => generate(q.exercise, rng).answer);
     return numericToChoice(fresh, rng, others);
   }
   if (q.type === "numeric") return numericToChoice(q, rng);
-  return shuffleChoice(q, rng);
+  return shuffleChoice(q, rng.next);
 }
 
 // The exam for one session: quiz and check questions, topped up with the
