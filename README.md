@@ -1,6 +1,6 @@
 # statLearner
 
-A small course in statistics and inference that runs in your browser. It is based on **David MacKay's *Information Theory, Inference, and Learning Algorithms*** ([free PDF from the author](https://www.inference.org.uk/itprnn/book.pdf)). It offers short sessions, many worked examples, unlimited practice problems, interactive simulations, mastery quizzes, spaced-repetition flashcards, streaks and badges. **It works fully offline and needs no AI at runtime.**
+A small course in statistics and inference that runs in your browser. It is based on **David MacKay's *Information Theory, Inference, and Learning Algorithms*** ([free PDF from the author](https://www.inference.org.uk/itprnn/book.pdf)). It offers short sessions, many worked examples, unlimited practice problems, interactive simulations, a multiple-choice exam per session, a built-in calculator, spaced-repetition flashcards, streaks and badges. **It works fully offline and needs no AI at runtime.**
 
 Two companions:
 
@@ -11,7 +11,7 @@ Two companions:
 
 ```bash
 npm run serve          # http://localhost:8080 - no install needed (Node.js 20+)
-npm test               # 99 JavaScript tests
+npm test               # 110 JavaScript tests
 npm run validate       # check all course content against the schema
 npm run fetch-book     # optional: personal offline copy of the book (git-ignored)
 ```
@@ -39,27 +39,27 @@ Open the app, pick a daily goal and a reminder time, and start. The **Book** tab
 | 13 | Bayesian inference vs sampling theory | ch. 36, 37 | - |
 | 14 | Clustering as inference: K-means and soft K-means | ch. 20, 22 | 11 |
 
-Each part starts unlocked: learners who know the basics can begin with Part B. Details, the book's copyright terms and the full lecture list are in [docs/BOOK.md](docs/BOOK.md).
+Every session is open: jump to any session, step or exam, and pick up an unfinished lesson or exam where you left it. Learners who know the basics can begin with Part B. Details, the book's copyright terms and the full lecture list are in [docs/BOOK.md](docs/BOOK.md).
 
 Every session follows the same research-based rhythm (details in [docs/LEARNING-DESIGN.md](docs/LEARNING-DESIGN.md)):
 
 1. **Recall warm-up** from earlier sessions (spaced retrieval, interleaving).
 2. **Predict first:** a question before the explanation (pretesting effect).
 3. **Short explanations alternating with active steps:** checks, simulations ("predict, then observe"), self-explanation prompts.
-4. **Worked examples revealed step by step,** then **faded practice:** study a full solution, finish a half-solved one, then solve alone. 49 generators create fresh numbers, so practice never runs out.
-5. **Mastery quiz** (80% unlocks the next session), new numbers on every retake.
+4. **Worked examples revealed step by step,** then **faded practice:** study a full solution, finish a half-solved one, then solve alone. 49 generators create fresh numbers, so practice never runs out. A 🧮 calculator next to every answer field does the arithmetic and fills the field in.
+5. **Session exam:** 8 multiple-choice questions, no hints, 80% to pass, new questions and numbers on every retake.
 6. **Flashcards** for concepts and equations join a review deck scheduled by **FSRS-6**, a modern memory model, just before you would forget them.
 
 Gamification stays simple and honest: XP, levels, a daily goal, streaks with freezes, and 11 badges. Reviews earn the same XP whatever grade you give, so an honest "Again" never costs you.
 
-Progress stays in your browser. Export and import it from Settings.
+Progress stays in your browser and is saved after every step, so you can close the app mid-lesson or mid-exam and resume later. Export and import it from Settings.
 
 ## Repository layout
 
 ```text
 app/                 the course (static PWA; deploys as-is)
   content/           course.json + one JSON file per session  ← course content
-  src/               fsrs.js, game.js, exercises.js, sims.js, main.js, ...
+  src/               fsrs.js, game.js, exercises.js, exam.js, calc.js, sims.js, main.js, ...
   vendor/katex/      math rendering (MIT), vendored for offline use
 authoring/           Claude + ChatGPT pipeline (cli.mjs, prompts, briefs/)
 statbot/             StatBot phase 0 (Python standard library only)

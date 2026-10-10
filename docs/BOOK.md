@@ -75,12 +75,12 @@ Titles of lectures 2-5, 7 and 8 follow the 2012 slide list; the others follow th
 | 13 | Bayesian inference vs sampling theory | ch. 37, 36 | - |
 | 14 | Clustering as inference: K-means and soft K-means | ch. 20, 22 | 11 |
 
-Part A keeps *OpenIntro Statistics* (free, CC BY-SA 3.0) as a companion, because ITILA assumes basic probability and argues against, but does not teach, classical confidence intervals and tests. Each part opens unlocked, so a learner who already knows the basics can start with Part B.
+Part A keeps *OpenIntro Statistics* (free, CC BY-SA 3.0) as a companion, because ITILA assumes basic probability and argues against, but does not teach, classical confidence intervals and tests. Every session is open, so a learner who already knows the basics can start with Part B.
 
 ## Study plan per Part B session
 
 1. **Before:** skim the chapter sections listed in the session header (the Book tab links the PDF).
-2. **Session:** about 30 minutes in the app: prediction question, worked examples, simulations, faded practice, quiz.
+2. **Session:** about 30 minutes in the app: prediction question, worked examples, simulations, faded practice, exam.
 3. **After:** watch the matching lecture, then try the book's own exercises for that chapter. Many have worked solutions in the book, and they go deeper than the app.
 4. **Next days:** flashcard reviews keep the definitions and formulas fresh.
 

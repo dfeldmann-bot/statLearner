@@ -8,7 +8,7 @@ statLearner teaches statistics and inference in short daily sessions, following 
 
 | Part | Status | Where |
 |---|---|---|
-| Course app (PWA) | 14 sessions in two parts (foundations; MacKay's ITILA), 49 exercise generators, 18 simulations, mastery quizzes, 128 flashcards | `app/` |
+| Course app (PWA) | 14 sessions in two parts (foundations; MacKay's ITILA), 49 exercise generators, 18 simulations, multiple-choice session exams, a calculator, 128 flashcards | `app/` |
 | Book integration | Book tab with the PDF link, MacKay's 16 lectures, session-to-chapter map; `npm run fetch-book` for a local copy | `docs/BOOK.md`, `tools/fetch-book.mjs` |
 | Spaced repetition | FSRS-6 scheduler, interleaved review queue, mastery per session | `app/src/fsrs.js`, `app/src/srs.js` |
 | Gamification | XP, levels, daily goal, streaks with freezes, 11 badges | `app/src/game.js` |
@@ -17,7 +17,7 @@ statLearner teaches statistics and inference in short daily sessions, following 
 | Authoring pipeline | Claude drafts, ChatGPT reviews, Claude revises, both cross-check answer keys; manual copy-paste mode | `authoring/`, [AUTHORING.md](AUTHORING.md) |
 | StatBot phase 0 | BM25 retrieval, cited extractive answers, refusals, eval set (98% hit@3 on 44 questions) | `statbot/`, [STATBOT-PLAN.md](STATBOT-PLAN.md) |
 | Research basis | 13 learning-science methods mapped to features | [LEARNING-DESIGN.md](LEARNING-DESIGN.md) |
-| Tests | 99 JavaScript tests, 7 Python tests, browser walk-through of all 14 sessions | `tests/`, `statbot/tests/` |
+| Tests | 110 JavaScript tests, 7 Python tests, browser walk-through of all 14 sessions | `tests/`, `statbot/tests/` |
 
 ## Architecture
 
@@ -36,7 +36,7 @@ flowchart LR
     J[(content/*.json)] --> L[Lessons + simulations]
     M[[ITILA chapters + MacKay lectures]] -.-> L
     E[Exercise generators] --> L
-    L --> Q[Mastery quiz]
+    L --> Q[Session exam]
     L --> F[FSRS flashcards]
     F --> R[Daily review + reminders]
     L & Q & R --> P[XP · streaks · badges]

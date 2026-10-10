@@ -6,7 +6,7 @@ Two techniques have the strongest evidence for durable learning: **retrieval pra
 
 | # | Method | Evidence (short) | Where statLearner uses it |
 |---|---|---|---|
-| 1 | Retrieval practice | Rated "high utility" across ages and subjects in a major review (Dunlosky et al., 2013); testing beat re-reading after one week (Roediger & Karpicke, 2006) | Checks inside lessons, mastery quizzes, flashcard reviews, recall warm-ups |
+| 1 | Retrieval practice | Rated "high utility" across ages and subjects in a major review (Dunlosky et al., 2013); testing beat re-reading after one week (Roediger & Karpicke, 2006) | Checks inside lessons, session exams, flashcard reviews, recall warm-ups |
 | 2 | Spaced repetition | Meta-analysis of 839 assessments: spaced beats massed practice (Cepeda et al., 2006); optimal gaps grow with the retention interval (Cepeda et al., 2008) | FSRS-6 scheduler for flashcards (`app/src/fsrs.js`); daily review queue |
 | 3 | Interleaving | Mixed problem sets beat blocked ones in maths classrooms (Rohrer & Taylor, 2007; Rohrer, Dedrick & Stershic, 2015) | Review queue mixes sessions round-robin; Mixed practice mode; recall warm-ups from earlier sessions |
 | 4 | Worked examples, then fading | Novices learn more from studying worked examples than from solving alone (Sweller & Cooper, 1985); gradually removing steps eases the move to independence (Renkl & Atkinson, 2003) | Every practice set: full worked example → half-solved → solve alone |
@@ -15,7 +15,7 @@ Two techniques have the strongest evidence for durable learning: **retrieval pra
 | 7 | Simulation-based statistics | GAISE College Report (ASA, 2016): focus on concepts, use technology to explore them; simulation-based inference curricula (Cobb, 2007; Tintle et al., 2011) | 18 simulations: CLT, CI coverage, Bayes grid, bent-coin posterior, Occam's razor, Metropolis sampler, stopping-rule paradox, K-means and more |
 | 8 | Targeting misconceptions | Students leave intro courses with stable misconceptions about sampling and p-values (delMas et al., 2007); natural frequencies make Bayesian reasoning easier (Gigerenzer & Hoffrage, 1995); ASA statement on p-values (Wasserstein & Lazar, 2016) | Misconception callouts; distractors built from real misconceptions, each with its own feedback; Bayes taught with "imagine 10,000 people" |
 | 9 | Immediate, explanatory feedback | Feedback that explains *why* helps more than right/wrong alone (Hattie & Timperley, 2007; Shute, 2008) | Every answer shows an explanation and the full worked solution (opened automatically when wrong) |
-| 10 | Mastery learning | Requiring mastery before moving on raises achievement (Bloom, 1984; Kulik, Kulik & Bangert-Drowns, 1990) | 80% quiz pass mark unlocks the next session; retakes draw new numbers |
+| 10 | Mastery learning | Requiring mastery before moving on raises achievement (Bloom, 1984; Kulik, Kulik & Bangert-Drowns, 1990) | 80% exam pass mark marks a session as passed, and the home screen suggests the first session not yet passed; retakes draw new questions and numbers. Sessions are not gated: learners who know a topic may jump ahead, so mastery is encouraged rather than enforced |
 | 11 | Segmenting / low cognitive load | Learner-paced segments beat continuous presentations (Mayer, 2009) | Lessons reveal one block at a time; text blocks stay short |
 | 12 | Gamification, used with care | Small positive effects on cognitive (g = .49), motivational (g = .36) and behavioural (g = .25) outcomes (Sailer & Homner, 2020); tangible rewards for mere task engagement can undermine intrinsic motivation (Deci, Koestner & Ryan, 1999) | XP, levels, streaks, badges tied to learning behaviours; no leaderboards |
 | 13 | Implementation intentions for habits | "When X happens, I will do Y" plans have a medium-to-large effect on reaching goals (d = .65; Gollwitzer & Sheeran, 2006) | Onboarding asks for a fixed daily time; calendar reminder (.ics) at that time; optional browser notifications |
@@ -43,7 +43,7 @@ Three card types:
 
 ### Unlimited practice without an LLM
 
-`app/src/exercises.js` and `app/src/exercises-book.js` contain 49 exercise generators. Each draws random but sensible numbers, computes the answer, and writes a step-by-step solution. Learners never run out of practice, quiz retakes use new numbers (so memorising answers does not help), and everything works offline. Tests generate 300 instances of every generator and check that each answer is finite, accepted by the checker and explained.
+`app/src/exercises.js` and `app/src/exercises-book.js` contain 49 exercise generators. Each draws random but sensible numbers, computes the answer, and writes a step-by-step solution. Learners never run out of practice, exam retakes use new numbers (so memorising answers does not help), and everything works offline. Tests generate 300 instances of every generator and check that each answer is finite, accepted by the checker and explained.
 
 ### Lesson flow
 
@@ -54,17 +54,31 @@ Each session follows the same rhythm:
 3. **Short explanation → active step** (check, practice, simulation or reflection), repeated.
 4. **Worked examples** revealed step by step, with a self-explanation prompt.
 5. **Completion:** the session's flashcards join the review deck.
-6. **Mastery quiz:** 80% unlocks the next session.
+6. **Session exam:** 8 multiple-choice questions, no hints, 80% to pass.
+
+Progress is saved after every block. A learner who leaves half-way returns to the next block, with the earlier reading in a collapsed recap; "Jump to step" opens any block, and every session and exam is open from the start.
+
+### The session exam
+
+The exam reuses the session's quiz and check questions and tops them up with the session's exercise generators. All questions are multiple choice (`app/src/exam.js`):
+
+- Hand-written choice questions keep their options and per-option feedback, but in random order. In the content, the right answer is usually listed first; lessons shuffle these questions too.
+- Numeric questions become four options. The wrong options are typical slips (the complement $1 - p$, a factor of two, a wrong sign, variance instead of SD) and answers to fresh versions of the same exercise, so their size looks plausible. Whole-number answers get whole-number wrong options; probabilities stay between 0 and 1. A test checks that the answer checker accepts exactly one option.
+- Each answer is saved at once, so an exam left half-way resumes at the next question. The result screen lists every question with your answer and the right one.
+
+### Calculator
+
+Every typed numeric answer has a 🧮 Calculator button. The calculator (`app/src/calc.js`, no `eval`) understands `+ − × ÷ ^ ( ) ! %`, `sqrt`/`√`, `ln`, `log`, `log2`, `exp`, `abs`, `C(n, k)`, `π`, `e` and `ans`, shows the result while you type, and "Use result in answer" copies it into the field. Learners spend their effort on choosing the method, not on arithmetic.
 
 ### Gamification rules
 
 | Element | Rule | Why |
 |---|---|---|
-| XP | Reviews earn 5 XP **whatever the grade**; correct answers 10 (5 with a hint); finishing a session 50; passing a quiz 100 | Honest "Again" grades must never cost points, or learners inflate their grades and break the scheduler |
+| XP | Reviews earn 5 XP **whatever the grade**; correct answers 10 (5 with a hint); finishing a session 50; passing an exam 100 | Honest "Again" grades must never cost points, or learners inflate their grades and break the scheduler |
 | Levels | Level L starts at 50·L·(L−1) XP, with playful titles ("Mean Machine", "P-value Pro") | Visible long-term progress |
 | Daily goal | Default 50 XP (about 10 minutes); 20 XP bonus when reached | Short daily sessions exploit spacing |
 | Streak + freezes | Any activity keeps the streak; every 7-day streak earns a freeze (max 2) that covers a missed day | Habit without anxiety: one bad day does not wipe out weeks |
-| Badges | 11 badges for meaningful milestones: first session, perfect quiz, 7/30-day streaks, 100/500 reviews, 80% mastery, comeback after a break | Celebrate learning behaviours, not time spent |
+| Badges | 11 badges for meaningful milestones: first session, perfect exam, 7/30-day streaks, 100/500 reviews, 80% mastery, comeback after a break | Celebrate learning behaviours, not time spent |
 | Not included | Leaderboards, timers, loot boxes | Social comparison and time pressure hurt anxious learners, and the course works alone and offline |
 
 ### Reminders without a server

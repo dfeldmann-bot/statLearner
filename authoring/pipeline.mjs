@@ -121,7 +121,7 @@ export function renderReport(result, { brief, drafter, reviewer, solvers } = {})
     "- [ ] Every ⚠️ answer key above resolved",
     "- [ ] Worked examples recomputed by hand or in a spreadsheet",
     "- [ ] No sentence copied from the book",
-    "- [ ] Read the session once in the app (`npm run serve`, unlock all in Settings)",
+    "- [ ] Read the session once in the app (`npm run serve`)",
   );
   return lines.join("\n") + "\n";
 }

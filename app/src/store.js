@@ -16,11 +16,13 @@ export function defaultState(now = new Date()) {
       reminderMinutes: 15,
       notifications: false,
       desiredRetention: 0.9,
-      unlockAll: false,
     },
     game: newGame(),
     cards: {}, // FSRS state per card id
-    sessions: {}, // per session: { startedAt, completedAt, quizBest, quizPassedAt }
+    // Per session: { startedAt, completedAt, quizBest, quizPassedAt, perfectAt } (quiz* fields hold
+    // exam results), plus resume: { block, at } for a lesson left half-way and
+    // exam: { questions, answers, at } for an exam left half-way.
+    sessions: {},
     log: [], // review log [{ t, id, g }] kept for future FSRS parameter fitting
     lastNotifiedDay: null,
   };

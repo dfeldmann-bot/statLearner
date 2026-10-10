@@ -1,4 +1,4 @@
-// One question widget used everywhere: warm-ups, checks, practice, quizzes, reviews.
+// One question widget used everywhere: warm-ups, checks, practice, exams, reviews.
 // Modes implement faded worked examples:
 //   "worked"      - full solution shown, learner studies it
 //   "partial"     - first half of the solution shown, learner finishes
@@ -7,9 +7,13 @@
 import { h, md, mdInline } from "./dom.js";
 import { checkQuestion, shuffleChoice } from "./check.js";
 import { fmt } from "./exercises.js";
+import { calculatorPanel } from "./calculator.js";
 
-export function questionView(q, { onDone, mode = "independent", label = "", continueLabel = "Continue" } = {}) {
-  q = shuffleChoice(q);
+// onAnswer fires as soon as the learner answers; onDone when they press Continue.
+// Choice options appear in a fresh random order unless `shuffle` is false (the
+// exam fixes its order when it is built, so a resumed exam looks the same).
+export function questionView(q, { onDone, onAnswer, mode = "independent", label = "", continueLabel = "Continue", hints = true, shuffle = true } = {}) {
+  if (shuffle) q = shuffleChoice(q);
   const root = h("div", { class: `question ${mode}` });
   if (label) root.append(h("div", { class: "q-label" }, label));
   root.append(md(q.prompt, "prose q-prompt"));
@@ -33,6 +37,7 @@ export function questionView(q, { onDone, mode = "independent", label = "", cont
 
   const finish = (result) => {
     answered = true;
+    onAnswer?.({ ...result, hinted });
     root.classList.add(result.ok ? "is-right" : "is-wrong");
     const correctText = q.type === "choice" ? q.options[q.answer] : fmt(q.answer, 4);
     feedback.append(
@@ -76,6 +81,32 @@ export function questionView(q, { onDone, mode = "independent", label = "", cont
     root.append(list);
   } else {
     const input = h("input", { type: "text", inputmode: "decimal", autocomplete: "off", placeholder: "Your answer", "aria-label": "Your answer", class: "num-input" });
+    // The calculator opens under the field; "Use result" fills the field in.
+    let calc = null;
+    const calcButton = h("button", { class: "btn small calc-toggle", type: "button", "aria-expanded": "false", title: "Open a calculator for this answer" }, "🧮 Calculator");
+    const closeCalc = () => {
+      calc?.remove();
+      calc = null;
+      calcButton.setAttribute("aria-expanded", "false");
+    };
+    calcButton.addEventListener("click", () => {
+      if (calc) return closeCalc();
+      calc = calculatorPanel({
+        onUse: (value) => {
+          input.value = value;
+          closeCalc();
+          input.focus({ preventScroll: true });
+        },
+        onClose: () => {
+          closeCalc();
+          input.focus({ preventScroll: true });
+        },
+      });
+      numRow.after(calc);
+      calcButton.setAttribute("aria-expanded", "true");
+      calc.focusInput();
+    });
+    const numRow = h("div", { class: "num-row" }, input, calcButton);
     const submit = () => {
       if (answered || !input.value.trim()) return;
       const result = checkQuestion(q, input.value);
@@ -84,15 +115,17 @@ export function questionView(q, { onDone, mode = "independent", label = "", cont
         return;
       }
       input.disabled = true;
+      closeCalc();
+      calcButton.remove();
       feedback.replaceChildren();
       finish(result);
     };
     input.addEventListener("keydown", (e) => e.key === "Enter" && submit());
     actions.append(h("button", { class: "btn primary", onclick: submit }, "Check"));
-    root.append(h("div", { class: "num-row" }, input));
+    root.append(numRow);
     setTimeout(() => input.focus({ preventScroll: true }), 0);
   }
-  if (q.hint && mode !== "worked") {
+  if (q.hint && hints && mode !== "worked") {
     const hintBox = h("div", { class: "hint", hidden: true }, mdInline(q.hint));
     const hb = h("button", {
       class: "btn ghost small",
