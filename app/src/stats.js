@@ -83,3 +83,31 @@ export function histogram(values, bins, min, max) {
   }
   return { counts, width };
 }
+
+// log Γ(z) via the Lanczos approximation (relative error ~1e-15).
+const LANCZOS = [
+  0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905,
+  -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7,
+];
+export function lgamma(z) {
+  if (z < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * z)) - lgamma(1 - z);
+  z -= 1;
+  let x = LANCZOS[0];
+  for (let i = 1; i < 9; i++) x += LANCZOS[i] / (z + i);
+  const t = z + 7.5;
+  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+}
+
+export const logChoose = (n, k) => lgamma(n + 1) - lgamma(k + 1) - lgamma(n - k + 1);
+
+// Beta(a, b) density, used for the posterior of a bent coin's bias.
+export function betaPdf(x, a, b) {
+  if (x <= 0 || x >= 1) return 0;
+  return Math.exp((a - 1) * Math.log(x) + (b - 1) * Math.log(1 - x) - (lgamma(a) + lgamma(b) - lgamma(a + b)));
+}
+
+// Entropy in bits of a probability vector.
+export const entropy = (ps) => ps.reduce((h, p) => (p > 0 ? h + p * Math.log2(1 / p) : h), 0);
+
+// Evidence ratio P(D | p uniform) / P(D | p = 1/2) for h heads in n tosses.
+export const bayesFactorCoin = (n, h) => Math.exp(-Math.log(n + 1) - logChoose(n, h) + n * Math.log(2));

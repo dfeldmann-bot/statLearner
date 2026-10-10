@@ -1,0 +1,245 @@
+{
+  "id": "s08",
+  "slug": "information-entropy",
+  "part": "B",
+  "title": "Information content and entropy",
+  "summary": "Measure information in bits: surprise, entropy, the best questions to ask, and why entropy is the limit of compression.",
+  "bookRef": "ITILA ch. 2 (§2.4 entropy), ch. 4 (The Source Coding Theorem)",
+  "lectures": [
+    {
+      "number": 2,
+      "title": "Entropy and data compression (I): introduction to compression, information content",
+      "url": "https://videolectures.net/mackay_course_02/"
+    },
+    {
+      "number": 3,
+      "title": "Entropy and data compression (II): source coding theorem, the bent coin lottery",
+      "url": "https://videolectures.net/mackay_course_03/"
+    }
+  ],
+  "minutes": 25,
+  "objectives": [
+    "Compute the Shannon information content of an outcome and explain why rare outcomes carry more bits.",
+    "Compute the entropy of a distribution and recognise when it is largest.",
+    "Use information to find the minimum number of yes/no questions or weighings.",
+    "State in words what the source coding theorem says about compression."
+  ],
+  "warmup": [
+    {
+      "id": "s08-w1",
+      "type": "choice",
+      "prompt": "**Predict before you learn.** Which message tells you the most?",
+      "options": [
+        "\"Your 1-in-1000 raffle ticket won.\"",
+        "\"The fair coin landed heads.\"",
+        "\"Your 1-in-1000 raffle ticket lost.\"",
+        "All three carry the same information"
+      ],
+      "answer": 0,
+      "explain": "Information measures surprise. The win had probability 1/1000 and carries $\\log_2 1000 \\approx 10$ bits; the coin carries 1 bit; the loss was almost certain and carries only $\\log_2(1000/999) \\approx 0.0014$ bits."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "md": "## Information as surprise\nMacKay's book starts from two engineering questions: how far can a message be compressed, and how reliably can it be sent over a noisy line? Both need a way to measure information.\n\nShannon's answer: an outcome $x$ with probability $P(x)$ carries\n$$h(x) = \\log_2 \\frac{1}{P(x)} \\text{ bits.}$$\n\n- A certain outcome ($P = 1$) carries 0 bits: you learn nothing.\n- Halving the probability adds exactly one bit.\n- For independent outcomes, probabilities multiply, so information **adds**."
+    },
+    {
+      "type": "example",
+      "title": "Bits in everyday outcomes",
+      "steps": [
+        "A fair coin lands heads: $h = \\log_2 2 = 1$ bit.",
+        "A fair die shows a six: $h = \\log_2 6 = 2.585$ bits.",
+        "A random letter of the alphabet is Q: $h = \\log_2 26 = 4.70$ bits.",
+        "Two independent coin tosses both land heads: $P = 1/4$, so $h = 2$ bits, which is $1 + 1$."
+      ],
+      "reflect": {
+        "prompt": "Why should information add for independent events?",
+        "answer": "Learning two unrelated facts should tell you as much as learning them one after the other. Independence multiplies probabilities, and the logarithm turns that product into a sum."
+      }
+    },
+    {
+      "type": "practice",
+      "exercise": "info-content",
+      "count": 3
+    },
+    {
+      "type": "text",
+      "md": "## Entropy: the average surprise\nBefore you see the outcome, you can ask how much information to *expect*. That average is the **entropy**:\n$$H(X) = \\sum_x P(x) \\log_2 \\frac{1}{P(x)}$$\n\n- $H(X) \\ge 0$, and $H(X) = 0$ only if one outcome is certain.\n- With $|A|$ possible outcomes, $H(X) \\le \\log_2 |A|$, with equality only for the uniform distribution: maximum uncertainty.\n- For independent $X$ and $Y$: $H(X, Y) = H(X) + H(Y)$."
+    },
+    {
+      "type": "sim",
+      "sim": "entropy-explorer",
+      "md": "**Predict:** at which bias is a coin toss most uncertain? Does a toss of a 90%-heads coin carry more or less than half a bit on average? Move the slider and check."
+    },
+    {
+      "type": "practice",
+      "exercise": "entropy-calc",
+      "count": 3
+    },
+    {
+      "type": "practice",
+      "exercise": "binary-entropy",
+      "count": 2
+    },
+    {
+      "type": "callout",
+      "kind": "misconception",
+      "md": "**\"Information means importance or meaning.\"** Shannon information measures only how *surprising* an outcome is under your probability model. \"The reactor is safe\" can carry almost no information if you expected it, and entropy does not care whether the outcomes are called \"sunny\" and \"rainy\" or \"A\" and \"B\"."
+    },
+    {
+      "type": "text",
+      "md": "## Twenty questions and the weighing puzzle\nA yes/no answer carries at most **1 bit**, and only if both answers were equally likely. To single out one of $N$ equally likely options you need $\\log_2 N$ bits, so at least $\\lceil \\log_2 N \\rceil$ questions; halving the options with each question achieves it.\n\nA balance scale has three outcomes (left heavy, right heavy, balanced), so one weighing gives at most $\\log_2 3 \\approx 1.585$ bits. MacKay's book opens chapter 4 with a famous puzzle of this kind: among 12 balls, one is heavier *or* lighter. That is 24 possibilities, $\\log_2 24 = 4.58$ bits, so at least 3 weighings. Three suffice, but only if every weighing makes its three outcomes as equally likely as possible.\n\n**The lesson:** a good experiment is one whose outcome you cannot predict."
+    },
+    {
+      "type": "check",
+      "question": {
+        "id": "s08-k1",
+        "type": "choice",
+        "prompt": "In the 12-ball puzzle, which first weighing is best?",
+        "options": [
+          "4 balls against 4 (4 aside)",
+          "6 balls against 6",
+          "1 ball against 1"
+        ],
+        "answer": 0,
+        "explain": "With 4 against 4, each outcome covers 8 of the 24 possibilities: probability 1/3 each, the full $\\log_2 3$ bits. 6 against 6 can never balance, so it has only two outcomes and at most 1 bit. 1 against 1 balances with probability 20/24, so you usually learn little.",
+        "feedback": [
+          "Right: three equally likely outcomes give the maximum $\\log_2 3$ bits.",
+          "It can never balance, which wastes one of the three possible outcomes.",
+          "It balances 5 times out of 6, so its outcome is too predictable to be informative."
+        ]
+      }
+    },
+    {
+      "type": "practice",
+      "exercise": "questions-needed",
+      "count": 3
+    },
+    {
+      "type": "text",
+      "md": "## Compression: the source coding theorem\nThe entropy is not just a definition; it is a hard limit. **Shannon's source coding theorem** says that $N$ outcomes from a source with entropy $H$ can be compressed into about $N H$ bits as $N$ grows, and not into fewer without risking loss.\n\nExample: 1,000 tosses of a 90%-heads coin take 1,000 bits raw, but carry only $1000 \\times H_2(0.9) \\approx 469$ bits of information, so a good code needs about 469 bits. A fair coin cannot be compressed at all. Chapters 4-6 of the book (lectures 3-5) build codes that reach this limit."
+    },
+    {
+      "type": "reflect",
+      "prompt": "Why does a fair coin give the most information per toss, while a 99%-heads coin gives very little?",
+      "answer": "Information per toss is the average surprise. With 99% heads you nearly always see the expected outcome (0.0145 bits); the rare tail is very surprising (6.6 bits) but happens only 1% of the time, so the average is $H_2(0.99) \\approx 0.08$ bits. A fair coin is never predictable: 1 bit every time."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "s08-q1",
+      "type": "generated",
+      "exercise": "info-content"
+    },
+    {
+      "id": "s08-q2",
+      "type": "generated",
+      "exercise": "entropy-calc"
+    },
+    {
+      "id": "s08-q3",
+      "type": "generated",
+      "exercise": "binary-entropy"
+    },
+    {
+      "id": "s08-q4",
+      "type": "generated",
+      "exercise": "questions-needed"
+    },
+    {
+      "id": "s08-q5",
+      "type": "choice",
+      "prompt": "Which distribution over four outcomes has the largest entropy?",
+      "options": [
+        "(1/4, 1/4, 1/4, 1/4)",
+        "(1/2, 1/4, 1/8, 1/8)",
+        "(0.7, 0.1, 0.1, 0.1)",
+        "(1, 0, 0, 0)"
+      ],
+      "answer": 0,
+      "explain": "Entropy is largest for the uniform distribution: $\\log_2 4 = 2$ bits. The others give 1.75, 1.36 and 0 bits."
+    },
+    {
+      "id": "s08-q6",
+      "type": "choice",
+      "prompt": "$X$ and $Y$ are two independent tosses of a fair coin. What is $H(X, Y)$?",
+      "options": [
+        "2 bits",
+        "1 bit",
+        "4 bits",
+        "0.5 bits"
+      ],
+      "answer": 0,
+      "explain": "For independent variables entropies add: $1 + 1 = 2$ bits. Equivalently, the pair has 4 equally likely outcomes and $\\log_2 4 = 2$."
+    },
+    {
+      "id": "s08-q7",
+      "type": "numeric",
+      "prompt": "A source emits A, B, C, D with probabilities 1/2, 1/4, 1/8, 1/8. About how many bits do 1,000 letters need after ideal compression?",
+      "answer": 1750,
+      "explain": "$H = 0.5 \\times 1 + 0.25 \\times 2 + 2 \\times 0.125 \\times 3 = 1.75$ bits per letter, so about $1000 \\times 1.75 = 1750$ bits, versus 2,000 bits for a naive 2-bit code.",
+      "tolerance": 10
+    }
+  ],
+  "cards": [
+    {
+      "id": "s08-c1",
+      "kind": "formula",
+      "front": "Shannon information content of an outcome $x$?",
+      "back": "$h(x) = \\log_2 \\dfrac{1}{P(x)}$ bits: rare outcomes carry more information."
+    },
+    {
+      "id": "s08-c2",
+      "kind": "formula",
+      "front": "Definition of entropy $H(X)$?",
+      "back": "$H(X) = \\sum_x P(x)\\log_2 \\dfrac{1}{P(x)}$: the average information content."
+    },
+    {
+      "id": "s08-c3",
+      "kind": "concept",
+      "front": "When is entropy largest, and what is its maximum for $|A|$ outcomes?",
+      "back": "For the uniform distribution: $H = \\log_2 |A|$."
+    },
+    {
+      "id": "s08-c4",
+      "kind": "concept",
+      "front": "Entropy of two independent variables?",
+      "back": "$H(X, Y) = H(X) + H(Y)$: information from independent sources adds."
+    },
+    {
+      "id": "s08-c5",
+      "kind": "concept",
+      "front": "At most how much information does one yes/no answer give, and when?",
+      "back": "1 bit, when both answers were equally likely beforehand."
+    },
+    {
+      "id": "s08-c6",
+      "kind": "concept",
+      "front": "Why do 12 balls (one heavier or lighter) need at least 3 weighings?",
+      "back": "24 possibilities need $\\log_2 24 = 4.58$ bits; one weighing gives at most $\\log_2 3 = 1.585$ bits; $2 \\times 1.585 < 4.58$."
+    },
+    {
+      "id": "s08-c7",
+      "kind": "concept",
+      "front": "What does the source coding theorem say?",
+      "back": "$N$ outcomes of a source with entropy $H$ can be compressed to about $NH$ bits, and not reliably fewer."
+    },
+    {
+      "id": "s08-c8",
+      "kind": "concept",
+      "front": "Does Shannon information measure meaning or importance?",
+      "back": "No, only surprise under a probability model."
+    },
+    {
+      "id": "s08-c9",
+      "kind": "exercise",
+      "exercise": "info-content"
+    },
+    {
+      "id": "s08-c10",
+      "kind": "exercise",
+      "exercise": "entropy-calc"
+    }
+  ]
+}

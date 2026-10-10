@@ -1,0 +1,207 @@
+{
+  "id": "s11",
+  "slug": "likelihood-error-bars",
+  "part": "B",
+  "title": "Maximum likelihood, error bars and the Gaussian",
+  "summary": "The likelihood function, maximum-likelihood estimates for a coin and a Gaussian, where N−1 really comes from, and error bars from curvature.",
+  "bookRef": "ITILA ch. 22 (Maximum Likelihood and Clustering), ch. 24 (Exact Marginalization), ch. 27 (Laplace's Method)",
+  "lectures": [
+    {
+      "number": 11,
+      "title": "Approximating probability distributions (I): clustering as an example inference problem",
+      "url": "https://videolectures.net/mackay_course_11/"
+    }
+  ],
+  "minutes": 30,
+  "objectives": [
+    "Write a likelihood function and find its maximum for a coin and for a Gaussian.",
+    "Explain why σ_N underestimates the spread and where N − 1 comes from.",
+    "Get an error bar from the curvature of the log-posterior (Laplace's method).",
+    "Recognise situations where maximum likelihood fails."
+  ],
+  "warmup": [
+    {
+      "id": "s11-w1",
+      "type": "choice",
+      "prompt": "**Predict.** Two measurements from a Gaussian are 10 and 12. The maximum-likelihood estimate of $\\sigma$ is 1. Is the true $\\sigma$ more likely to be larger or smaller than 1?",
+      "options": [
+        "Larger: two points usually sit closer together than the population's spread",
+        "Smaller",
+        "Exactly 1",
+        "There is no way to tell"
+      ],
+      "answer": 0,
+      "explain": "Fitting the mean to the same two points makes the deviations look small. Dividing by $N - 1 = 1$ instead of $N = 2$ gives $\\sigma_{N-1} = \\sqrt{2} \\approx 1.41$. This session explains the correction from a Bayesian angle."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "md": "## The likelihood function\nFix the data and let the parameter vary: $L(\\theta) = P(D \\mid \\theta)$ is the **likelihood function**. It is a function of $\\theta$, not a probability distribution over $\\theta$; it need not integrate to 1.\n\nProducts of many probabilities are awkward, so we work with the **log-likelihood**, where products become sums. The **maximum-likelihood (ML)** estimate is the $\\theta$ that makes the data most probable.\n\nFor a coin: $\\log L(p) = h \\ln p + t \\ln(1-p)$. Setting the derivative $h/p - t/(1-p)$ to zero gives $\\hat p = h/n$."
+    },
+    {
+      "type": "practice",
+      "exercise": "likelihood-ratio",
+      "count": 3
+    },
+    {
+      "type": "text",
+      "md": "## A Gaussian: estimating $\\mu$ and $\\sigma$\nFor data $x_1, \\dots, x_N$ from a Gaussian with mean $\\mu$ and standard deviation $\\sigma$, maximum likelihood gives\n$$\\hat\\mu = \\bar x, \\qquad \\sigma_N^2 = \\frac{1}{N}\\sum_{i=1}^{N}(x_i - \\bar x)^2.$$\n$\\sigma_N$ is too small on average, because $\\bar x$ was fitted to the same data. Chapter 24 shows the Bayesian fix: instead of plugging in $\\bar x$, **marginalise** (integrate) over the unknown $\\mu$. With the non-informative priors the book uses, the most probable $\\sigma$ then turns out to be $\\sigma_{N-1}$, with $N - 1$ in the denominator. That is the $n - 1$ from session 1, now explained as the cost of not knowing $\\mu$."
+    },
+    {
+      "type": "example",
+      "title": "Four measurements",
+      "steps": [
+        "Data: 9, 11, 12, 8. Mean $\\bar x = 40/4 = 10$.",
+        "Deviations: $-1, 1, 2, -2$; squared: $1, 1, 4, 4$; sum $= 10$.",
+        "$\\sigma_N = \\sqrt{10/4} = 1.58$ (maximum likelihood).",
+        "$\\sigma_{N-1} = \\sqrt{10/3} = 1.83$ (after marginalising over $\\mu$). With only 4 points, the difference is substantial."
+      ]
+    },
+    {
+      "type": "practice",
+      "exercise": "sigma-ml",
+      "count": 2
+    },
+    {
+      "type": "text",
+      "md": "## Error bars from curvature: Laplace's method\nNear its peak $\\hat\\theta$, a log-posterior usually looks like a downward parabola:\n$$\\log P(\\theta \\mid D) \\approx \\log P(\\hat\\theta \\mid D) - \\frac{(\\theta - \\hat\\theta)^2}{2\\sigma^2}.$$\nThat is the logarithm of a Gaussian. So approximate the posterior by a Gaussian at the peak with\n$$\\sigma^2 = -\\left(\\frac{d^2 \\log P(\\theta \\mid D)}{d\\theta^2}\\bigg|_{\\hat\\theta}\\right)^{-1}.$$\nA sharply curved peak means a small error bar. For the coin this gives $\\sigma = \\sqrt{\\hat p(1-\\hat p)/n}$, the standard error from session 4."
+    },
+    {
+      "type": "sim",
+      "sim": "likelihood",
+      "md": "**Predict:** with 3 heads and 1 tail, will the Gaussian approximation match the exact curve? What about 30 heads and 10 tails? And 4 heads with 0 tails?"
+    },
+    {
+      "type": "practice",
+      "exercise": "laplace-error-bar",
+      "count": 3
+    },
+    {
+      "type": "callout",
+      "kind": "misconception",
+      "md": "**\"Maximum likelihood is always safe.\"** It fails in instructive ways. With 0 heads in 5 tosses, $\\hat p = 0$ declares heads impossible. In a mixture of Gaussians (chapter 22), one component can shrink onto a single data point and the likelihood goes to infinity: the \"best\" fit is nonsense. Priors and marginalisation repair both problems."
+    },
+    {
+      "type": "check",
+      "question": {
+        "id": "s11-k1",
+        "type": "numeric",
+        "prompt": "At its peak, a log-posterior has second derivative $-2500$. What is the Laplace error bar $\\sigma$?",
+        "answer": 0.02,
+        "explain": "$\\sigma = 1/\\sqrt{2500} = 1/50 = 0.02$.",
+        "tolerance": 0.0005
+      }
+    },
+    {
+      "type": "reflect",
+      "prompt": "Why does fitting $\\mu$ make the spread around $\\bar x$ look smaller than the spread around the true $\\mu$?",
+      "answer": "$\\bar x$ is, by construction, the point that minimises the sum of squared deviations for this sample. Any other point, including the true $\\mu$, gives a larger sum. So deviations from $\\bar x$ understate deviations from $\\mu$, on average by a factor $(N-1)/N$ in the variance."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "s11-q1",
+      "type": "generated",
+      "exercise": "likelihood-ratio"
+    },
+    {
+      "id": "s11-q2",
+      "type": "generated",
+      "exercise": "sigma-ml"
+    },
+    {
+      "id": "s11-q3",
+      "type": "generated",
+      "exercise": "laplace-error-bar"
+    },
+    {
+      "id": "s11-q4",
+      "type": "choice",
+      "prompt": "Which statement about $L(p) = p^h(1-p)^t$ is true?",
+      "options": [
+        "It is a function of $p$ for fixed data, and it need not integrate to 1 over $p$",
+        "It is the probability that $p$ is the true bias",
+        "It is maximised at $p = 0.5$ for any data",
+        "It depends on the order of the tosses only through $n$"
+      ],
+      "answer": 0,
+      "explain": "The likelihood measures how probable each $p$ makes the observed data. Turning it into a probability distribution over $p$ needs a prior and normalisation."
+    },
+    {
+      "id": "s11-q5",
+      "type": "choice",
+      "prompt": "A coin gives 0 heads in 4 tosses. What does maximum likelihood estimate for $p$?",
+      "options": [
+        "0, which claims heads are impossible",
+        "1/6, by Laplace's rule",
+        "0.5",
+        "It is undefined"
+      ],
+      "answer": 0,
+      "explain": "$\\hat p = h/n = 0$. Laplace's rule (uniform prior) would give $1/6$, keeping heads possible."
+    },
+    {
+      "id": "s11-q6",
+      "type": "numeric",
+      "prompt": "Data from a Gaussian: 2, 4, 6. What is $\\sigma_N$, the maximum-likelihood standard deviation? Round to 2 decimals.",
+      "answer": 1.633,
+      "explain": "Mean 4; squared deviations 4, 0, 4, sum 8; $\\sigma_N = \\sqrt{8/3} = 1.63$ (while $\\sigma_{N-1} = \\sqrt{8/2} = 2$).",
+      "tolerance": 0.01
+    }
+  ],
+  "cards": [
+    {
+      "id": "s11-c1",
+      "kind": "concept",
+      "front": "What is the likelihood function?",
+      "back": "$L(\\theta) = P(D \\mid \\theta)$ with the data fixed: a function of the parameter, not a probability distribution over it."
+    },
+    {
+      "id": "s11-c2",
+      "kind": "formula",
+      "front": "Maximum-likelihood estimate of a coin's bias?",
+      "back": "$\\hat p = h/n$, where $d/dp\\,[h \\ln p + t \\ln(1-p)] = 0$."
+    },
+    {
+      "id": "s11-c3",
+      "kind": "formula",
+      "front": "Maximum-likelihood estimates for a Gaussian?",
+      "back": "$\\hat\\mu = \\bar x$ and $\\sigma_N^2 = \\frac{1}{N}\\sum (x_i - \\bar x)^2$."
+    },
+    {
+      "id": "s11-c4",
+      "kind": "concept",
+      "front": "Where does $\\sigma_{N-1}$ come from in MacKay's Bayesian treatment?",
+      "back": "Marginalising over the unknown mean $\\mu$ instead of plugging in $\\bar x$; the most probable $\\sigma$ is then $\\sigma_{N-1}$."
+    },
+    {
+      "id": "s11-c5",
+      "kind": "formula",
+      "front": "Laplace's method: error bar from curvature?",
+      "back": "$\\sigma^2 = -1 \\big/ \\dfrac{d^2 \\log P(\\theta \\mid D)}{d\\theta^2}$ at the peak."
+    },
+    {
+      "id": "s11-c6",
+      "kind": "formula",
+      "front": "Laplace error bar for a coin's bias?",
+      "back": "$\\sigma = \\sqrt{\\hat p(1-\\hat p)/n}$, the same as the standard error."
+    },
+    {
+      "id": "s11-c7",
+      "kind": "concept",
+      "front": "Two ways maximum likelihood fails?",
+      "back": "Zero counts ($\\hat p = 0$ declares an outcome impossible) and singular fits, such as a mixture component collapsing onto one point with infinite likelihood."
+    },
+    {
+      "id": "s11-c8",
+      "kind": "exercise",
+      "exercise": "sigma-ml"
+    },
+    {
+      "id": "s11-c9",
+      "kind": "exercise",
+      "exercise": "laplace-error-bar"
+    }
+  ]
+}

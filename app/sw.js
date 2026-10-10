@@ -1,7 +1,7 @@
 // Service worker: precache the whole app so it works offline after one visit.
 // Strategy: stale-while-revalidate - answer from cache instantly, refresh in the
 // background. Bump VERSION when files are added or removed (a test checks the list).
-const VERSION = "statlearner-v1";
+const VERSION = "statlearner-v2";
 const PRECACHE = [
   "./",
   "index.html",
@@ -16,9 +16,17 @@ const PRECACHE = [
   "content/sessions/s05-confidence-intervals.json",
   "content/sessions/s06-hypothesis-tests.json",
   "content/sessions/s07-regression.json",
+  "content/sessions/s08-information-entropy.json",
+  "content/sessions/s09-bayesian-bent-coin.json",
+  "content/sessions/s10-model-comparison-occam.json",
+  "content/sessions/s11-likelihood-error-bars.json",
+  "content/sessions/s12-monte-carlo.json",
+  "content/sessions/s13-bayes-vs-sampling-theory.json",
   "src/check.js",
   "src/dom.js",
+  "src/exercises-book.js",
   "src/exercises.js",
+  "src/exkit.js",
   "src/fsrs.js",
   "src/game.js",
   "src/main.js",
@@ -27,12 +35,12 @@ const PRECACHE = [
   "src/reminders.js",
   "src/rng.js",
   "src/schema.js",
+  "src/simkit.js",
+  "src/sims-book.js",
   "src/sims.js",
   "src/srs.js",
   "src/stats.js",
   "src/store.js",
-  "vendor/katex/katex.min.css",
-  "vendor/katex/katex.min.js",
   "vendor/katex/fonts/KaTeX_AMS-Regular.woff2",
   "vendor/katex/fonts/KaTeX_Caligraphic-Bold.woff2",
   "vendor/katex/fonts/KaTeX_Caligraphic-Regular.woff2",
@@ -53,6 +61,8 @@ const PRECACHE = [
   "vendor/katex/fonts/KaTeX_Size3-Regular.woff2",
   "vendor/katex/fonts/KaTeX_Size4-Regular.woff2",
   "vendor/katex/fonts/KaTeX_Typewriter-Regular.woff2",
+  "vendor/katex/katex.min.css",
+  "vendor/katex/katex.min.js",
 ];
 
 self.addEventListener("install", (event) => {

@@ -1,0 +1,210 @@
+{
+  "id": "s10",
+  "slug": "model-comparison-occam",
+  "part": "B",
+  "title": "Model comparison and Occam's razor",
+  "summary": "Is the coin fair at all? Evidence, Bayes factors, posterior odds and the automatic Occam's razor that penalises needless flexibility.",
+  "bookRef": "ITILA ch. 3 (§3.3 The bent coin and model comparison), ch. 28 (Model Comparison and Occam's Razor)",
+  "lectures": [
+    {
+      "number": 10,
+      "title": "An introduction to Bayesian inference (II): inference of parameters and models",
+      "url": "https://videolectures.net/mackay_course_10/"
+    }
+  ],
+  "minutes": 30,
+  "objectives": [
+    "Compute the evidence P(D | H) of a simple model and of a flexible model.",
+    "Compute and interpret a Bayes factor, and turn it into posterior odds.",
+    "Explain the automatic Occam's razor: why flexible models pay a price.",
+    "Read Bayes factors on a standard scale."
+  ],
+  "warmup": [
+    {
+      "id": "s10-w1",
+      "type": "choice",
+      "prompt": "**Predict.** Ten tosses give 7 heads. Which model do the data support more: $H_0$ 'the coin is fair' or $H_1$ 'the coin has some unknown bias'?",
+      "options": [
+        "$H_1$: 7 out of 10 is lopsided",
+        "$H_0$, slightly",
+        "Exactly equally",
+        "You cannot say without a p-value"
+      ],
+      "answer": 1,
+      "explain": "Surprisingly, the data favour the fair coin slightly: the Bayes factor is about 0.78. This session shows why a model that *can* explain anything gets less credit for explaining this."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "md": "## Comparing models, not just parameters\nSession 9 inferred the bias $p$ *within* one model. Now ask a different question: is the coin fair at all? Compare two models:\n\n- $H_0$: the coin is fair, $p = 1/2$ exactly;\n- $H_1$: the bias $p$ is unknown, with a uniform prior on $[0, 1]$.\n\nBayes' theorem works at the level of models too:\n$$\\frac{P(H_1 \\mid D)}{P(H_0 \\mid D)} = \\underbrace{\\frac{P(D \\mid H_1)}{P(D \\mid H_0)}}_{\\text{Bayes factor } B} \\times \\frac{P(H_1)}{P(H_0)}$$\n**Posterior odds = Bayes factor × prior odds.** The quantity $P(D \\mid H)$ is the model's **evidence** (or marginal likelihood)."
+    },
+    {
+      "type": "text",
+      "md": "## The evidence for each model\nThe evidence asks: *how probable did this model make the data, before we saw them?*\n\n- $H_0$ has no free parameter: $P(D \\mid H_0) = (1/2)^n$.\n- $H_1$ must average its likelihood over its prior:\n$$P(D \\mid H_1) = \\int_0^1 p^{h}(1-p)^{t}\\, dp = \\frac{h!\\, t!}{(n+1)!}$$"
+    },
+    {
+      "type": "example",
+      "title": "7 heads, then 9 heads, in 10 tosses",
+      "steps": [
+        "$P(D \\mid H_0) = (1/2)^{10} = 1/1024 = 9.77 \\times 10^{-4}$.",
+        "7 heads: $P(D \\mid H_1) = \\dfrac{7!\\,3!}{11!} = 7.58 \\times 10^{-4}$, so $B = 0.78$: the data slightly favour the fair coin.",
+        "9 heads: $P(D \\mid H_1) = \\dfrac{9!\\,1!}{11!} = \\dfrac{1}{110} = 9.09 \\times 10^{-3}$, so $B = 9.3$: now the bent-coin model is clearly favoured."
+      ],
+      "reflect": {
+        "prompt": "$H_1$ includes $p = 0.5$ as one of its possibilities. How can it lose to $H_0$?",
+        "answer": "$H_1$ has to spread its predictions over every possible bias, so it gives each particular data set less probability. When the data look like what a fair coin produces, the sharp prediction of $H_0$ wins. Flexibility costs probability."
+      }
+    },
+    {
+      "type": "sim",
+      "sim": "occam",
+      "md": "**Predict:** with $n = 10$, for which head counts does the fair coin win? Move the observed heads and find where the Bayes factor crosses 1. Then raise $n$ to 40."
+    },
+    {
+      "type": "practice",
+      "exercise": "bayes-factor-coin",
+      "count": 3
+    },
+    {
+      "type": "text",
+      "md": "## Occam's razor, automatically\nA model's predictions are probabilities, and they must add up to 1 over all possible data sets. A simple model concentrates its predictions on a few outcomes; a flexible model spreads them thinly over many. When the data land where the simple model predicted, the simple model wins: **the Bayesian evidence penalises unnecessary complexity without any extra rule.**\n\nChapter 28 makes this quantitative. Roughly,\n$$\\text{evidence} \\approx \\text{best-fit likelihood} \\times \\underbrace{\\frac{\\text{posterior width}}{\\text{prior width}}}_{\\text{Occam factor} \\,<\\, 1}.$$\nA model that needed a lot of fine-tuning (narrow posterior inside a wide prior) pays a large Occam penalty."
+    },
+    {
+      "type": "callout",
+      "kind": "tip",
+      "md": "**Reading a Bayes factor** (Kass & Raftery, 1995): $B$ from 1 to 3 is barely worth mentioning, 3 to 20 is positive evidence, 20 to 150 strong, above 150 very strong. For evidence *against* $H_1$, read the same scale for $1/B$."
+    },
+    {
+      "type": "practice",
+      "exercise": "posterior-from-bf",
+      "count": 2
+    },
+    {
+      "type": "check",
+      "question": {
+        "id": "s10-k1",
+        "type": "choice",
+        "prompt": "Model A predicts that a measurement will fall in a narrow range; model B allows almost any value. The measurement falls inside A's range. Which model has the larger evidence?",
+        "options": [
+          "Model A",
+          "Model B, because it allows more",
+          "They tie, because both allowed the result",
+          "It depends only on the priors $P(A)$ and $P(B)$"
+        ],
+        "answer": 0,
+        "explain": "A put most of its probability where the data landed; B spread its probability thinly. The evidence rewards the sharper correct prediction."
+      }
+    },
+    {
+      "type": "callout",
+      "kind": "misconception",
+      "md": "**\"The model that fits best is the most probable.\"** The flexible model's *best* fit (here $p = h/n$) always fits at least as well as the fair coin, so best-fit likelihood would always pick the more complex model: that is overfitting. The evidence averages the fit over the prior, which is what penalises wasted flexibility."
+    },
+    {
+      "type": "reflect",
+      "prompt": "Why can't you compare models by their maximum likelihood alone?",
+      "answer": "The more flexible model can always match the data at least as well, so maximum likelihood would always choose it. The evidence asks how well each model predicted the data *before* tuning its parameters, which automatically charges for flexibility the data did not need."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "s10-q1",
+      "type": "generated",
+      "exercise": "bayes-factor-coin"
+    },
+    {
+      "id": "s10-q2",
+      "type": "generated",
+      "exercise": "posterior-from-bf"
+    },
+    {
+      "id": "s10-q3",
+      "type": "numeric",
+      "prompt": "Under $H_1$ (bias unknown, uniform prior), what is the probability that 10 tosses give exactly 4 heads? Round to 3 decimals.",
+      "answer": 0.09090909090909091,
+      "explain": "With a uniform prior every head count from 0 to 10 is equally likely: $\\binom{10}{4} \\cdot \\dfrac{4!\\,6!}{11!} = \\dfrac{1}{11} = 0.091$. A fair coin instead gives $210/1024 = 0.205$.",
+      "tolerance": 0.002
+    },
+    {
+      "id": "s10-q4",
+      "type": "choice",
+      "prompt": "A Bayes factor $B = P(D \\mid H_1)/P(D \\mid H_0) = 0.05$ means:",
+      "options": [
+        "The data favour $H_0$ by a factor of 20",
+        "There is a 5% chance that $H_1$ is true",
+        "$H_1$ is rejected at the 5% level",
+        "The data favour $H_1$ by a factor of 20"
+      ],
+      "answer": 0,
+      "explain": "$1/0.05 = 20$: the data were 20 times more probable under $H_0$. Turning that into $P(H_1 \\mid D)$ also needs the prior odds."
+    },
+    {
+      "id": "s10-q5",
+      "type": "choice",
+      "prompt": "Why does the evidence penalise complex models automatically?",
+      "options": [
+        "A flexible model spreads its predictive probability over many possible data sets, so each one gets less",
+        "Complex models are given smaller prior probabilities by convention",
+        "The evidence subtracts the number of parameters",
+        "Complex models always fit the data worse"
+      ],
+      "answer": 0,
+      "explain": "Predictive probabilities sum to 1. Spreading them over more possibilities leaves less for the data actually observed: Occam's razor falls out of probability theory."
+    }
+  ],
+  "cards": [
+    {
+      "id": "s10-c1",
+      "kind": "concept",
+      "front": "What is the evidence (marginal likelihood) $P(D \\mid H)$ of a model?",
+      "back": "How probable the model made the observed data before seeing them: the likelihood averaged over the model's prior on its parameters."
+    },
+    {
+      "id": "s10-c2",
+      "kind": "formula",
+      "front": "Posterior odds of two models?",
+      "back": "$\\dfrac{P(H_1 \\mid D)}{P(H_0 \\mid D)} = \\dfrac{P(D \\mid H_1)}{P(D \\mid H_0)} \\times \\dfrac{P(H_1)}{P(H_0)}$: Bayes factor × prior odds."
+    },
+    {
+      "id": "s10-c3",
+      "kind": "formula",
+      "front": "Evidence for a bent coin with a uniform prior ($h$ heads, $t$ tails)?",
+      "back": "$P(D \\mid H_1) = \\dfrac{h!\\,t!}{(n+1)!}$ for a particular sequence; for the fair coin, $(1/2)^n$."
+    },
+    {
+      "id": "s10-c4",
+      "kind": "concept",
+      "front": "Explain the automatic Occam's razor in one sentence.",
+      "back": "Flexible models spread their predictions over many data sets, so when the data fit a simpler model's sharp prediction, the simpler model has the larger evidence."
+    },
+    {
+      "id": "s10-c5",
+      "kind": "formula",
+      "front": "Evidence ≈ best-fit likelihood × ?",
+      "back": "The Occam factor ≈ posterior width / prior width (less than 1)."
+    },
+    {
+      "id": "s10-c6",
+      "kind": "concept",
+      "front": "Kass & Raftery scale for Bayes factors?",
+      "back": "1-3 barely worth mentioning; 3-20 positive; 20-150 strong; >150 very strong."
+    },
+    {
+      "id": "s10-c7",
+      "kind": "concept",
+      "front": "Under a uniform prior on the bias, what is the distribution of the number of heads in $n$ tosses?",
+      "back": "Uniform: each count 0, 1, …, n has probability $1/(n+1)$."
+    },
+    {
+      "id": "s10-c8",
+      "kind": "exercise",
+      "exercise": "bayes-factor-coin"
+    },
+    {
+      "id": "s10-c9",
+      "kind": "exercise",
+      "exercise": "posterior-from-bf"
+    }
+  ]
+}

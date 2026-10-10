@@ -49,17 +49,17 @@ The Claude provider streams responses (long sessions would otherwise hit HTTP ti
 
 ## Writing a new session
 
-1. **Write a brief.** Copy `authoring/briefs/s08-comparing-groups.json`. List objectives, key ideas, misconceptions and the book sections, **in your own words**.
+1. **Write a brief.** Copy `authoring/briefs/s14-clustering.json` (the next chapter of the book; more planned sessions are listed in [BOOK.md](BOOK.md)). List objectives, key ideas, misconceptions and the book sections, **in your own words**.
 2. **Run the pipeline:**
    ```bash
-   npm run author -- run authoring/briefs/s08-comparing-groups.json
+   npm run author -- run authoring/briefs/s14-clustering.json
    ```
-   Output goes to `authoring/out/s08/`: `session.json`, `result.json`, `report.md`.
+   Output goes to `authoring/out/s14/`: `session.json`, `result.json`, `report.md`.
 3. **Read `report.md`.** Resolve every ⚠️ answer-key disagreement and every open critical or major issue. Recompute the worked examples yourself.
-4. **Implement proposed generators.** If the drafter needed a practice type that does not exist yet (for example "SE of a difference of proportions"), it lists it under *Proposed exercise generators*. Add it to `app/src/exercises.js`; the tests will check it automatically.
+4. **Implement proposed generators.** If the drafter needed a practice type that does not exist yet (for example "one K-means update step"), it lists it under *Proposed exercise generators*. Add it to `app/src/exercises.js`; the tests will check it automatically.
 5. **Promote:**
    ```bash
-   npm run author -- promote authoring/out/s08/session.json
+   npm run author -- promote authoring/out/s14/session.json
    npm test && npm run serve      # check it in the app (Settings → unlock all)
    ```
    `promote` validates the session, adds it to `course.json`, and updates the offline cache list in `app/sw.js`.
@@ -81,7 +81,7 @@ The Claude provider streams responses (long sessions would otherwise hit HTTP ti
 With a Claude or ChatGPT subscription but no API key, use the same pipeline by copy and paste:
 
 ```bash
-npm run author -- run authoring/briefs/s08-comparing-groups.json --drafter manual --reviewer manual --solvers manual
+npm run author -- run authoring/briefs/s14-clustering.json --drafter manual --reviewer manual --solvers manual
 ```
 
 Each step writes a prompt to `authoring/out/manual/<step>.prompt.md` and stops. Paste the prompt into claude.ai (for drafting) or chatgpt.com (for reviewing), save the reply as `<step>.response.md` next to it, and run the same command again. The pipeline continues where it stopped.
@@ -102,7 +102,7 @@ Ten sessions cost about $15-25 in API fees. OpenAI prices depend on the model yo
 
 ## Rules that keep content trustworthy
 
-1. **No book text in briefs.** Briefs go to two external services. Paraphrase; reference sections in `bookRef`.
+1. **No book text in briefs.** Briefs go to two external services, and MacKay's book is copyrighted. Paraphrase; reference chapters in `bookRef`.
 2. **Humans approve.** `report.md` ends with a checklist; `promote` refuses invalid content, but correctness is your call.
 3. **Generators are code, reviewed by a human.** LLMs may *propose* exercise generators; they never write executable code into the app directly.
 4. **Safe rendering.** The app escapes all HTML in content, so a model cannot inject scripts into lessons.

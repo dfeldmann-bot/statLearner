@@ -12,7 +12,7 @@ Two techniques have the strongest evidence for durable learning: **retrieval pra
 | 4 | Worked examples, then fading | Novices learn more from studying worked examples than from solving alone (Sweller & Cooper, 1985); gradually removing steps eases the move to independence (Renkl & Atkinson, 2003) | Every practice set: full worked example → half-solved → solve alone |
 | 5 | Self-explanation | Learners who explain steps to themselves understand more (Chi et al., 1994; meta-analysis: Bisra et al., 2018) | "Explain it in your own words" prompts with model answers; reflection after worked examples |
 | 6 | Pretesting / prediction | Attempting a question before instruction improves later learning, even when the attempt fails (Richland, Kornell & Kao, 2009; Kornell, Hays & Bjork, 2009) | Each session opens with a prediction question; every simulation asks for a prediction first |
-| 7 | Simulation-based statistics | GAISE College Report (ASA, 2016): focus on concepts, use technology to explore them; simulation-based inference curricula (Cobb, 2007; Tintle et al., 2011) | 10 simulations: CLT, CI coverage, p-value by simulation, Bayes grid, regression and more |
+| 7 | Simulation-based statistics | GAISE College Report (ASA, 2016): focus on concepts, use technology to explore them; simulation-based inference curricula (Cobb, 2007; Tintle et al., 2011) | 17 simulations: CLT, CI coverage, Bayes grid, bent-coin posterior, Occam's razor, Metropolis sampler, stopping-rule paradox and more |
 | 8 | Targeting misconceptions | Students leave intro courses with stable misconceptions about sampling and p-values (delMas et al., 2007); natural frequencies make Bayesian reasoning easier (Gigerenzer & Hoffrage, 1995); ASA statement on p-values (Wasserstein & Lazar, 2016) | Misconception callouts; distractors built from real misconceptions, each with its own feedback; Bayes taught with "imagine 10,000 people" |
 | 9 | Immediate, explanatory feedback | Feedback that explains *why* helps more than right/wrong alone (Hattie & Timperley, 2007; Shute, 2008) | Every answer shows an explanation and the full worked solution (opened automatically when wrong) |
 | 10 | Mastery learning | Requiring mastery before moving on raises achievement (Bloom, 1984; Kulik, Kulik & Bangert-Drowns, 1990) | 80% quiz pass mark unlocks the next session; retakes draw new numbers |
@@ -43,7 +43,7 @@ Three card types:
 
 ### Unlimited practice without an LLM
 
-`app/src/exercises.js` contains 28 exercise generators. Each draws random but sensible numbers, computes the answer, and writes a step-by-step solution. Learners never run out of practice, quiz retakes use new numbers (so memorising answers does not help), and everything works offline. Tests generate 300 instances of every generator and check that each answer is finite, accepted by the checker and explained.
+`app/src/exercises.js` and `app/src/exercises-book.js` contain 46 exercise generators. Each draws random but sensible numbers, computes the answer, and writes a step-by-step solution. Learners never run out of practice, quiz retakes use new numbers (so memorising answers does not help), and everything works offline. Tests generate 300 instances of every generator and check that each answer is finite, accepted by the checker and explained.
 
 ### Lesson flow
 

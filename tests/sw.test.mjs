@@ -10,7 +10,9 @@ async function walk(dir, base = dir) {
   const out = [];
   for (const e of await readdir(dir, { withFileTypes: true })) {
     const p = path.join(dir, e.name);
-    if (e.isDirectory()) out.push(...(await walk(p, base)));
+    if (e.isDirectory()) {
+      if (path.relative(base, p) !== "book") out.push(...(await walk(p, base))); // app/book: local, git-ignored PDF
+    }
     else out.push(path.relative(base, p).split(path.sep).join("/"));
   }
   return out;

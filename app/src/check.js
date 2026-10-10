@@ -13,7 +13,7 @@ export function parseNumber(raw) {
   if (/^-?\d+,\d+$/.test(s)) s = s.replace(",", "."); // decimal comma
   const frac = s.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
   if (frac) return (Number(frac[1]) / Number(frac[2])) * scale;
-  if (!/^-?(\d+\.?\d*|\.\d+)(e-?\d+)?$/i.test(s)) return NaN;
+  if (!/^-?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i.test(s)) return NaN;
   return Number(s) * scale;
 }
 

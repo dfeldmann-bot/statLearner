@@ -1,9 +1,11 @@
 {
   "id": "s06",
   "slug": "hypothesis-tests",
+  "part": "A",
   "title": "Hypothesis tests and p-values",
   "summary": "Null and alternative hypotheses, test statistics, p-values, decisions, errors and power - and how not to misread a p-value.",
-  "bookRef": "OpenIntro Statistics 4e, §5.3 (Hypothesis testing for a proportion)",
+  "bookRef": "Contrasted in ITILA ch. 37 (Bayesian Inference and Sampling Theory); see session 13",
+  "companionRef": "OpenIntro Statistics 4e, §5.3",
   "minutes": 30,
   "objectives": [
     "State null and alternative hypotheses for a research question.",

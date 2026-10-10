@@ -1,9 +1,11 @@
 {
   "id": "s05",
   "slug": "confidence-intervals",
+  "part": "A",
   "title": "Confidence intervals",
   "summary": "Estimate ± margin of error: building, interpreting and planning confidence intervals.",
-  "bookRef": "OpenIntro Statistics 4e, §5.2 (Confidence intervals for a proportion); means with the t-distribution: §7.1",
+  "bookRef": "Contrasted in ITILA ch. 37 (Bayesian Inference and Sampling Theory); see session 13",
+  "companionRef": "OpenIntro Statistics 4e, §5.2; means: §7.1",
   "minutes": 25,
   "objectives": [
     "Build a confidence interval as point estimate ± z* × SE.",

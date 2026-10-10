@@ -1,9 +1,11 @@
 {
   "id": "s03",
   "slug": "random-variables-normal",
+  "part": "A",
   "title": "Random variables, the binomial and the normal model",
   "summary": "Expected value, the binomial model for counts, z-scores and the 68-95-99.7 rule.",
-  "bookRef": "OpenIntro Statistics 4e, §3.4 (Random variables), §4.1 (Normal distribution), §4.3 (Binomial distribution)",
+  "bookRef": "ITILA ch. 2 (§2.1 probabilities and ensembles), ch. 23 (Useful Probability Distributions)",
+  "companionRef": "OpenIntro Statistics 4e, §3.4, §4.1, §4.3",
   "minutes": 30,
   "objectives": [
     "Compute the expected value (and SD) of a discrete random variable.",

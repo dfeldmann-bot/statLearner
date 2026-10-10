@@ -6,7 +6,7 @@ This folder is **phase 0** of the plan in [`docs/STATBOT-PLAN.md`](../docs/STATB
 
 ```bash
 cd statbot
-python3 -m statbot build                          # index the course + corpus (about 150 passages)
+python3 -m statbot build                          # index the course + corpus (about 265 passages)
 python3 -m statbot ask "What is a standard error?"
 python3 -m statbot chat                           # interactive; empty line quits
 python3 -m statbot eval -v                        # retrieval hit@3 and refusal accuracy
@@ -36,8 +36,8 @@ I can't answer that from my curated statistics sources. ...
 3. **Answer or refuse** (`statbot/answer.py`): if the best passage scores high enough *and* contains at least half of the question's terms, StatBot quotes its best-matching sentences with citations. Otherwise it refuses.
 4. **Optional local LLM:** with `--llm ollama:llama3.2:3b` (requires [Ollama](https://ollama.com) running locally), the same passages go to a small local model. The model is told to use nothing else, and any answer without a citation is discarded.
 
-Current baseline (`python3 -m statbot eval`): **97% hit@3** on 29 in-scope questions, **88% correct refusals** on 8 out-of-scope questions. Lexical retrieval misses paraphrases and can be fooled by shared words: "weather tomorrow" matches "hot weather" in the confounder example. Phase 2 of the plan targets exactly these weaknesses.
+Current baseline (`python3 -m statbot eval`): **98% hit@3** on 42 in-scope questions, **88% correct refusals** on 8 out-of-scope questions. Lexical retrieval misses paraphrases and can be fooled by shared words: "weather tomorrow" matches "hot weather" in the confounder example. Phase 2 of the plan targets exactly these weaknesses.
 
 ## Adding curated sources
 
-See [`corpus/README.md`](corpus/README.md) and the vetted candidate list in [`sources.json`](sources.json). Add only text whose licence allows it, rebuild, and re-run the eval.
+See [`corpus/README.md`](corpus/README.md) and the vetted candidate list in [`sources.json`](sources.json). Add only text whose licence allows it, rebuild, and re-run the eval. MacKay's book, which the course follows, is copyrighted and listed as reference-only: StatBot learns its topics through the course sessions, which cite the chapters.

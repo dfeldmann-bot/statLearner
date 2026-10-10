@@ -134,3 +134,16 @@ test("review queue interleaves sessions and respects due dates", () => {
   const f = forecast(all, states, { now, days: 7 });
   assert.equal(f[2], 1);
 });
+
+test("lgamma, Beta density, entropy and coin Bayes factor", async () => {
+  const { lgamma, logChoose, betaPdf, entropy, bayesFactorCoin } = await import("../app/src/stats.js");
+  assert.ok(Math.abs(lgamma(5) - Math.log(24)) < 1e-12);
+  assert.ok(Math.abs(lgamma(0.5) - Math.log(Math.sqrt(Math.PI))) < 1e-12);
+  assert.ok(Math.abs(Math.exp(logChoose(12, 9)) - 220) < 1e-9);
+  assert.ok(Math.abs(betaPdf(0.3, 1, 1) - 1) < 1e-12);
+  assert.ok(Math.abs(betaPdf(0.5, 3, 3) - 1.875) < 1e-12);
+  assert.equal(entropy([0.5, 0.25, 0.125, 0.125]), 1.75);
+  assert.ok(Math.abs(bayesFactorCoin(10, 7) - 0.7757) < 1e-4);
+  assert.ok(Math.abs(bayesFactorCoin(10, 9) - 9.309) < 1e-3);
+  assert.ok(Math.abs(1 / bayesFactorCoin(10000, 5100) - 10.80) < 0.01, "Lindley example");
+});

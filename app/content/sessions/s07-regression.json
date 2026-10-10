@@ -1,9 +1,18 @@
 {
   "id": "s07",
   "slug": "regression",
+  "part": "A",
   "title": "Correlation and simple linear regression",
   "summary": "Describe a relationship with r, fit the least-squares line, read slope, intercept, residuals and R², and avoid the classic traps.",
-  "bookRef": "OpenIntro Statistics 4e, §8.1-8.3 (Fitting a line, residuals and correlation; Least squares regression; Outliers)",
+  "bookRef": "Background for ITILA part V (ch. 39-45: neurons, learning as inference, Gaussian processes)",
+  "companionRef": "OpenIntro Statistics 4e, §8.1-8.3",
+  "lectures": [
+    {
+      "number": 15,
+      "title": "Data modelling with neural networks (I): feedforward networks",
+      "url": "https://videolectures.net/mackay_course_15/"
+    }
+  ],
   "minutes": 30,
   "objectives": [
     "Describe a scatterplot and interpret the correlation coefficient r.",

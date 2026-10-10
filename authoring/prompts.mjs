@@ -11,7 +11,9 @@ Session (JSON object):
   "id": "s08",                         // "s" + two digits
   "slug": "kebab-case-name",
   "title": string, "summary": string (one sentence),
-  "bookRef": string,                   // matching book sections, e.g. "OpenIntro Statistics 4e, §6.2"
+  "part": "A" | "B",                   // A = foundations, B = MacKay's ITILA track
+  "bookRef": string,                   // ITILA chapters/sections, e.g. "ITILA ch. 20, ch. 22"
+  "lectures"?: [{"number": int, "title": string, "url": string}],   // MacKay's 2012 lectures, copy from the brief
   "minutes": number,
   "objectives": [string, ...],         // 3-5, each starting with a verb
   "warmup": [Question, ...],           // 1 prediction question asked BEFORE teaching
@@ -50,7 +52,8 @@ Learning-design rules (evidence-based; follow all of them):
 8. Cards: atomic (one fact per card), concepts and formulas in words + symbols, plus 1-2 exercise cards for the core procedures.
 9. Correctness: every number in steps, answers and explanations must be exactly right. Round only at the end and say how.
 10. Originality: write in your own words with your own numbers. Never copy sentences, examples or exercises from the textbook; reference sections in "bookRef" instead.
-11. Plain language: define every term at first use; one idea per paragraph; examples before abstractions.`;
+11. Plain language: define every term at first use; one idea per paragraph; examples before abstractions.
+12. Book alignment: Part B follows MacKay's "Information Theory, Inference, and Learning Algorithms" (ITILA) and its Bayesian viewpoint; cite chapters in "bookRef" and link earlier sessions where ideas connect.`;
 
 const catalog = () =>
   [

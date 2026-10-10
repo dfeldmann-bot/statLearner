@@ -26,7 +26,13 @@ async function loadContent() {
 }
 
 const progressOf = (id) => (app.state.sessions[id] ??= {});
-const isUnlocked = (i) => app.state.settings.unlockAll || i === 0 || !!app.state.sessions[app.sessions[i - 1].id]?.quizPassedAt;
+// Each part opens with its first session; inside a part, pass a quiz to unlock the next session.
+function isUnlocked(i) {
+  if (app.state.settings.unlockAll || i === 0) return true;
+  const prev = app.sessions[i - 1];
+  if (app.sessions[i].part !== prev.part) return true;
+  return !!app.state.sessions[prev.id]?.quizPassedAt;
+}
 const allCards = () => cardsOf(app.sessions);
 const dueCount = () => dueCards(allCards(), app.state.cards).length;
 
@@ -65,6 +71,7 @@ function renderHeader() {
     ["#/review", `Review${due ? ` (${due})` : ""}`],
     ["#/practice", "Practice"],
     ["#/progress", "Progress"],
+    ["#/book", "Book"],
     ["#/settings", "Settings"],
   ];
   const route = location.hash || "#/";
@@ -102,7 +109,11 @@ function viewHome() {
     ),
   );
   const list = h("section", { class: "sessions" });
+  const parts = Object.fromEntries((app.course.parts ?? []).map((p) => [p.id, p]));
   app.sessions.forEach((s, i) => {
+    if (parts[s.part] && s.part !== app.sessions[i - 1]?.part) {
+      list.append(h("div", { class: "part-head" }, h("h2", {}, parts[s.part].title), h("p", { class: "muted small" }, parts[s.part].description)));
+    }
     const p = app.state.sessions[s.id] ?? {};
     const unlocked = isUnlocked(i);
     const m = mastery(s, app.state.cards);
@@ -126,7 +137,7 @@ function viewHome() {
     );
   });
   root.append(list);
-  root.append(h("p", { class: "muted small center" }, "Reading companion: ", h("a", { href: app.course.book.url, target: "_blank", rel: "noopener" }, `${app.course.book.title} (${app.course.book.edition})`), ` · ${app.course.book.license}`));
+  root.append(h("p", { class: "muted small center" }, "Based on ", h("a", { href: app.course.book.url, target: "_blank", rel: "noopener" }, app.course.book.title), ` by ${app.course.book.authors} · `, h("a", { href: "#/book" }, "book, lectures and other resources")));
   return root;
 }
 
@@ -191,7 +202,13 @@ function viewSession(id) {
       { class: "card" },
       h("div", { class: "eyebrow" }, `Session ${idx + 1} · ${s.minutes} min`),
       h("h1", {}, s.title),
-      s.bookRef ? h("p", { class: "muted small" }, `📖 Optional reading: ${s.bookRef}`) : null,
+      h(
+        "div",
+        { class: "refs small" },
+        s.bookRef ? h("div", {}, "📖 ", h("a", { href: app.course.book.url, target: "_blank", rel: "noopener" }, "Book"), `: ${s.bookRef}`) : null,
+        s.companionRef ? h("div", {}, "📘 ", h("a", { href: app.course.companions?.[0]?.url, target: "_blank", rel: "noopener" }, "Companion"), `: ${s.companionRef}`) : null,
+        (s.lectures ?? []).map((l) => h("div", {}, "🎥 ", h("a", { href: l.url, target: "_blank", rel: "noopener" }, `MacKay lecture ${l.number}`), `: ${l.title}`)),
+      ),
       h("div", { class: "objectives" }, h("strong", {}, "You will be able to:"), h("ul", {}, s.objectives.map((o) => h("li", {}, mdInline(o))))),
       p.completedAt ? h("div", { class: "actions" }, h("a", { class: "btn", href: `#/quiz/${id}` }, "Skip to the mastery quiz")) : null,
     ),
@@ -638,6 +655,73 @@ function viewProgress() {
 }
 const stat = (icon, value, label) => h("div", { class: "stat" }, h("div", { class: "stat-v" }, `${icon} ${value}`), h("div", { class: "muted small" }, label));
 
+// ----- book, lectures and resources -----
+function viewBook() {
+  const { book, lectures, companions = [], authorPages = [] } = app.course;
+  const ext = (href, text) => h("a", { href, target: "_blank", rel: "noopener" }, text);
+  const local = h("span", { class: "muted small" });
+  // A personal copy downloaded with `npm run fetch-book` lives at app/book/itila.pdf (never committed).
+  fetch("book/itila.pdf", { method: "HEAD" })
+    .then((r) => r.ok && local.replaceChildren(h("a", { class: "btn", href: "book/itila.pdf", target: "_blank" }, "📄 Open your local copy")))
+    .catch(() => {});
+  const byLecture = {};
+  for (const s of app.sessions) for (const l of s.lectures ?? []) (byLecture[l.number] ??= []).push(s);
+  return h(
+    "div",
+    { class: "stack" },
+    h(
+      "section",
+      { class: "card hero" },
+      h("div", { class: "eyebrow" }, "The book this course follows"),
+      h("h1", {}, book.title),
+      h("p", {}, `${book.authors} · ${book.edition}`),
+      h("div", { class: "hero-actions" }, h("a", { class: "btn primary", href: book.url, target: "_blank", rel: "noopener" }, "📖 Read the book (PDF, author's site)"), h("a", { class: "btn", href: book.home, target: "_blank", rel: "noopener" }, "Book home page"), local),
+      h("p", { class: "muted small" }, book.license, " This app links to the author's copy instead of bundling it. To keep a personal copy for offline reading, run ", h("code", {}, "npm run fetch-book"), "."),
+    ),
+    h(
+      "section",
+      { class: "card" },
+      h("h2", {}, "🎥 MacKay's lectures"),
+      h("p", {}, `${lectures.title}. `, ext(lectures.url, "VideoLectures.net"), " · ", ext(lectures.youtube, "YouTube playlist"), " · ", ext(lectures.home, "course page with slides")),
+      h(
+        "ol",
+        { class: "lectures" },
+        lectures.list.map((l) =>
+          h(
+            "li",
+            {},
+            ext(l.url, l.title),
+            byLecture[l.number] ? h("span", { class: "muted small" }, " → ", byLecture[l.number].map((s, k) => [k ? ", " : "", h("a", { href: `#/s/${s.id}` }, `session ${app.sessions.indexOf(s) + 1}`)])) : null,
+          ),
+        ),
+      ),
+      h("p", { class: "muted small" }, lectures.note),
+    ),
+    h(
+      "section",
+      { class: "card" },
+      h("h2", {}, "How the sessions map to the book"),
+      h(
+        "table",
+        { class: "map" },
+        h("thead", {}, h("tr", {}, h("th", {}, "#"), h("th", {}, "Session"), h("th", {}, "Book"), h("th", {}, "Lectures"))),
+        h(
+          "tbody",
+          {},
+          app.sessions.map((s, i) => h("tr", {}, h("td", {}, String(i + 1)), h("td", {}, h("a", { href: `#/s/${s.id}` }, s.title)), h("td", {}, s.bookRef ?? ""), h("td", {}, (s.lectures ?? []).map((l) => l.number).join(", ")))),
+        ),
+      ),
+    ),
+    h(
+      "section",
+      { class: "card" },
+      h("h2", {}, "More from David MacKay"),
+      h("ul", {}, authorPages.map((a) => h("li", {}, ext(a.url, a.title)))),
+      companions.map((c) => h("p", { class: "small" }, "📘 Companion for Part A: ", ext(c.url, `${c.title} (${c.edition})`), ` by ${c.authors}, ${c.license}. ${c.use}`)),
+    ),
+  );
+}
+
 // ----- settings -----
 function viewSettings() {
   const st = app.state.settings;
@@ -727,7 +811,7 @@ function viewSettings() {
         ),
       ),
     ),
-    h("p", { class: "muted small center" }, "statLearner · GPL-3.0 · course content original, aligned with ", h("a", { href: app.course.book.url, target: "_blank", rel: "noopener" }, app.course.book.title), "."),
+    h("p", { class: "muted small center" }, "statLearner · GPL-3.0 · course text is original and follows ", h("a", { href: "#/book" }, app.course.book.title), "."),
   );
 }
 
@@ -735,7 +819,7 @@ function viewSettings() {
 function route() {
   const hash = location.hash || "#/";
   const [, view, arg] = hash.split("/");
-  const views = { "": viewHome, s: () => viewSession(arg), quiz: () => viewQuiz(arg), review: viewReview, practice: viewPractice, progress: viewProgress, settings: viewSettings };
+  const views = { "": viewHome, s: () => viewSession(arg), quiz: () => viewQuiz(arg), review: viewReview, practice: viewPractice, progress: viewProgress, book: viewBook, settings: viewSettings };
   const render = views[view] ?? viewHome;
   main().replaceChildren(render());
   window.scrollTo(0, 0);

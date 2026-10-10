@@ -1,14 +1,85 @@
 {
   "note": "Candidate curated sources for StatBot. Verify each licence on the source's own site before adding text to statbot/corpus/. 'ingest' = may be stored and quoted with attribution; 'reference-only' = link to it, never store its text.",
   "sources": [
-    { "id": "statlearner-course", "title": "statLearner course sessions (this repo)", "url": "app/content/sessions", "license": "GPL-3.0", "use": "ingest", "status": "included" },
-    { "id": "statlearner-glossary", "title": "statLearner glossary (this repo)", "url": "statbot/corpus/glossary.md", "license": "GPL-3.0", "use": "ingest", "status": "included" },
-    { "id": "openintro-os4", "title": "OpenIntro Statistics, 4th ed. (Diez, Çetinkaya-Rundel, Barr)", "url": "https://www.openintro.org/book/os/", "license": "CC BY-SA 3.0", "use": "ingest", "status": "candidate: verify licence; keep attribution and share-alike" },
-    { "id": "openstax-intro-stats-2e", "title": "OpenStax Introductory Statistics 2e", "url": "https://openstax.org/details/books/introductory-statistics-2e", "license": "CC BY 4.0", "use": "ingest", "status": "candidate: verify licence; keep attribution" },
-    { "id": "onlinestatbook", "title": "Online Statistics Education (D. Lane et al., Rice University)", "url": "https://onlinestatbook.com", "license": "Public domain (as stated by the project)", "use": "ingest", "status": "candidate: verify" },
-    { "id": "nist-handbook", "title": "NIST/SEMATECH e-Handbook of Statistical Methods", "url": "https://www.itl.nist.gov/div898/handbook/", "license": "US government work (check the site's notice)", "use": "ingest", "status": "candidate: verify" },
-    { "id": "wikipedia-stats", "title": "Wikipedia statistics articles", "url": "https://en.wikipedia.org/wiki/Portal:Statistics", "license": "CC BY-SA 4.0", "use": "ingest", "status": "candidate: quality varies, curate article by article" },
-    { "id": "think-stats", "title": "Think Stats (A. Downey)", "url": "https://greenteapress.com/wp/think-stats-3e/", "license": "CC BY-NC-SA 4.0 (non-commercial)", "use": "ingest", "status": "candidate: only while the project stays non-commercial" },
-    { "id": "islr", "title": "An Introduction to Statistical Learning (James, Witten, Hastie, Tibshirani)", "url": "https://www.statlearning.com", "license": "Free PDF, all rights reserved", "use": "reference-only", "status": "do not ingest text" }
+    {
+      "id": "statlearner-course",
+      "title": "statLearner course sessions (this repo)",
+      "url": "app/content/sessions",
+      "license": "GPL-3.0",
+      "use": "ingest",
+      "status": "included"
+    },
+    {
+      "id": "statlearner-glossary",
+      "title": "statLearner glossary (this repo)",
+      "url": "statbot/corpus/glossary.md",
+      "license": "GPL-3.0",
+      "use": "ingest",
+      "status": "included"
+    },
+    {
+      "id": "itila",
+      "title": "Information Theory, Inference, and Learning Algorithms (D. J. C. MacKay, CUP 2003) - the course's main book",
+      "url": "https://www.inference.org.uk/itprnn/book.pdf",
+      "license": "© Cambridge University Press; free for on-screen viewing, printing and redistribution not permitted",
+      "use": "reference-only",
+      "status": "do not ingest text; the course cites its chapters instead"
+    },
+    {
+      "id": "openintro-os4",
+      "title": "OpenIntro Statistics, 4th ed. (Diez, Çetinkaya-Rundel, Barr) - companion for Part A",
+      "url": "https://www.openintro.org/book/os/",
+      "license": "CC BY-SA 3.0",
+      "use": "ingest",
+      "status": "candidate: verify licence; keep attribution and share-alike"
+    },
+    {
+      "id": "openstax-intro-stats-2e",
+      "title": "OpenStax Introductory Statistics 2e",
+      "url": "https://openstax.org/details/books/introductory-statistics-2e",
+      "license": "CC BY 4.0",
+      "use": "ingest",
+      "status": "candidate: verify licence; keep attribution"
+    },
+    {
+      "id": "onlinestatbook",
+      "title": "Online Statistics Education (D. Lane et al., Rice University)",
+      "url": "https://onlinestatbook.com",
+      "license": "Public domain (as stated by the project)",
+      "use": "ingest",
+      "status": "candidate: verify"
+    },
+    {
+      "id": "nist-handbook",
+      "title": "NIST/SEMATECH e-Handbook of Statistical Methods",
+      "url": "https://www.itl.nist.gov/div898/handbook/",
+      "license": "US government work (check the site's notice)",
+      "use": "ingest",
+      "status": "candidate: verify"
+    },
+    {
+      "id": "wikipedia-stats",
+      "title": "Wikipedia statistics articles",
+      "url": "https://en.wikipedia.org/wiki/Portal:Statistics",
+      "license": "CC BY-SA 4.0",
+      "use": "ingest",
+      "status": "candidate: quality varies, curate article by article"
+    },
+    {
+      "id": "think-stats",
+      "title": "Think Stats (A. Downey)",
+      "url": "https://greenteapress.com/wp/think-stats-3e/",
+      "license": "CC BY-NC-SA 4.0 (non-commercial)",
+      "use": "ingest",
+      "status": "candidate: only while the project stays non-commercial"
+    },
+    {
+      "id": "islr",
+      "title": "An Introduction to Statistical Learning (James, Witten, Hastie, Tibshirani)",
+      "url": "https://www.statlearning.com",
+      "license": "Free PDF, all rights reserved",
+      "use": "reference-only",
+      "status": "do not ingest text"
+    }
   ]
 }

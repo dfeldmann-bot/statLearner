@@ -1,0 +1,227 @@
+{
+  "id": "s09",
+  "slug": "bayesian-bent-coin",
+  "part": "B",
+  "title": "Bayesian inference: the bent coin",
+  "summary": "Inverse probability with Bayes' theorem: from data back to hypotheses, the bent coin's posterior, Laplace's rule and priors as pseudo-counts.",
+  "bookRef": "ITILA ch. 2 (§2.3 Forward and inverse probabilities), ch. 3 (More about Inference; §3.2 The bent coin)",
+  "lectures": [
+    {
+      "number": 9,
+      "title": "A noisy channel coding gem, and an introduction to Bayesian inference (I)",
+      "url": "https://videolectures.net/mackay_course_09/"
+    },
+    {
+      "number": 10,
+      "title": "An introduction to Bayesian inference (II): inference of parameters and models",
+      "url": "https://videolectures.net/mackay_course_10/"
+    }
+  ],
+  "minutes": 30,
+  "objectives": [
+    "Distinguish forward probability (data given a hypothesis) from inverse probability (a hypothesis given data).",
+    "Update beliefs with Bayes' theorem using a prior × likelihood table.",
+    "Write the posterior for a bent coin's bias and predict the next toss with Laplace's rule.",
+    "Explain why maximum likelihood can be overconfident with little data, and how a prior helps."
+  ],
+  "warmup": [
+    {
+      "id": "s09-w1",
+      "type": "choice",
+      "prompt": "**Predict.** A coin of unknown bias lands heads 3 times in 3 tosses. What probability should you give heads on the next toss?",
+      "options": [
+        "1, because it has always landed heads",
+        "0.8",
+        "0.5, because coins are fair",
+        "0.25, because tails is due"
+      ],
+      "answer": 1,
+      "explain": "With a uniform prior on the bias, the answer is $(3+1)/(3+2) = 0.8$: Laplace's rule of succession. It learns from the three heads but, unlike '1', does not declare tails impossible after only three tosses."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "md": "## Forward and inverse probability\n**Forward probability** runs from a model to data: *if* the coin has bias $p = 0.7$, how likely are 8 heads in 10 tosses? **Inverse probability** runs the other way: *given* 8 heads in 10 tosses, what do we now believe about $p$?\n\nMacKay treats every inference problem as an inverse-probability problem, solved with Bayes' theorem:\n$$\\underbrace{P(H \\mid D)}_{\\text{posterior}} = \\frac{\\overbrace{P(D \\mid H)}^{\\text{likelihood}}\\ \\overbrace{P(H)}^{\\text{prior}}}{\\underbrace{P(D)}_{\\text{evidence}}}$$\nIn words: **posterior ∝ likelihood × prior.** The evidence $P(D) = \\sum_H P(D \\mid H)P(H)$ only rescales the products so they add to 1."
+    },
+    {
+      "type": "example",
+      "title": "Which coin did I draw?",
+      "steps": [
+        "A bag holds three coins: fair ($p = 0.5$), biased ($p = 0.75$) and double-headed ($p = 1$). You draw one at random (prior 1/3 each) and toss it twice: **HH**.",
+        "Likelihoods $P(HH \\mid \\text{coin}) = p^2$: $0.25$, $0.5625$, $1$.",
+        "Prior × likelihood: $0.0833$, $0.1875$, $0.3333$; their sum is $P(D) = 0.6042$.",
+        "Posteriors: fair $0.138$, biased $0.310$, double-headed $0.552$."
+      ],
+      "reflect": {
+        "prompt": "The double-headed coin explains HH perfectly. Why is its posterior only 0.55, not 1?",
+        "answer": "The other coins also produce HH fairly often (25% and 56% of the time). Bayes weighs how well each hypothesis explains the data. A single tail would eliminate the double-headed coin at once."
+      }
+    },
+    {
+      "type": "practice",
+      "exercise": "discrete-bayes",
+      "count": 3
+    },
+    {
+      "type": "text",
+      "md": "## The bent coin\nNow the bias $p$ can be any number between 0 and 1. After $h$ heads and $t$ tails ($n = h + t$ tosses), a particular sequence has likelihood\n$$P(D \\mid p) = p^{h}(1-p)^{t}.$$\nWith a **uniform prior** on $p$, the posterior is proportional to the likelihood:\n$$P(p \\mid D) \\propto p^{h}(1-p)^{t},$$\na **Beta**$(h+1,\\ t+1)$ distribution. The result is not one number but a whole distribution: its peak says where $p$ probably is, its width how sure we are.\n\nTo predict the next toss, average over that uncertainty. The probability of heads is the posterior mean:\n$$P(\\text{next is heads} \\mid D) = \\frac{h+1}{n+2} \\qquad \\text{(Laplace's rule of succession)}$$"
+    },
+    {
+      "type": "sim",
+      "sim": "bent-coin",
+      "md": "**Predict:** with a true bias of 0.7, how wide will the posterior be after 10 tosses? After 100? Toss in batches, then tick \"Show the true value\"."
+    },
+    {
+      "type": "practice",
+      "exercise": "laplace-rule",
+      "count": 3
+    },
+    {
+      "type": "callout",
+      "kind": "misconception",
+      "md": "**\"The maximum-likelihood estimate is always the best guess.\"** After 3 heads in 3 tosses, maximum likelihood says $p = 3/3 = 1$: tails are impossible. The Bayesian answer, $4/5 = 0.8$, learns from the data but keeps an open mind. With lots of data the two agree; with little data the difference matters."
+    },
+    {
+      "type": "text",
+      "md": "## Priors as pseudo-counts\nA **Beta**$(a, b)$ prior acts like having already seen $a$ heads and $b$ tails. After the data, the posterior is Beta$(a + h,\\ b + t)$, with mean\n$$\\frac{a + h}{a + b + n}.$$\n- The uniform prior is Beta$(1, 1)$: one imaginary head and one imaginary tail.\n- A large $a + b$ is a strong prior; it takes many real tosses to move it.\n- As $n$ grows, the data dominate and different priors lead to the same answer.\n\nWriting the prior down is a feature, not a weakness: every assumption is on the table."
+    },
+    {
+      "type": "practice",
+      "exercise": "beta-posterior-mean",
+      "count": 2
+    },
+    {
+      "type": "check",
+      "question": {
+        "id": "s09-k1",
+        "type": "numeric",
+        "prompt": "Your prior is Beta(2, 2). You see 8 heads and 0 tails. What is the posterior mean of $p$? Round to 3 decimals.",
+        "answer": 0.8333,
+        "explain": "Posterior Beta$(2 + 8, 2 + 0)$ = Beta$(10, 2)$, mean $10/12 = 0.833$. Maximum likelihood would say 1.",
+        "tolerance": 0.002
+      }
+    },
+    {
+      "type": "reflect",
+      "prompt": "Bayesian and sampling-theory statisticians both use the likelihood $p^h(1-p)^t$. What does the Bayesian add, and what does it buy?",
+      "answer": "A prior. In return you get a full probability distribution over $p$, so you can make direct statements such as 'P(p > 0.5 | data) = 0.9', give sensible answers with tiny data sets, and make predictions that average over your uncertainty."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "s09-q1",
+      "type": "generated",
+      "exercise": "discrete-bayes"
+    },
+    {
+      "id": "s09-q2",
+      "type": "generated",
+      "exercise": "laplace-rule"
+    },
+    {
+      "id": "s09-q3",
+      "type": "generated",
+      "exercise": "beta-posterior-mean"
+    },
+    {
+      "id": "s09-q4",
+      "type": "choice",
+      "prompt": "In $P(H \\mid D) = P(D \\mid H)P(H)/P(D)$, which term is the likelihood?",
+      "options": [
+        "$P(D \\mid H)$",
+        "$P(H \\mid D)$",
+        "$P(H)$",
+        "$P(D)$"
+      ],
+      "answer": 0,
+      "explain": "The likelihood is the probability of the observed data under each hypothesis, read as a function of the hypothesis.",
+      "feedback": [
+        "Right.",
+        "That is the posterior, the thing we want.",
+        "That is the prior, our belief before the data.",
+        "That is the evidence, which normalises the posterior."
+      ]
+    },
+    {
+      "id": "s09-q5",
+      "type": "choice",
+      "prompt": "After 1,000 tosses with 700 heads, how do maximum likelihood and Laplace's rule compare?",
+      "options": [
+        "They are almost identical: 0.700 and 0.6996",
+        "Laplace's rule gives 0.8",
+        "Maximum likelihood gives 1",
+        "They differ by about 0.1"
+      ],
+      "answer": 0,
+      "explain": "$700/1000 = 0.700$ and $701/1002 = 0.6996$. With plenty of data the prior hardly matters."
+    },
+    {
+      "id": "s09-q6",
+      "type": "choice",
+      "prompt": "Two people with very different (but not dogmatic) priors observe the same 10,000 tosses. Their posteriors for $p$:",
+      "options": [
+        "End up nearly the same: the data swamp the priors",
+        "Stay as different as their priors",
+        "Must both be uniform",
+        "Cannot be compared"
+      ],
+      "answer": 0,
+      "explain": "Each toss multiplies in the same likelihood factor. After thousands of tosses the likelihood is so sharply peaked that any prior that does not rule values out ends up with nearly the same posterior."
+    }
+  ],
+  "cards": [
+    {
+      "id": "s09-c1",
+      "kind": "formula",
+      "front": "Bayes' theorem with the names of its parts?",
+      "back": "$P(H \\mid D) = \\dfrac{P(D \\mid H)\\,P(H)}{P(D)}$: posterior = likelihood × prior / evidence."
+    },
+    {
+      "id": "s09-c2",
+      "kind": "concept",
+      "front": "Forward vs. inverse probability?",
+      "back": "Forward: probability of data given a model. Inverse: probability of a model (or parameter) given data, computed with Bayes' theorem."
+    },
+    {
+      "id": "s09-c3",
+      "kind": "formula",
+      "front": "Posterior for a bent coin's bias with a uniform prior after $h$ heads and $t$ tails?",
+      "back": "$P(p \\mid D) \\propto p^h (1-p)^t$, a Beta$(h+1, t+1)$ distribution."
+    },
+    {
+      "id": "s09-c4",
+      "kind": "formula",
+      "front": "Laplace's rule of succession?",
+      "back": "$P(\\text{next heads}) = \\dfrac{h+1}{n+2}$: the posterior mean under a uniform prior."
+    },
+    {
+      "id": "s09-c5",
+      "kind": "concept",
+      "front": "What does maximum likelihood say after 3 heads in 3 tosses, and what is wrong with it?",
+      "back": "$p = 1$: it calls tails impossible after only three tosses. Laplace's rule gives 0.8."
+    },
+    {
+      "id": "s09-c6",
+      "kind": "concept",
+      "front": "How does a Beta$(a, b)$ prior combine with $h$ heads and $t$ tails?",
+      "back": "Posterior Beta$(a+h, b+t)$: the prior acts like $a$ extra heads and $b$ extra tails."
+    },
+    {
+      "id": "s09-c7",
+      "kind": "concept",
+      "front": "What happens to the influence of the prior as data accumulate?",
+      "back": "It fades: the likelihood sharpens, and reasonable priors lead to nearly the same posterior."
+    },
+    {
+      "id": "s09-c8",
+      "kind": "exercise",
+      "exercise": "laplace-rule"
+    },
+    {
+      "id": "s09-c9",
+      "kind": "exercise",
+      "exercise": "discrete-bayes"
+    }
+  ]
+}

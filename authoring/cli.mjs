@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // statLearner authoring CLI - Claude and ChatGPT co-write course sessions.
 //
-//   npm run author -- run authoring/briefs/s08-comparing-groups.json
+//   npm run author -- run authoring/briefs/s14-clustering.json
 //   npm run author -- run <brief> --drafter openai --reviewer claude   (swap roles)
 //   npm run author -- run <brief> --drafter manual --reviewer manual   (no API keys: copy-paste)
 //   npm run author -- prompt <brief>              print the draft prompt and exit
@@ -53,9 +53,11 @@ async function setup(args) {
   };
 }
 
-async function reference() {
+// A finished session from the same part as the brief serves as the style reference.
+async function reference(brief = {}) {
   const course = await readJson(path.join(root, "app/content/course.json"));
-  return readJson(path.join(root, "app/content/sessions", `${course.sessions[0]}.json`));
+  const sessions = await Promise.all(course.sessions.map((f) => readJson(path.join(root, "app/content/sessions", `${f}.json`))));
+  return sessions.find((s) => s.part === brief.part && s.id !== brief.id) ?? sessions[0];
 }
 
 async function outDir(config, id) {
@@ -98,14 +100,15 @@ async function main() {
   const maxRepair = config.maxRepairAttempts;
 
   if (cmd === "prompt") {
-    const p = draftPrompt(await readJson(a), await reference());
+    const brief = await readJson(a);
+    const p = draftPrompt(brief, await reference(brief));
     console.log(`=== SYSTEM ===\n${p.system}\n\n=== USER ===\n${p.prompt}`);
     return;
   }
   if (cmd === "run") {
     const brief = await readJson(a);
     const dir = await outDir(config, brief.id);
-    const result = await runPipeline({ brief, drafter, reviewer, solvers, reference: await reference(), ctx, maxRounds: Number(args.rounds ?? config.maxReviewRounds), maxRepair, log });
+    const result = await runPipeline({ brief, drafter, reviewer, solvers, reference: await reference(brief), ctx, maxRounds: Number(args.rounds ?? config.maxReviewRounds), maxRepair, log });
     await writeJson(path.join(dir, "session.json"), { session: result.session, proposedExercises: result.proposedExercises });
     await writeJson(path.join(dir, "result.json"), result);
     const report = renderReport(result, { brief, drafter: drafter.name, reviewer: reviewer.name, solvers: solvers.map((s) => s.name) });
@@ -115,7 +118,7 @@ async function main() {
   }
   if (cmd === "draft") {
     const brief = await readJson(a);
-    const draft = await draftSession({ brief, drafter, reference: await reference(), ctx, maxRepair, log });
+    const draft = await draftSession({ brief, drafter, reference: await reference(brief), ctx, maxRepair, log });
     const file = path.join(await outDir(config, brief.id), "draft.json");
     await writeJson(file, draft);
     console.log(`Draft saved to ${path.relative(root, file)} (${draft.errors.length} validation errors).`);

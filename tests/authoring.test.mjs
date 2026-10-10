@@ -10,10 +10,10 @@ import { SIM_IDS } from "../app/src/sims.js";
 
 const ctx = { exerciseIds: EXERCISE_IDS, simIds: SIM_IDS };
 const s01 = JSON.parse(await readFile(new URL("../app/content/sessions/s01-describing-data.json", import.meta.url), "utf8"));
-const brief = JSON.parse(await readFile(new URL("../authoring/briefs/s08-comparing-groups.json", import.meta.url), "utf8"));
+const brief = JSON.parse(await readFile(new URL("../authoring/briefs/s14-clustering.json", import.meta.url), "utf8"));
 
-// A fake session for "s08" built from s01 by renaming ids.
-const fakeSession = JSON.parse(JSON.stringify(s01).replaceAll('"s01-', '"s08-').replace('"id":"s01"', '"id":"s08"'));
+// A fake session for "s14" built from s01 by renaming ids.
+const fakeSession = JSON.parse(JSON.stringify(s01).replaceAll('"s01-', '"s14-').replace('"id":"s01"', '"id":"s14"'));
 
 test("extractJson handles plain, fenced and chatty replies", () => {
   assert.deepEqual(extractJson('{"a":1}'), { a: 1 });
@@ -24,7 +24,7 @@ test("extractJson handles plain, fenced and chatty replies", () => {
 
 test("prompts include schema, catalog, rules and never leak answer keys to solvers", () => {
   const p = draftPrompt(brief, s01);
-  assert.ok(p.prompt.includes("SCHEMA") && p.prompt.includes("se-proportion") && p.prompt.includes("ci-coverage"));
+  assert.ok(p.prompt.includes("SCHEMA") && p.prompt.includes("sigma-ml") && p.prompt.includes("bent-coin"));
   assert.ok(p.system.includes("Originality"));
   assert.ok(reviewPrompt({ session: fakeSession }, brief).prompt.includes("recompute every number"));
   const q = { id: "x", type: "choice", prompt: "Pick", options: ["a", "b"], answer: 1, explain: "SECRET" };
@@ -60,16 +60,16 @@ test("full pipeline: repair, review, revise, approve, cross-check, report", asyn
   const solverA = fake("claude:solver", (req) => JSON.stringify({ answer: keyFor(req.prompt).answer }));
   const solverB = fake("openai:solver", (req) => {
     const q = keyFor(req.prompt);
-    return JSON.stringify({ answer: q.id === "s08-w1" ? q.answer + 1 : q.answer });
+    return JSON.stringify({ answer: q.id === "s14-w1" ? q.answer + 1 : q.answer });
   });
   const result = await runPipeline({ brief, drafter, reviewer, solvers: [solverA, solverB], reference: s01, ctx, maxRounds: 3 });
   assert.deepEqual(result.errors, []);
   assert.equal(result.rounds.length, 2);
   assert.equal(result.rounds[0].changelog.length, 1);
   assert.equal(result.proposedExercises[0].id, "se-diff-proportions", "proposals survive the repair step");
-  assert.equal(result.crossCheck.filter((r) => r.flagged).map((r) => r.id).join(), "s08-w1");
+  assert.equal(result.crossCheck.filter((r) => r.flagged).map((r) => r.id).join(), "s14-w1");
   const report = renderReport(result, { brief, drafter: drafter.name, reviewer: reviewer.name, solvers: [solverA.name, solverB.name] });
-  assert.ok(report.includes("⚠️ s08-w1") && report.includes("Review round 1: revise") && report.includes("se-diff-proportions"));
+  assert.ok(report.includes("⚠️ s14-w1") && report.includes("Review round 1: revise") && report.includes("se-diff-proportions"));
 });
 
 test("manual provider writes the prompt, then reads the pasted reply", async () => {

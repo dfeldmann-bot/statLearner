@@ -1,9 +1,11 @@
 {
   "id": "s01",
   "slug": "describing-data",
+  "part": "A",
   "title": "Describing data: center and spread",
   "summary": "Mean, median, skew, standard deviation: the four ideas you need to summarise any list of numbers.",
-  "bookRef": "OpenIntro Statistics 4e, §2.1 (Examining numerical data)",
+  "bookRef": "Prerequisite: ITILA assumes this background and does not cover it",
+  "companionRef": "OpenIntro Statistics 4e, §2.1",
   "minutes": 25,
   "objectives": [
     "Compute and interpret the mean and the median.",

@@ -1,9 +1,11 @@
 {
   "id": "s04",
   "slug": "sampling-clt",
+  "part": "A",
   "title": "Sampling distributions and the central limit theorem",
   "summary": "Why sample statistics vary, how much they vary (standard error), and why averages become normal.",
-  "bookRef": "OpenIntro Statistics 4e, §5.1 (Point estimates and sampling variability); means: §7.1",
+  "bookRef": "Background for ITILA ch. 4 (typicality, the law of large numbers) and ch. 29 (Monte Carlo error)",
+  "companionRef": "OpenIntro Statistics 4e, §5.1; means: §7.1",
   "minutes": 25,
   "objectives": [
     "Distinguish a population parameter from a sample statistic.",

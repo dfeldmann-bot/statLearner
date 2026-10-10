@@ -79,7 +79,8 @@ h3 { font-size: 1.05rem; }
   backdrop-filter: blur(8px); border-bottom: 1px solid var(--border);
 }
 .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--text); text-decoration: none; }
-.nav { display: flex; gap: 2px; flex-wrap: wrap; flex: 1; }
+.nav { display: flex; gap: 2px; flex-wrap: nowrap; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.nav a { flex: 0 0 auto; }
 .nav a { padding: 6px 10px; border-radius: 999px; color: var(--muted); text-decoration: none; font-weight: 600; font-size: 0.92rem; }
 .nav a.active, .nav a:hover { background: var(--accent-soft); color: var(--accent); }
 .chips { display: flex; gap: 6px; }
@@ -141,6 +142,15 @@ a.session-card:hover { border-color: var(--accent); }
 .bar span { display: block; height: 100%; background: var(--ok); border-radius: 4px; transition: width 0.4s; }
 .bar.big { height: 12px; }
 .bar.big span { background: var(--accent); }
+
+/* parts, refs, book */
+.part-head { margin: 14px 2px 0; }
+.part-head h2 { margin-bottom: 0.1em; }
+.part-head p { margin: 0 0 4px; }
+.refs { display: flex; flex-direction: column; gap: 2px; margin: 6px 0 10px; color: var(--muted); }
+.lectures li { margin: 4px 0; }
+table.map { border-collapse: collapse; width: 100%; font-size: 0.88rem; display: block; overflow-x: auto; }
+table.map th, table.map td { border-bottom: 1px solid var(--border); padding: 6px 8px; text-align: left; vertical-align: top; }
 
 /* lesson */
 .progress-line { position: sticky; top: 52px; z-index: 5; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }

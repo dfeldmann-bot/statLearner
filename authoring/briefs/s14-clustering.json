@@ -1,0 +1,34 @@
+{
+  "id": "s14",
+  "slug": "clustering",
+  "part": "B",
+  "title": "Clustering as inference: K-means and soft K-means",
+  "bookRef": "ITILA ch. 20 (An Example Inference Task: Clustering), ch. 22 (Maximum Likelihood and Clustering)",
+  "lectures": [11],
+  "minutes": 30,
+  "audience": "Adults who finished sessions s01-s13: probability, Bayes' theorem, entropy, the bent coin, model comparison, maximum likelihood with Gaussians, Monte Carlo.",
+  "objectives": [
+    "Run the K-means algorithm by hand: assignment step, then update step.",
+    "Explain soft K-means: responsibilities as posterior probabilities of cluster membership.",
+    "Connect soft K-means to maximum likelihood for a mixture of Gaussians.",
+    "Recognise the failure modes: bad initialisation, choosing K, and the collapsing-Gaussian singularity of maximum likelihood."
+  ],
+  "keyIdeas": [
+    "K-means alternates two steps: assign each point to its nearest mean; move each mean to the average of its points. The total squared distance never increases.",
+    "Soft K-means replaces hard assignments with responsibilities r_k(x) proportional to exp(-beta * distance^2), normalised over clusters; beta is a stiffness (inverse width).",
+    "Responsibilities are Bayes' theorem: prior weight of each cluster times the Gaussian likelihood of the point, normalised.",
+    "Maximum likelihood for a Gaussian mixture can put one component on a single point with width shrinking to zero: infinite likelihood, useless model."
+  ],
+  "misconceptions": [
+    "K-means finds the best clustering (it finds a local optimum that depends on the start).",
+    "More clusters always mean a better model (the fit always improves; compare models with the evidence instead, as in session 10).",
+    "Hard assignments are certain (points between clusters genuinely belong partly to both)."
+  ],
+  "simsToReuse": ["likelihood"],
+  "exercisesToReuse": ["sigma-ml", "discrete-bayes"],
+  "exercisesNeeded": [
+    "One K-means update in 1D: given points and two means, compute the new means.",
+    "Soft responsibilities for a point between two clusters given beta."
+  ],
+  "notes": "Write your own short notes on the chapters here, in your own words. Do not paste book text: the pipeline sends this brief to two external AI services."
+}

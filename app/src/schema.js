@@ -83,6 +83,14 @@ export function validateSession(s, ctx) {
   if (!/^s\d{2}$/.test(s.id ?? "")) errors.push('id: must look like "s01"');
   for (const key of ["title", "summary"]) if (!isStr(s[key])) errors.push(`${key}: required string`);
   if (!isNum(s.minutes) || s.minutes <= 0) errors.push("minutes: positive number");
+  for (const key of ["part", "bookRef", "companionRef"]) if (s[key] !== undefined && !isStr(s[key])) errors.push(`${key}: optional string`);
+  if (s.lectures !== undefined) {
+    if (!Array.isArray(s.lectures)) errors.push("lectures: optional list");
+    else
+      s.lectures.forEach((l, i) => {
+        if (!isInt(l?.number) || !isStr(l?.title) || !/^https?:\/\//.test(l?.url ?? "")) errors.push(`lectures[${i}]: needs number, title and an http(s) url`);
+      });
+  }
   if (!Array.isArray(s.objectives) || !s.objectives.length || !s.objectives.every(isStr)) errors.push("objectives: non-empty list of strings");
   (s.warmup ?? []).forEach((q, i) => validateQuestion(q, `warmup[${i}]`, ctx, errors));
   if (!Array.isArray(s.blocks) || !s.blocks.length) errors.push("blocks: non-empty list");
@@ -115,8 +123,10 @@ export function validateCourse(course, sessions, ctx) {
   const errors = [];
   if (!isStr(course?.title)) errors.push("course.title: required string");
   if (!Array.isArray(course?.sessions) || !course.sessions.length) errors.push("course.sessions: non-empty list");
+  const partIds = new Set((course?.parts ?? []).map((p) => p.id));
   const all = new Set();
   for (const s of sessions) {
+    if (partIds.size && !partIds.has(s?.part)) errors.push(`${s?.id ?? "?"}: part must be one of ${[...partIds].join(", ")}`);
     for (const e of validateSession(s, ctx)) errors.push(`${s?.id ?? "?"}: ${e}`);
     for (const id of collectIds(s)) {
       if (all.has(id)) errors.push(`duplicate id across sessions "${id}"`);

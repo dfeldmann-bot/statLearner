@@ -7,21 +7,10 @@
 // (full example -> partial -> independent), following worked-example research.
 
 import { mean, median, sd, binomPmf, choose, normalCdf, Z_STAR } from "./stats.js";
+import { fmt, pct, numeric, choice, shuffled } from "./exkit.js";
+import { BOOK_EXERCISES } from "./exercises-book.js";
 
-export const fmt = (x, d = 2) => {
-  const v = Number(Number(x).toFixed(d));
-  return Object.is(v, -0) ? "0" : String(v);
-};
-const pct = (p) => `${fmt(p * 100, 1)}%`; // for prose, not inside $math$
-
-const numeric = (o) => ({ type: "numeric", ...o });
-const choice = (o) => ({ type: "choice", ...o });
-
-// Shuffle options and track where the correct one lands.
-function shuffled(rng, correct, wrong) {
-  const options = rng.shuffle([correct, ...wrong]);
-  return { options, answer: options.indexOf(correct) };
-}
+export { fmt };
 
 const CONTEXTS_SMALL = [
   ["minutes spent on homework by", "students", "minutes"],
@@ -634,6 +623,8 @@ export const EXERCISES = {
     },
   },
 };
+
+Object.assign(EXERCISES, BOOK_EXERCISES);
 
 export const EXERCISE_IDS = new Set(Object.keys(EXERCISES));
 

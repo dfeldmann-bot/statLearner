@@ -36,9 +36,19 @@ test("every exercise generator and simulation is used by some session", () => {
 });
 
 test("sessions build in order and practise their own topic", () => {
-  sessions.forEach((s, i) => assert.equal(s.id, `s0${i + 1}`));
+  sessions.forEach((s, i) => assert.equal(s.id, `s${String(i + 1).padStart(2, "0")}`));
   for (const s of sessions) {
     for (const b of s.blocks) if (b.type === "practice") assert.equal(EXERCISES[b.exercise].session, s.id, `${s.id} practises ${b.exercise}`);
+  }
+});
+
+test("course is mapped to the book and every Part B session cites ITILA", () => {
+  assert.match(course.book.title, /Information Theory, Inference, and Learning Algorithms/);
+  assert.match(course.book.url, /^https:\/\/www\.inference\.org\.uk\//);
+  for (const s of sessions) {
+    assert.ok(s.bookRef, `${s.id} has a bookRef`);
+    if (s.part === "B") assert.match(s.bookRef, /^ITILA ch\. \d+/, `${s.id} cites ITILA chapters`);
+    for (const l of s.lectures ?? []) assert.ok(l.number >= 1 && l.number <= 16, `${s.id} lecture number`);
   }
 });
 
@@ -47,9 +57,11 @@ test("validator catches broken content", () => {
   broken.quiz[2].answer = 9;
   broken.blocks.push({ type: "sim", sim: "nope" });
   broken.cards.push({ id: "x-1", kind: "formula", front: "f" });
+  broken.lectures = [{ number: 2, title: "t", url: "ftp://x" }];
   const errors = validateSession(broken, ctx);
   assert.ok(errors.some((e) => e.includes("quiz[2].answer")));
   assert.ok(errors.some((e) => e.includes('unknown simulation "nope"')));
   assert.ok(errors.some((e) => e.includes("back")));
   assert.ok(errors.some((e) => e.includes('should start with "s01-"')));
+  assert.ok(errors.some((e) => e.includes("lectures[0]")));
 });

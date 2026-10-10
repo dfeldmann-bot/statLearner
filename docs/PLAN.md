@@ -2,21 +2,22 @@
 
 ## Goal
 
-statLearner teaches the foundations of statistics in short daily sessions. It runs fully offline in a browser, with no LLM at runtime. Claude and ChatGPT help write the content beforehand. A side project, StatBot, answers statistics questions from curated sources only.
+statLearner teaches statistics and inference in short daily sessions, following David MacKay's *Information Theory, Inference, and Learning Algorithms* (ITILA; see [BOOK.md](BOOK.md)). It runs fully offline in a browser, with no LLM at runtime. Claude and ChatGPT help write the content beforehand. A side project, StatBot, answers statistics questions from curated sources only.
 
-## What exists today (v0.1)
+## What exists today (v0.2)
 
 | Part | Status | Where |
 |---|---|---|
-| Course app (PWA) | 7 sessions, 28 exercise generators, 10 simulations, mastery quizzes, 63 flashcards | `app/` |
+| Course app (PWA) | 13 sessions in two parts (foundations; MacKay's ITILA), 46 exercise generators, 17 simulations, mastery quizzes, 118 flashcards | `app/` |
+| Book integration | Book tab with the PDF link, MacKay's 16 lectures, session-to-chapter map; `npm run fetch-book` for a local copy | `docs/BOOK.md`, `tools/fetch-book.mjs` |
 | Spaced repetition | FSRS-6 scheduler, interleaved review queue, mastery per session | `app/src/fsrs.js`, `app/src/srs.js` |
 | Gamification | XP, levels, daily goal, streaks with freezes, 11 badges | `app/src/game.js` |
 | Reminders | Daily calendar reminder (.ics), browser notifications | `app/src/reminders.js` |
 | Offline | Service worker caches everything, including the vendored KaTeX math renderer | `app/sw.js` |
 | Authoring pipeline | Claude drafts, ChatGPT reviews, Claude revises, both cross-check answer keys; manual copy-paste mode | `authoring/`, [AUTHORING.md](AUTHORING.md) |
-| StatBot phase 0 | BM25 retrieval, cited extractive answers, refusals, eval set (97% hit@3) | `statbot/`, [STATBOT-PLAN.md](STATBOT-PLAN.md) |
+| StatBot phase 0 | BM25 retrieval, cited extractive answers, refusals, eval set (98% hit@3 on 42 questions) | `statbot/`, [STATBOT-PLAN.md](STATBOT-PLAN.md) |
 | Research basis | 13 learning-science methods mapped to features | [LEARNING-DESIGN.md](LEARNING-DESIGN.md) |
-| Tests | 70+ JavaScript tests, 7 Python tests, browser smoke test of every session | `tests/`, `statbot/tests/` |
+| Tests | 92 JavaScript tests, 7 Python tests, browser walk-through of all 13 sessions | `tests/`, `statbot/tests/` |
 
 ## Architecture
 
@@ -33,6 +34,7 @@ flowchart LR
   end
   subgraph App["Course app (runtime, offline, no LLM)"]
     J[(content/*.json)] --> L[Lessons + simulations]
+    M[[ITILA chapters + MacKay lectures]] -.-> L
     E[Exercise generators] --> L
     L --> Q[Mastery quiz]
     L --> F[FSRS flashcards]
@@ -52,9 +54,9 @@ flowchart LR
 
 | Milestone | Content | Effort | Cost |
 |---|---|---|---|
-| **M1: Try it yourself** | Work through sessions 1-3 for a week; note confusing spots; tune the daily goal | 1 week of 15 min/day | $0 |
+| **M1: Try it yourself** | Work through a few sessions for a week (start with Part B if the basics are familiar); note confusing spots; tune the daily goal | 1 week of 15 min/day | $0 |
 | **M2: Publish** | Enable GitHub Pages (Settings → Pages → Source: GitHub Actions); the included workflow deploys `app/` | 15 minutes | $0 |
-| **M3: More sessions** | Sessions 8-10 via the pipeline: comparing two groups (brief included), chi-square tests, multiple regression; add the generators they propose | 1 evening per session | ~$2 per session in API fees |
+| **M3: More book chapters** | Sessions 14-18 via the pipeline: clustering (brief included), symbol codes, noisy channels and mutual information, variational methods, learning as inference (see [BOOK.md](BOOK.md)); add the generators they propose | 1 evening per session | ~$2 per session in API fees |
 | **M4: Personal FSRS** | Fit FSRS parameters to the learner's own review log after ~1,000 reviews | 1 weekend | $0 |
 | **M5: StatBot phases 1-2** | Ingest open textbooks, add embeddings and a local 3B model with citation checks | 3-6 weekends | $0 |
 | **M6 (optional)** | StatBot in the browser (BM25 in JavaScript), true push reminders (needs a small server), StatBot fine-tuning | as needed | $0-40 once; a push server costs ~$5/month |
@@ -75,7 +77,7 @@ flowchart LR
 
 ## Decisions for you
 
-1. **Which book?** The course maps to *OpenIntro Statistics* (4th ed., free, CC BY-SA 3.0). If you meant another book, change `book` in `app/content/course.json` and each session's `bookRef`. If the book covers different topics, for example *An Introduction to Statistical Learning*, add sessions with the pipeline.
+1. **Book: decided.** The course follows MacKay's ITILA. The PDF stays on the author's site (copyright Cambridge University Press); the repository links to it, and `npm run fetch-book` makes a personal copy that git ignores. Part A keeps *OpenIntro Statistics* as a free companion for the classical basics ITILA assumes.
 2. **Publish publicly or keep private?** GitHub Pages serves the app from a public URL (free for public repositories).
 3. **Language:** content is in English. The pipeline can produce a German version from translated briefs.
 
