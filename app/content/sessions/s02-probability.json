@@ -1,0 +1,251 @@
+{
+  "id": "s02",
+  "slug": "probability",
+  "part": "A",
+  "title": "Probability: rules and conditional thinking",
+  "summary": "Long-run frequencies, the complement and addition rules, independence, conditional probability and Bayes' theorem with natural frequencies.",
+  "bookRef": "ITILA ch. 2 (Probability, Entropy, and Inference), §2.1-2.3",
+  "companionRef": "OpenIntro Statistics 4e, §3.1-3.2",
+  "lectures": [
+    {
+      "number": 9,
+      "title": "A noisy channel coding gem, and an introduction to Bayesian inference (I)",
+      "url": "https://videolectures.net/mackay_course_09/"
+    }
+  ],
+  "minutes": 30,
+  "objectives": [
+    "Interpret a probability as a long-run proportion.",
+    "Use the complement rule and the general addition rule.",
+    "Recognise independent events and multiply their probabilities.",
+    "Compute conditional probabilities from a two-way table.",
+    "Reason about test results with Bayes' theorem using natural frequencies."
+  ],
+  "warmup": [
+    {
+      "id": "s02-w1",
+      "type": "choice",
+      "prompt": "**Predict before you learn.** A disease affects 1 in 100 people. A test is 95% accurate for sick and for healthy people. You test positive. Roughly how likely is it that you have the disease?",
+      "options": [
+        "About 95%",
+        "About 50%",
+        "About 16%",
+        "About 5%"
+      ],
+      "answer": 2,
+      "explain": "Most people guess 95%. Picture 10,000 people: 100 are sick and 95 of them test positive; 9,900 are healthy and 5% of them, 495, also test positive. Only 95 of the 590 positives are sick: about 16%. By the end of this session this will feel obvious."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "md": "## What a probability means\nThe **probability** of an outcome is the proportion of times it would occur if we repeated the random process forever. It is a number between 0 (never) and 1 (always). $P(\\text{heads}) = 0.5$ means: in a long run of flips, about half are heads.\n\nThe **law of large numbers** says the observed proportion gets closer to the true probability as the number of repetitions grows."
+    },
+    {
+      "type": "sim",
+      "sim": "law-large-numbers",
+      "md": "**Predict:** after 10 flips, will the proportion of heads be exactly 0.5? After 1000? Flip 10 at a time first, then 1000 at once."
+    },
+    {
+      "type": "callout",
+      "kind": "misconception",
+      "md": "**The gambler's fallacy.** After five heads in a row, tails is *not* \"due\". The coin has no memory: the next flip is still 50/50. The law of large numbers works by **dilution** - a few odd early flips get swamped by thousands of later ones - not by the coin compensating."
+    },
+    {
+      "type": "text",
+      "md": "## Three rules you will use constantly\n**Complement.** $A^c$ (\"not $A$\") happens exactly when $A$ does not:\n$$P(A^c) = 1 - P(A)$$\n\n**Addition.** For \"$A$ or $B$\" (or both), add and subtract the overlap you counted twice:\n$$P(A \\cup B) = P(A) + P(B) - P(A \\cap B)$$\nIf $A$ and $B$ are **disjoint** (cannot happen together), the overlap is 0 and you simply add."
+    },
+    {
+      "type": "example",
+      "title": "Hearts or face cards",
+      "steps": [
+        "One card from a standard 52-card deck. $P(\\text{heart}) = 13/52$, $P(\\text{face card}) = 12/52$.",
+        "Three cards are both (jack, queen, king of hearts): $P(\\text{both}) = 3/52$.",
+        "$P(\\text{heart or face}) = 13/52 + 12/52 - 3/52 = 22/52 \\approx 0.423$."
+      ],
+      "reflect": {
+        "prompt": "What goes wrong if you forget to subtract the overlap?",
+        "answer": "You count the jack, queen and king of hearts twice and get $25/52$. Drawing a two-circle Venn diagram makes the double count visible."
+      }
+    },
+    {
+      "type": "practice",
+      "exercise": "complement",
+      "count": 2
+    },
+    {
+      "type": "practice",
+      "exercise": "addition-rule",
+      "count": 3
+    },
+    {
+      "type": "text",
+      "md": "## Independence\nEvents are **independent** when knowing that one happened does not change the probability of the other: separate coin flips, two unrelated machines. Then\n$$P(A \\cap B) = P(A)\\,P(B)$$\n\n**\"At least one\" trick:** it is usually easier to compute \"none\" and take the complement."
+    },
+    {
+      "type": "example",
+      "title": "At least one six in four rolls",
+      "steps": [
+        "One roll misses a six with probability $5/6$.",
+        "Rolls are independent, so four misses have probability $(5/6)^4 = 0.482$.",
+        "$P(\\text{at least one six}) = 1 - 0.482 = 0.518$ - slightly better than even."
+      ]
+    },
+    {
+      "type": "practice",
+      "exercise": "independent-events",
+      "count": 3
+    },
+    {
+      "type": "text",
+      "md": "## Conditional probability\n$P(A \\mid B)$ - \"the probability of $A$ **given** $B$\" - restricts attention to the cases where $B$ happened:\n$$P(A \\mid B) = \\frac{P(A \\cap B)}{P(B)}$$\nWith a table of counts: go to the row (or column) for $B$ and divide by **that row's total**, not the grand total."
+    },
+    {
+      "type": "check",
+      "question": {
+        "id": "s02-k1",
+        "type": "numeric",
+        "prompt": "Of 200 commuters, 120 drive and 80 take the train. Of the drivers, 30 arrived late; of the train riders, 20 arrived late. What is P(late | drives)?",
+        "answer": 0.25,
+        "explain": "Restrict to the 120 drivers: 30 of them were late, so $30/120 = 0.25$. Dividing by all 200 commuters would give the different quantity P(late and drives) = 0.15.",
+        "tolerance": 0.001
+      }
+    },
+    {
+      "type": "practice",
+      "exercise": "conditional-table",
+      "count": 3
+    },
+    {
+      "type": "callout",
+      "kind": "misconception",
+      "md": "**$P(A \\mid B)$ is not $P(B \\mid A)$.** Almost every professional basketball player is tall, so P(tall | pro player) is high. But P(pro player | tall) is tiny: most tall people do not play professionally. Mixing the two up is called the **confusion of the inverse**."
+    },
+    {
+      "type": "text",
+      "md": "## Bayes' theorem with natural frequencies\nTo turn $P(\\text{positive} \\mid \\text{sick})$ into $P(\\text{sick} \\mid \\text{positive})$, imagine a concrete crowd - say 10,000 people - and count:\n\n1. How many are sick? (prevalence)\n2. Of the sick, how many test positive? (**sensitivity**: true positives)\n3. Of the healthy, how many test positive anyway? ($1 -$ **specificity**: false positives)\n4. Answer = true positives / all positives.\n\nThe same computation as a formula:\n$$P(D \\mid +) = \\frac{P(+ \\mid D)\\,P(D)}{P(+ \\mid D)\\,P(D) + P(+ \\mid D^c)\\,P(D^c)}$$"
+    },
+    {
+      "type": "sim",
+      "sim": "bayes-grid",
+      "md": "**Predict:** with 2% prevalence and 95% sensitivity and specificity, what share of positives are really sick? Then raise the prevalence to 20% and watch the answer change. Which slider matters most?"
+    },
+    {
+      "type": "practice",
+      "exercise": "bayes-test",
+      "count": 3
+    },
+    {
+      "type": "reflect",
+      "prompt": "Why can a positive result from a very accurate test still most likely be a false alarm?",
+      "answer": "When the condition is rare, healthy people vastly outnumber sick people. A small false-positive rate applied to the huge healthy group produces more positives than the true positives from the small sick group."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "s02-q1",
+      "type": "generated",
+      "exercise": "complement"
+    },
+    {
+      "id": "s02-q2",
+      "type": "generated",
+      "exercise": "addition-rule"
+    },
+    {
+      "id": "s02-q3",
+      "type": "generated",
+      "exercise": "conditional-table"
+    },
+    {
+      "id": "s02-q4",
+      "type": "generated",
+      "exercise": "bayes-test"
+    },
+    {
+      "id": "s02-q5",
+      "type": "generated",
+      "exercise": "independent-events"
+    },
+    {
+      "id": "s02-q6",
+      "type": "choice",
+      "prompt": "A fair coin has landed heads 6 times in a row. What is the probability that the next flip is heads?",
+      "options": [
+        "0.5",
+        "Less than 0.5, because tails is due",
+        "More than 0.5, because the coin is on a streak",
+        "It cannot be determined"
+      ],
+      "answer": 0,
+      "explain": "Flips are independent: the coin has no memory, so the probability stays 0.5. Believing tails is 'due' is the gambler's fallacy."
+    },
+    {
+      "id": "s02-q7",
+      "type": "choice",
+      "prompt": "Events $A$ and $B$ are disjoint (they cannot both happen), and each has positive probability. Are they independent?",
+      "options": [
+        "No: if $A$ happens, $B$ cannot, so knowing $A$ changes $P(B)$ to 0",
+        "Yes: disjoint events are always independent",
+        "Only if $P(A) = P(B)$",
+        "It depends on the sample size"
+      ],
+      "answer": 0,
+      "explain": "Independence means knowing $A$ tells you nothing about $B$. For disjoint events, knowing $A$ tells you $B$ did not happen - the strongest possible dependence. Formally $P(A \\cap B) = 0 \\ne P(A)P(B)$."
+    }
+  ],
+  "cards": [
+    {
+      "id": "s02-c1",
+      "kind": "formula",
+      "front": "Complement rule?",
+      "back": "$P(A^c) = 1 - P(A)$."
+    },
+    {
+      "id": "s02-c2",
+      "kind": "formula",
+      "front": "General addition rule for $P(A \\cup B)$?",
+      "back": "$P(A \\cup B) = P(A) + P(B) - P(A \\cap B)$; for disjoint events the last term is 0."
+    },
+    {
+      "id": "s02-c3",
+      "kind": "formula",
+      "front": "Multiplication rule for independent events?",
+      "back": "$P(A \\cap B) = P(A)\\,P(B)$ - valid only when $A$ and $B$ are independent."
+    },
+    {
+      "id": "s02-c4",
+      "kind": "formula",
+      "front": "Definition of conditional probability $P(A \\mid B)$?",
+      "back": "$P(A \\mid B) = P(A \\cap B)/P(B)$: restrict to the cases where $B$ happened."
+    },
+    {
+      "id": "s02-c5",
+      "kind": "concept",
+      "front": "Is $P(A \\mid B)$ the same as $P(B \\mid A)$?",
+      "back": "No. P(tall | pro basketball player) is high; P(pro player | tall) is tiny. Mixing them up is the confusion of the inverse."
+    },
+    {
+      "id": "s02-c6",
+      "kind": "concept",
+      "front": "What is the gambler's fallacy?",
+      "back": "Believing that after a streak the other outcome is 'due'. Independent trials have no memory; long-run proportions settle by dilution, not compensation."
+    },
+    {
+      "id": "s02-c7",
+      "kind": "formula",
+      "front": "Bayes' theorem for $P(D \\mid +)$?",
+      "back": "$P(D \\mid +) = \\dfrac{P(+ \\mid D)P(D)}{P(+ \\mid D)P(D) + P(+ \\mid D^c)P(D^c)}$ - or count true and false positives in 10,000 imagined people."
+    },
+    {
+      "id": "s02-c8",
+      "kind": "exercise",
+      "exercise": "bayes-test"
+    },
+    {
+      "id": "s02-c9",
+      "kind": "exercise",
+      "exercise": "conditional-table"
+    }
+  ]
+}

@@ -1,0 +1,240 @@
+{
+  "id": "s07",
+  "slug": "regression",
+  "part": "A",
+  "title": "Correlation and simple linear regression",
+  "summary": "Describe a relationship with r, fit the least-squares line, read slope, intercept, residuals and R², and avoid the classic traps.",
+  "bookRef": "Background for ITILA part V (ch. 39-45: neurons, learning as inference, Gaussian processes)",
+  "companionRef": "OpenIntro Statistics 4e, §8.1-8.3",
+  "lectures": [
+    {
+      "number": 15,
+      "title": "Data modelling with neural networks (I): feedforward networks",
+      "url": "https://videolectures.net/mackay_course_15/"
+    }
+  ],
+  "minutes": 30,
+  "objectives": [
+    "Describe a scatterplot and interpret the correlation coefficient r.",
+    "Fit the least-squares line from summary statistics.",
+    "Interpret slope and intercept; predict and compute residuals.",
+    "Interpret R² and spot outliers, leverage and extrapolation.",
+    "Explain why correlation does not imply causation."
+  ],
+  "warmup": [
+    {
+      "id": "s07-w1",
+      "type": "choice",
+      "prompt": "**Predict.** Across the year, ice-cream sales and drowning deaths rise and fall together. Does ice cream cause drowning?",
+      "options": [
+        "No: hot weather drives both",
+        "Yes: a strong correlation proves it",
+        "Yes, if the correlation is above 0.9",
+        "No: such correlations are always weak"
+      ],
+      "answer": 0,
+      "explain": "Hot weather increases both ice-cream sales and swimming. A third variable that drives both is a **confounder**. Correlation measures association; causation needs more, ideally a randomised experiment."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "md": "## Looking at two variables\nA **scatterplot** shows one point per case: the explanatory variable $x$ horizontally, the response $y$ vertically. Describe it by\n\n- **direction:** positive (up to the right) or negative;\n- **form:** linear, curved, clusters;\n- **strength:** how tightly points follow the form;\n- **unusual points:** outliers.\n\nThe **correlation** $r$ measures the direction and strength of a **linear** relationship:\n$$r = \\frac{1}{n-1}\\sum_{i=1}^{n}\\left(\\frac{x_i - \\bar x}{s_x}\\right)\\left(\\frac{y_i - \\bar y}{s_y}\\right)$$\n$r$ lies between $-1$ and $1$, has no units, and does not change if you swap $x$ and $y$ or change units."
+    },
+    {
+      "type": "callout",
+      "kind": "misconception",
+      "md": "**$r = 0$ does not mean \"no relationship\".** A perfect U-shape has $r \\approx 0$: $r$ only sees straight lines. Always plot the data. And **correlation is not causation**: a confounder may drive both variables."
+    },
+    {
+      "type": "text",
+      "md": "## The least-squares line\nWe predict $y$ from $x$ with a line $\\hat y = b_0 + b_1 x$. Each point's **residual** is its vertical miss:\n$$e_i = y_i - \\hat y_i \\quad (\\text{observed} - \\text{predicted})$$\nThe **least-squares line** makes the sum of squared residuals as small as possible. Its slope and intercept follow from five summary numbers:\n$$b_1 = r\\,\\frac{s_y}{s_x} \\qquad b_0 = \\bar y - b_1 \\bar x$$\nThe second formula says the line always passes through the point of means $(\\bar x, \\bar y)$."
+    },
+    {
+      "type": "example",
+      "title": "Study hours and exam scores",
+      "steps": [
+        "Summary: $\\bar x = 6$ hours, $s_x = 2$; $\\bar y = 70$ points, $s_y = 10$; $r = 0.6$.",
+        "Slope: $b_1 = 0.6 \\times 10/2 = 3$ points per extra hour.",
+        "Intercept: $b_0 = 70 - 3 \\times 6 = 52$. Line: $\\hat y = 52 + 3x$.",
+        "A student who studied 8 hours is predicted to score $52 + 3 \\times 8 = 76$.",
+        "She actually scored 80: residual $e = 80 - 76 = +4$ - she did 4 points better than the line predicts."
+      ],
+      "reflect": {
+        "prompt": "Does this line show that studying one more hour *causes* 3 more points?",
+        "answer": "No. It describes an association in observational data. Students who study more may also sleep more or attend more classes. Only a randomised experiment would isolate the effect of study time."
+      }
+    },
+    {
+      "type": "sim",
+      "sim": "regression",
+      "md": "**Predict:** what happens to the line and to $r$ when you add one point far to the right that does not follow the pattern? Tick the box and see. Then try a weak relationship (strength near 0)."
+    },
+    {
+      "type": "practice",
+      "exercise": "slope-from-r",
+      "count": 3
+    },
+    {
+      "type": "practice",
+      "exercise": "intercept",
+      "count": 2
+    },
+    {
+      "type": "practice",
+      "exercise": "residual",
+      "count": 3
+    },
+    {
+      "type": "text",
+      "md": "## Reading a regression\n- **Slope $b_1$:** the predicted change in $y$ for a one-unit increase in $x$.\n- **Intercept $b_0$:** the predicted $y$ when $x = 0$ - often meaningless if $x = 0$ lies far outside the data.\n- **$R^2$:** the share of the variability in $y$ explained by the linear model. In simple regression $R^2 = r^2$: with $r = 0.6$, $R^2 = 0.36$, so 36% of the variation in scores is explained by study hours.\n- **Extrapolation:** predicting far outside the range of the observed $x$ values is risky; the pattern may not continue.\n- **Outliers and leverage:** points with extreme $x$ values have high **leverage** and can pull the line toward themselves. Check whether conclusions change without them."
+    },
+    {
+      "type": "practice",
+      "exercise": "r-squared",
+      "count": 2
+    },
+    {
+      "type": "check",
+      "question": {
+        "id": "s07-k1",
+        "type": "choice",
+        "prompt": "A model predicts adult weight (kg) from height (cm): $\\hat y = -100 + 1.0x$. What does the intercept $-100$ mean?",
+        "options": [
+          "Nothing physical: height 0 lies far outside the data, the intercept just positions the line",
+          "A person of height 0 weighs −100 kg",
+          "Weight decreases by 100 kg per cm",
+          "The model is wrong because weights cannot be negative"
+        ],
+        "answer": 0,
+        "explain": "The intercept is the prediction at $x = 0$. No adult is 0 cm tall, so interpreting it would be extreme extrapolation; it simply anchors the line within the data range."
+      }
+    },
+    {
+      "type": "reflect",
+      "prompt": "Why do statisticians look at residual plots after fitting a line?",
+      "answer": "Patterns in the residuals - curves, a funnel shape, isolated large residuals - show what the line misses: a non-linear relationship, changing spread, or outliers. If the line fits well, residuals look like random scatter around zero."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "s07-q1",
+      "type": "generated",
+      "exercise": "slope-from-r"
+    },
+    {
+      "id": "s07-q2",
+      "type": "generated",
+      "exercise": "intercept"
+    },
+    {
+      "id": "s07-q3",
+      "type": "generated",
+      "exercise": "residual"
+    },
+    {
+      "id": "s07-q4",
+      "type": "generated",
+      "exercise": "r-squared"
+    },
+    {
+      "id": "s07-q5",
+      "type": "choice",
+      "prompt": "Towns with more fire stations have more fires. What is the most reasonable explanation?",
+      "options": [
+        "Bigger towns have both more fire stations and more fires (a confounder)",
+        "Fire stations cause fires",
+        "Fires cause fire stations to be built the next day",
+        "The correlation must be a calculation error"
+      ],
+      "answer": 0,
+      "explain": "Town size drives both counts. A correlation alone cannot tell you which way - if any - causation runs."
+    },
+    {
+      "id": "s07-q6",
+      "type": "choice",
+      "prompt": "Which single point would change the least-squares line the most?",
+      "options": [
+        "A point with an extreme $x$ value that lies far from the trend",
+        "A point near $(\\bar x, \\bar y)$",
+        "A point exactly on the line",
+        "A point in the middle of the cloud"
+      ],
+      "answer": 0,
+      "explain": "Points far from $\\bar x$ have high leverage. If they also break the pattern, they pull the line toward themselves."
+    },
+    {
+      "id": "s07-q7",
+      "type": "choice",
+      "prompt": "If $r = -0.8$, then:",
+      "options": [
+        "There is a strong negative linear association: $y$ tends to decrease as $x$ increases",
+        "80% of the points lie on a line",
+        "Increasing $x$ by 1 decreases $y$ by 0.8",
+        "There is almost no relationship"
+      ],
+      "answer": 0,
+      "explain": "$|r|$ near 1 means a strong linear pattern and the sign gives the direction. The slope is $r\\,s_y/s_x$, not $r$ itself, and $R^2 = 0.64$, not 80% of points."
+    }
+  ],
+  "cards": [
+    {
+      "id": "s07-c1",
+      "kind": "concept",
+      "front": "Key properties of the correlation $r$?",
+      "back": "Between −1 and 1; measures only linear association; unitless; unchanged by swapping $x$ and $y$ or changing units; sensitive to outliers."
+    },
+    {
+      "id": "s07-c2",
+      "kind": "concept",
+      "front": "Why doesn't correlation imply causation?",
+      "back": "A confounder may drive both variables (ice cream and drowning ↔ hot weather), or causation may run the other way. Randomised experiments are needed."
+    },
+    {
+      "id": "s07-c3",
+      "kind": "formula",
+      "front": "Least-squares slope from summary statistics?",
+      "back": "$b_1 = r\\,s_y/s_x$."
+    },
+    {
+      "id": "s07-c4",
+      "kind": "formula",
+      "front": "Least-squares intercept?",
+      "back": "$b_0 = \\bar y - b_1 \\bar x$: the line passes through $(\\bar x, \\bar y)$."
+    },
+    {
+      "id": "s07-c5",
+      "kind": "formula",
+      "front": "Definition of a residual?",
+      "back": "$e = y - \\hat y$ (observed − predicted). Positive: point above the line."
+    },
+    {
+      "id": "s07-c6",
+      "kind": "concept",
+      "front": "What does $R^2$ mean?",
+      "back": "The share of the variability in $y$ explained by the linear model; equals $r^2$ in simple regression."
+    },
+    {
+      "id": "s07-c7",
+      "kind": "concept",
+      "front": "What is extrapolation and why is it risky?",
+      "back": "Predicting outside the range of observed $x$ values; the relationship may change there."
+    },
+    {
+      "id": "s07-c8",
+      "kind": "concept",
+      "front": "What is a high-leverage point?",
+      "back": "A point with an $x$ value far from $\\bar x$; it can pull the least-squares line strongly, especially if it breaks the trend."
+    },
+    {
+      "id": "s07-c9",
+      "kind": "exercise",
+      "exercise": "slope-from-r"
+    },
+    {
+      "id": "s07-c10",
+      "kind": "exercise",
+      "exercise": "residual"
+    }
+  ]
+}

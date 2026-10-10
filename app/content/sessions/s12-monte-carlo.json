@@ -1,0 +1,212 @@
+{
+  "id": "s12",
+  "slug": "monte-carlo",
+  "part": "B",
+  "title": "Monte Carlo methods",
+  "summary": "Answer hard probability questions by sampling: Monte Carlo averages, importance and rejection sampling, the Metropolis method and Gibbs sampling.",
+  "bookRef": "ITILA ch. 29 (Monte Carlo Methods: importance sampling, rejection sampling, Metropolis-Hastings, Gibbs sampling)",
+  "lectures": [
+    {
+      "number": 12,
+      "title": "Approximating probability distributions (II): Monte Carlo methods (I): importance sampling, rejection sampling, Gibbs sampling, Metropolis method",
+      "url": "https://videolectures.net/mackay_course_12/"
+    },
+    {
+      "number": 13,
+      "title": "Approximating probability distributions (III): Monte Carlo methods (II): slice sampling, hybrid Monte Carlo, over-relaxation, exact sampling",
+      "url": "https://videolectures.net/mackay_course_13/"
+    }
+  ],
+  "minutes": 30,
+  "objectives": [
+    "Estimate an expectation by averaging samples and state how its error shrinks.",
+    "Explain importance sampling and rejection sampling, and why both struggle in high dimensions.",
+    "Carry out Metropolis steps by hand: propose, then accept or reject.",
+    "Describe Gibbs sampling and how step size affects a random-walk sampler."
+  ],
+  "warmup": [
+    {
+      "id": "s12-w1",
+      "type": "choice",
+      "prompt": "**Predict.** In a 1-dimensional problem, 1,000 independent random samples estimate an average to the accuracy you need. With the same variance of $\\phi(x)$, how many independent samples do you need in a 1,000-dimensional problem?",
+      "options": [
+        "About the same: 1,000",
+        "About a million",
+        "So many that it is hopeless",
+        "Just one"
+      ],
+      "answer": 0,
+      "explain": "The error of a Monte Carlo average is $\\sigma_\\phi/\\sqrt{R}$, whatever the dimension, *provided you can draw independent samples*. Drawing them is the hard part, and that is what this session is about."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "md": "## Why sample?\nBayesian inference constantly needs expectations under a posterior, such as a posterior mean or the probability that a parameter exceeds some value:\n$$\\Phi = \\langle \\phi(x) \\rangle = \\sum_x P(x)\\,\\phi(x).$$\nIn many dimensions such sums and integrals are impossible to compute exactly. The **Monte Carlo** idea: draw samples $x^{(1)}, \\dots, x^{(R)}$ from $P$ and average,\n$$\\hat\\Phi = \\frac{1}{R}\\sum_{r=1}^{R} \\phi\\big(x^{(r)}\\big).$$\nThe estimate is unbiased, and its standard error is $\\sigma_\\phi/\\sqrt{R}$, **independent of the dimension of $x$.** The catch: we usually know $P$ only up to a constant, $P(x) = P^*(x)/Z$, and cannot sample from it directly."
+    },
+    {
+      "type": "sim",
+      "sim": "mc-pi",
+      "md": "**Predict:** with 100 random points, how close to π will the estimate be? With 10,000? Add points and compare the error with the theoretical standard error."
+    },
+    {
+      "type": "practice",
+      "exercise": "mc-error",
+      "count": 2
+    },
+    {
+      "type": "text",
+      "md": "## Importance sampling\nSample instead from a simpler distribution $Q$ that you *can* sample, and correct with **weights**:\n$$w_r = \\frac{P^*(x^{(r)})}{Q^*(x^{(r)})}, \\qquad \\hat\\Phi = \\frac{\\sum_r w_r\\, \\phi(x^{(r)})}{\\sum_r w_r}.$$\nIt works when $Q$ covers $P$ well. In high dimensions a few samples get enormous weights and dominate, so the estimate becomes unreliable, and the method gives little warning when that happens."
+    },
+    {
+      "type": "practice",
+      "exercise": "importance-estimate",
+      "count": 2
+    },
+    {
+      "type": "text",
+      "md": "## Rejection sampling\nFind a constant $c$ with $c\\,Q^*(x) \\ge P^*(x)$ everywhere. Draw $x$ from $Q$ and $u$ uniformly between 0 and $c\\,Q^*(x)$; keep $x$ if $u \\le P^*(x)$. The kept points are exact samples from $P$.\n\nFor normalised densities a fraction $1/c$ of proposals survives. MacKay's warning example: in $N$ dimensions, a Gaussian proposal only 1% wider than the target needs $c = 1.01^N$. For $N = 1000$, $c \\approx 21{,}000$: about 21,000 proposals per accepted sample."
+    },
+    {
+      "type": "practice",
+      "exercise": "rejection-rate",
+      "count": 2
+    },
+    {
+      "type": "text",
+      "md": "## The Metropolis method\nBuild a random walk whose long-run distribution is $P$:\n\n1. From the current state $x$, propose $x' = x + \\text{small random step}$ (symmetric proposal).\n2. Accept with probability $a = \\min\\left(1, \\dfrac{P^*(x')}{P^*(x)}\\right)$.\n3. If rejected, stay at $x$ **and record $x$ again**.\n\nOnly the ratio of $P^*$ values is needed, so the unknown constant $Z$ cancels. Samples are correlated, and early ones depend on the starting point. The step size $\\varepsilon$ is a trade-off: tiny steps are almost always accepted but crawl (crossing a distance $L$ takes about $(L/\\varepsilon)^2$ steps); huge steps are mostly rejected."
+    },
+    {
+      "type": "sim",
+      "sim": "metropolis",
+      "md": "**Predict:** the chain starts in the left hump. With step size 0.3, will 2,000 steps discover the right hump? Run it, then try step sizes 2 and 6 and watch the acceptance rate."
+    },
+    {
+      "type": "practice",
+      "exercise": "metropolis-accept",
+      "count": 3
+    },
+    {
+      "type": "text",
+      "md": "## Gibbs sampling\nFor a vector $x = (x_1, \\dots, x_K)$, update one variable at a time by sampling it from its conditional distribution given all the others, $P(x_k \\mid x_{\\text{rest}})$. Nothing is ever rejected, and in many models these conditionals are easy to sample. Gibbs sampling becomes slow when variables are strongly correlated, because each update can move only along one axis. Chapter 30 of the book covers faster methods such as hybrid (Hamiltonian) Monte Carlo and over-relaxation."
+    },
+    {
+      "type": "callout",
+      "kind": "misconception",
+      "md": "**\"MCMC samples are independent draws.\"** Consecutive Metropolis or Gibbs samples are correlated, so 10,000 of them may be worth far fewer independent samples. Look at trace plots, run several chains from different starting points, and discard the early burn-in."
+    },
+    {
+      "type": "reflect",
+      "prompt": "Why does the Metropolis method only need $P^*(x)$ up to a constant, and why is that so useful in Bayesian inference?",
+      "answer": "The acceptance rule uses the ratio $P^*(x')/P^*(x)$, so the normalising constant cancels. A posterior is prior × likelihood divided by the evidence, and the evidence is usually an intractable integral. Metropolis samples the posterior without ever computing it."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "s12-q1",
+      "type": "generated",
+      "exercise": "mc-error"
+    },
+    {
+      "id": "s12-q2",
+      "type": "generated",
+      "exercise": "metropolis-accept"
+    },
+    {
+      "id": "s12-q3",
+      "type": "generated",
+      "exercise": "rejection-rate"
+    },
+    {
+      "id": "s12-q4",
+      "type": "generated",
+      "exercise": "importance-estimate"
+    },
+    {
+      "id": "s12-q5",
+      "type": "choice",
+      "prompt": "A Metropolis chain with very small steps has an acceptance rate of 99%. What does that tell you?",
+      "options": [
+        "It accepts almost everything but explores slowly; neighbouring samples are highly correlated",
+        "It is sampling perfectly",
+        "The target distribution is uniform",
+        "The step size is too large"
+      ],
+      "answer": 0,
+      "explain": "High acceptance with tiny steps means a slow random walk: the chain needs about $(L/\\varepsilon)^2$ steps to cross a distance $L$."
+    },
+    {
+      "id": "s12-q6",
+      "type": "choice",
+      "prompt": "What does one sweep of Gibbs sampling do?",
+      "options": [
+        "Updates each variable in turn by sampling from its conditional distribution given the others",
+        "Proposes a random move for all variables and accepts or rejects it",
+        "Weights samples from a simpler distribution",
+        "Draws from an envelope and rejects points above the target"
+      ],
+      "answer": 0,
+      "explain": "Gibbs sampling is coordinate-wise sampling from conditionals; the other options describe Metropolis, importance sampling and rejection sampling."
+    }
+  ],
+  "cards": [
+    {
+      "id": "s12-c1",
+      "kind": "formula",
+      "front": "Monte Carlo estimator of $\\langle\\phi(x)\\rangle$ and its error?",
+      "back": "$\\hat\\Phi = \\frac{1}{R}\\sum_r \\phi(x^{(r)})$ with standard error $\\sigma_\\phi/\\sqrt{R}$."
+    },
+    {
+      "id": "s12-c2",
+      "kind": "concept",
+      "front": "Does the Monte Carlo error depend on the dimension of $x$?",
+      "back": "No, if the samples are independent draws from $P$. The difficulty is generating such samples in high dimensions."
+    },
+    {
+      "id": "s12-c3",
+      "kind": "formula",
+      "front": "Importance-sampling weights and estimate?",
+      "back": "$w_r = P^*(x^{(r)})/Q^*(x^{(r)})$; $\\hat\\Phi = \\sum_r w_r\\phi(x^{(r)}) / \\sum_r w_r$."
+    },
+    {
+      "id": "s12-c4",
+      "kind": "concept",
+      "front": "Rejection sampling: acceptance rule and rate?",
+      "back": "Accept $x \\sim Q$ if $u \\le P^*(x)$ with $u$ uniform on $[0, cQ^*(x)]$; with normalised densities a fraction $1/c$ is accepted."
+    },
+    {
+      "id": "s12-c5",
+      "kind": "concept",
+      "front": "Why does rejection sampling fail in high dimensions?",
+      "back": "The envelope constant grows exponentially: a proposal just 1% wider in each of 1,000 dimensions needs $c = 1.01^{1000} \\approx 21{,}000$."
+    },
+    {
+      "id": "s12-c6",
+      "kind": "formula",
+      "front": "Metropolis acceptance probability (symmetric proposal)?",
+      "back": "$a = \\min\\left(1, P^*(x')/P^*(x)\\right)$; if rejected, record the current state again."
+    },
+    {
+      "id": "s12-c7",
+      "kind": "concept",
+      "front": "Step-size trade-off in random-walk Metropolis?",
+      "back": "Small steps: high acceptance but slow, about $(L/\\varepsilon)^2$ steps to cross distance $L$. Large steps: most proposals rejected."
+    },
+    {
+      "id": "s12-c8",
+      "kind": "concept",
+      "front": "What is Gibbs sampling?",
+      "back": "Updating one variable at a time by sampling from its conditional distribution given all the others."
+    },
+    {
+      "id": "s12-c9",
+      "kind": "exercise",
+      "exercise": "metropolis-accept"
+    },
+    {
+      "id": "s12-c10",
+      "kind": "exercise",
+      "exercise": "mc-error"
+    }
+  ]
+}

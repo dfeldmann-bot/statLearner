@@ -1,0 +1,22 @@
+{
+  "name": "statlearner",
+  "version": "0.1.0",
+  "description": "A small, gamified statistics and inference course based on MacKay's Information Theory, Inference, and Learning Algorithms, with spaced repetition, running fully offline; plus a Claude + ChatGPT authoring pipeline and a curated-source StatBot prototype.",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-or-later",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "validate": "node tools/validate-content.mjs",
+    "serve": "node tools/serve.mjs",
+    "author": "node authoring/cli.mjs",
+    "fetch-book": "node tools/fetch-book.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
+    "openai": "^7.32.0"
+  }
+}

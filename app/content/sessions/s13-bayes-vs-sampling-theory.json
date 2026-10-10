@@ -1,0 +1,206 @@
+{
+  "id": "s13",
+  "slug": "bayes-vs-sampling-theory",
+  "part": "B",
+  "title": "Bayesian inference vs sampling theory",
+  "summary": "p-values versus posterior probabilities: the likelihood principle, the stopping-rule paradox, Lindley's paradox, credible intervals and decisions.",
+  "bookRef": "ITILA ch. 37 (Bayesian Inference and Sampling Theory), ch. 36 (Decision Theory)",
+  "minutes": 30,
+  "objectives": [
+    "Contrast what a p-value and a posterior probability measure.",
+    "Show with the stopping-rule example how p-values depend on outcomes that never happened.",
+    "Explain how a 'significant' p-value can come with evidence for H0 (Lindley's paradox).",
+    "Choose an action by minimising expected loss under the posterior."
+  ],
+  "warmup": [
+    {
+      "id": "s13-w1",
+      "type": "choice",
+      "prompt": "**Predict.** Alice and Bob watch the same 12 tosses: 9 heads, 3 tails. Alice had planned exactly 12 tosses; Bob had planned to stop at the 3rd tail. Should their conclusions about the coin differ?",
+      "options": [
+        "No: they saw exactly the same data",
+        "Yes: Bob's evidence against fairness is stronger",
+        "Yes: Alice's evidence is stronger",
+        "Only if they used different coins"
+      ],
+      "answer": 0,
+      "explain": "A Bayesian says no: the likelihood is $p^9(1-p)^3$ for both. Classical p-values, however, differ: 0.073 for Alice and 0.033 for Bob. This session explains the clash."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "md": "## Two languages for uncertainty\n**Sampling theory** (frequentist statistics, sessions 5-6) treats probability as a long-run frequency of *data* in imagined repetitions of the experiment. Parameters are fixed; the tools are p-values and confidence intervals.\n\n**Bayesian inference** (MacKay's position throughout the book) treats probability as a degree of belief, so parameters and hypotheses get probabilities too; the tool is the posterior.\n\nThey answer different questions:\n- p-value: $P(\\text{data at least this extreme} \\mid H_0)$;\n- posterior: $P(H_0 \\mid \\text{the data actually observed})$."
+    },
+    {
+      "type": "text",
+      "md": "## The likelihood principle\n**Everything the data say about a parameter is contained in the likelihood function of the data actually observed.** Bayesian inference obeys this automatically, because the posterior is prior × likelihood.\n\np-values do not obey it: they add up the probabilities of outcomes *more extreme than* the one observed, outcomes that never happened. Which outcomes count as \"more extreme\" depends on what else could have happened, and that can depend on the experimenter's intentions."
+    },
+    {
+      "type": "example",
+      "title": "The stopping rule",
+      "steps": [
+        "Data: 9 heads and 3 tails. $H_0$: fair coin; one-sided alternative: biased towards heads.",
+        "Alice planned 12 tosses (binomial): $P(X \\ge 9) = \\dfrac{220 + 66 + 12 + 1}{4096} = 0.073$. Not significant at 0.05.",
+        "Bob planned to stop at the 3rd tail (negative binomial): $P(\\ge 9 \\text{ heads before the 3rd tail}) = P(\\text{first 11 tosses contain} \\le 2 \\text{ tails}) = \\dfrac{1 + 11 + 55}{2048} = 0.033$. Significant at 0.05.",
+        "Both likelihoods are proportional to $p^9(1-p)^3$, so with the same prior Alice and Bob get the same posterior."
+      ],
+      "reflect": {
+        "prompt": "Which p-value is right?",
+        "answer": "Both are computed correctly within sampling theory. The clash shows that p-values depend on intentions the coin never knew about. A Bayesian analysis gives Alice and Bob the same answer, as long as they share a prior."
+      }
+    },
+    {
+      "type": "sim",
+      "sim": "stopping-rule",
+      "md": "**Predict:** under which plan will 9 heads look more extreme? Switch between the two plans and compare the red tail areas."
+    },
+    {
+      "type": "practice",
+      "exercise": "binomial-tail",
+      "count": 3
+    },
+    {
+      "type": "text",
+      "md": "## Lindley's paradox: \"significant\", yet evidence for $H_0$\nToss a coin 10,000 times and see 5,100 heads. Then $z = (0.51 - 0.5)/0.005 = 2.0$, and the two-sided p-value is 0.046: \"significant at 5%\".\n\nNow compare $H_0$ (fair) with $H_1$ (unknown bias, uniform prior) as in session 10. The Bayes factor is about **10.8 in favour of the fair coin**. With 50/50 prior odds, $P(H_0 \\mid D) \\approx 0.92$.\n\nWhy? Under $H_1$, a head count of 5,100 is just one of 10,001 equally likely counts, while the fair coin predicts counts near 5,000 sharply, and 5,100 is still fairly close. With large samples, a small p-value can coexist with strong evidence *for* $H_0$."
+    },
+    {
+      "type": "check",
+      "question": {
+        "id": "s13-k1",
+        "type": "choice",
+        "prompt": "In the 10,000-toss example, which statement is correct?",
+        "options": [
+          "The p-value is 0.046, yet under a uniform alternative the data favour the fair coin by about 11 to 1",
+          "The p-value of 0.046 means $P(H_0 \\mid D) = 0.046$",
+          "Both analyses agree that the coin is biased",
+          "The Bayes factor cannot be computed without a p-value"
+        ],
+        "answer": 0,
+        "explain": "The two numbers answer different questions. The p-value is $P(\\text{data this extreme} \\mid H_0)$; the Bayes factor compares how well each model predicted the data."
+      }
+    },
+    {
+      "type": "callout",
+      "kind": "misconception",
+      "md": "**\"p = 0.05 means a 5% chance that $H_0$ is true.\"** In the example above, $p = 0.046$ while $P(H_0 \\mid D) \\approx 0.92$ (equal prior odds, uniform alternative). The probability of $H_0$ depends on the prior and on the alternative, which a p-value never looks at. That is exactly why a p-value alone cannot give it."
+    },
+    {
+      "type": "text",
+      "md": "## Confidence intervals and credible intervals\nA 95% **credible interval** contains the parameter with posterior probability 0.95, given the data: the statement people often wrongly attach to confidence intervals (session 5).\n\nFor a bent coin with plenty of data the two kinds of interval are nearly identical numerically (Laplace's method, session 11), but they answer different questions. With small samples, constrained parameters or nuisance parameters they can differ sharply; chapter 37 of the book gives examples."
+    },
+    {
+      "type": "text",
+      "md": "## Deciding: minimise expected loss\nInference gives probabilities; decisions also need consequences. If action $a$ in state $s$ costs $L(a, s)$, the **expected loss** of $a$ is\n$$\\bar L(a) = \\sum_s P(s \\mid D)\\, L(a, s),$$\nand the best action minimises it (chapter 36). A fixed rule like \"reject if $p < 0.05$\" hides its losses; decision theory makes them explicit."
+    },
+    {
+      "type": "practice",
+      "exercise": "expected-loss",
+      "count": 3
+    },
+    {
+      "type": "reflect",
+      "prompt": "MacKay recommends Bayesian methods, yet sampling theory is everywhere in science. What would you report from a study so that both camps can use it?",
+      "answer": "The data summary or likelihood, an effect size with an interval, a Bayes factor or posterior under clearly stated priors, and p-values only with their context (the stopping rule and the alternative). Making every assumption explicit lets readers redo the analysis their way."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "s13-q1",
+      "type": "generated",
+      "exercise": "binomial-tail"
+    },
+    {
+      "id": "s13-q2",
+      "type": "generated",
+      "exercise": "expected-loss"
+    },
+    {
+      "id": "s13-q3",
+      "type": "generated",
+      "exercise": "posterior-from-bf"
+    },
+    {
+      "id": "s13-q4",
+      "type": "choice",
+      "prompt": "What does the likelihood principle say?",
+      "options": [
+        "All the information the data give about a parameter is in the likelihood of the data actually observed",
+        "Always choose the parameter value with the highest likelihood",
+        "p-values and posteriors always agree",
+        "The likelihood must integrate to 1"
+      ],
+      "answer": 0,
+      "explain": "It is a statement about which information counts, not a recommendation to use maximum likelihood. Bayesian inference satisfies it; p-values, which depend on unobserved outcomes, do not."
+    },
+    {
+      "id": "s13-q5",
+      "type": "numeric",
+      "prompt": "Bob planned to toss until the 3rd tail and saw 9 heads first. Under a fair coin, what is the one-sided p-value $P(\\ge 9 \\text{ heads before the 3rd tail})$? Round to 3 decimals.",
+      "answer": 0.03271484375,
+      "explain": "At least 9 heads before the 3rd tail means the first 11 tosses contain at most 2 tails: $(1 + 11 + 55)/2^{11} = 67/2048 = 0.033$.",
+      "tolerance": 0.002
+    },
+    {
+      "id": "s13-q6",
+      "type": "choice",
+      "prompt": "Why can a small p-value come with evidence *for* $H_0$ when $n$ is very large?",
+      "options": [
+        "A vague alternative spreads its predictions thinly, so it predicts the observed result even worse than $H_0$ does",
+        "Large samples make p-values meaningless",
+        "The p-value is computed incorrectly for large $n$",
+        "Because $H_0$ is always true for large samples"
+      ],
+      "answer": 0,
+      "explain": "This is Lindley's paradox, the Occam effect of session 10 at work: the evidence compares predictions, and a diffuse alternative makes poor ones."
+    }
+  ],
+  "cards": [
+    {
+      "id": "s13-c1",
+      "kind": "concept",
+      "front": "What does a p-value measure, and what does a posterior probability measure?",
+      "back": "p-value: $P(\\text{data at least this extreme} \\mid H_0)$. Posterior: $P(H_0 \\mid \\text{observed data})$, which also needs a prior and an alternative."
+    },
+    {
+      "id": "s13-c2",
+      "kind": "concept",
+      "front": "State the likelihood principle.",
+      "back": "All the information the data provide about a parameter is in the likelihood function of the observed data."
+    },
+    {
+      "id": "s13-c3",
+      "kind": "concept",
+      "front": "The stopping-rule example (9 heads, 3 tails)?",
+      "back": "Planned 12 tosses: one-sided p = 0.073. Stop at the 3rd tail: p = 0.033. Same likelihood $p^9(1-p)^3$, so the same Bayesian conclusion."
+    },
+    {
+      "id": "s13-c4",
+      "kind": "concept",
+      "front": "What is Lindley's paradox?",
+      "back": "With large $n$, a result can be 'significant' (e.g. p = 0.046 for 5,100 heads in 10,000) while the Bayes factor favours $H_0$ (about 11:1)."
+    },
+    {
+      "id": "s13-c5",
+      "kind": "concept",
+      "front": "What does a 95% credible interval mean?",
+      "back": "Given the data and prior, the parameter lies in the interval with probability 0.95."
+    },
+    {
+      "id": "s13-c6",
+      "kind": "formula",
+      "front": "Expected loss of action $a$?",
+      "back": "$\\bar L(a) = \\sum_s P(s \\mid D)\\, L(a, s)$; choose the action with the smallest expected loss."
+    },
+    {
+      "id": "s13-c7",
+      "kind": "exercise",
+      "exercise": "binomial-tail"
+    },
+    {
+      "id": "s13-c8",
+      "kind": "exercise",
+      "exercise": "expected-loss"
+    }
+  ]
+}

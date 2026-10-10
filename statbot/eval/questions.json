@@ -1,0 +1,301 @@
+{
+  "note": "expect = id prefixes of passages that answer the question; a hit means one of them is in the top 3. outOfScope questions must be refused.",
+  "questions": [
+    {
+      "q": "What is the difference between the mean and the median?",
+      "expect": [
+        "s01:"
+      ]
+    },
+    {
+      "q": "Why is the median resistant to outliers?",
+      "expect": [
+        "s01:"
+      ]
+    },
+    {
+      "q": "How do I compute a sample standard deviation?",
+      "expect": [
+        "s01:"
+      ]
+    },
+    {
+      "q": "Why divide by n-1 in the sample variance?",
+      "expect": [
+        "s01:",
+        "glossary:"
+      ]
+    },
+    {
+      "q": "What does right-skewed mean?",
+      "expect": [
+        "s01:"
+      ]
+    },
+    {
+      "q": "What is the interquartile range?",
+      "expect": [
+        "s01:",
+        "glossary:"
+      ]
+    },
+    {
+      "q": "What is the gambler's fallacy?",
+      "expect": [
+        "s02:"
+      ]
+    },
+    {
+      "q": "How do I compute the probability of A or B?",
+      "expect": [
+        "s02:"
+      ]
+    },
+    {
+      "q": "When are two events independent?",
+      "expect": [
+        "s02:"
+      ]
+    },
+    {
+      "q": "How do I use Bayes' theorem for a medical test?",
+      "expect": [
+        "s02:"
+      ]
+    },
+    {
+      "q": "What is an expected value?",
+      "expect": [
+        "s03:"
+      ]
+    },
+    {
+      "q": "What are the conditions for a binomial distribution?",
+      "expect": [
+        "s03:"
+      ]
+    },
+    {
+      "q": "What is a z-score?",
+      "expect": [
+        "s03:",
+        "glossary:"
+      ]
+    },
+    {
+      "q": "What does the 68-95-99.7 rule say?",
+      "expect": [
+        "s03:"
+      ]
+    },
+    {
+      "q": "What is a standard error?",
+      "expect": [
+        "s04:"
+      ]
+    },
+    {
+      "q": "What does the central limit theorem state?",
+      "expect": [
+        "s04:"
+      ]
+    },
+    {
+      "q": "What is the success-failure condition?",
+      "expect": [
+        "s04:",
+        "s05:"
+      ]
+    },
+    {
+      "q": "How do I build a confidence interval for a proportion?",
+      "expect": [
+        "s05:"
+      ]
+    },
+    {
+      "q": "What does 95% confidence mean?",
+      "expect": [
+        "s05:"
+      ]
+    },
+    {
+      "q": "How large a sample do I need for a given margin of error?",
+      "expect": [
+        "s05:"
+      ]
+    },
+    {
+      "q": "What is a p-value?",
+      "expect": [
+        "s06:"
+      ]
+    },
+    {
+      "q": "What is the difference between a type I and a type II error?",
+      "expect": [
+        "s06:"
+      ]
+    },
+    {
+      "q": "What is statistical power?",
+      "expect": [
+        "s06:",
+        "glossary:"
+      ]
+    },
+    {
+      "q": "How do I compute the least squares slope?",
+      "expect": [
+        "s07:"
+      ]
+    },
+    {
+      "q": "What is a residual?",
+      "expect": [
+        "s07:",
+        "glossary:"
+      ]
+    },
+    {
+      "q": "Does correlation imply causation?",
+      "expect": [
+        "s07:",
+        "glossary:"
+      ]
+    },
+    {
+      "q": "What is R squared?",
+      "expect": [
+        "s07:",
+        "glossary:"
+      ]
+    },
+    {
+      "q": "When should I use the t-distribution?",
+      "expect": [
+        "glossary:",
+        "s05:"
+      ]
+    },
+    {
+      "q": "What is a confounder?",
+      "expect": [
+        "glossary:",
+        "s07:"
+      ]
+    },
+    {
+      "q": "What is the Shannon information content of an outcome?",
+      "expect": [
+        "s08:"
+      ]
+    },
+    {
+      "q": "When is entropy maximal?",
+      "expect": [
+        "s08:"
+      ]
+    },
+    {
+      "q": "How many weighings are needed for the twelve balls puzzle?",
+      "expect": [
+        "s08:"
+      ]
+    },
+    {
+      "q": "What is Laplace's rule of succession?",
+      "expect": [
+        "s09:"
+      ]
+    },
+    {
+      "q": "What is the difference between forward and inverse probability?",
+      "expect": [
+        "s09:"
+      ]
+    },
+    {
+      "q": "What is a Bayes factor?",
+      "expect": [
+        "s10:",
+        "s13:"
+      ]
+    },
+    {
+      "q": "How does Bayesian model comparison implement Occam's razor?",
+      "expect": [
+        "s10:"
+      ]
+    },
+    {
+      "q": "Why does the maximum likelihood sigma underestimate the spread?",
+      "expect": [
+        "s11:",
+        "s01:"
+      ]
+    },
+    {
+      "q": "What is Laplace's method for error bars?",
+      "expect": [
+        "s11:"
+      ]
+    },
+    {
+      "q": "How does the Metropolis method decide whether to accept a move?",
+      "expect": [
+        "s12:"
+      ]
+    },
+    {
+      "q": "Why does rejection sampling fail in high dimensions?",
+      "expect": [
+        "s12:"
+      ]
+    },
+    {
+      "q": "What is the likelihood principle?",
+      "expect": [
+        "s13:"
+      ]
+    },
+    {
+      "q": "What is Lindley's paradox?",
+      "expect": [
+        "s13:"
+      ]
+    },
+    {
+      "q": "What is the capital of France?",
+      "outOfScope": true
+    },
+    {
+      "q": "How do I bake sourdough bread?",
+      "outOfScope": true
+    },
+    {
+      "q": "Who won the football World Cup in 2022?",
+      "outOfScope": true
+    },
+    {
+      "q": "Write me a poem about the ocean",
+      "outOfScope": true
+    },
+    {
+      "q": "What is the best laptop to buy?",
+      "outOfScope": true
+    },
+    {
+      "q": "How do neural networks learn with backpropagation?",
+      "outOfScope": true
+    },
+    {
+      "q": "What is the weather tomorrow?",
+      "outOfScope": true
+    },
+    {
+      "q": "Translate hello into Japanese",
+      "outOfScope": true
+    }
+  ]
+}

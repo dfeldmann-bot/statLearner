@@ -1,0 +1,169 @@
+{
+  "id": "statlearner",
+  "title": "Statistics & Inference",
+  "subtitle": "Foundations first, then the core of MacKay's Information Theory, Inference, and Learning Algorithms. Short sessions, unlimited practice, spaced repetition.",
+  "version": 2,
+  "book": {
+    "title": "Information Theory, Inference, and Learning Algorithms",
+    "short": "ITILA",
+    "edition": "Cambridge University Press, 2003",
+    "authors": "David J. C. MacKay",
+    "url": "https://www.inference.org.uk/itprnn/book.pdf",
+    "home": "https://www.inference.org.uk/mackay/itila/",
+    "license": "© Cambridge University Press 2003. Free to read on screen from the author's site; printing and redistribution not permitted.",
+    "note": "This repository links to the book instead of including the PDF. `npm run fetch-book` downloads a personal copy to app/book/ (git-ignored)."
+  },
+  "lectures": {
+    "title": "Information Theory, Pattern Recognition and Neural Networks (16 lectures, Cambridge, 2012)",
+    "url": "https://videolectures.net/course_information_theory_pattern_recognition/",
+    "youtube": "https://www.youtube.com/playlist?list=PLruBu5BI5n4aFpG32iMbdWoRVAA-Vcso6",
+    "home": "https://www.inference.org.uk/itprnn_lectures/",
+    "note": "Titles of lectures 2-5, 7 and 8 follow the 2012 slide list; the others follow the course and video pages.",
+    "list": [
+      {
+        "number": 1,
+        "title": "Introduction to information theory",
+        "url": "https://videolectures.net/mackay_course_01/"
+      },
+      {
+        "number": 2,
+        "title": "Entropy and data compression (I): introduction to compression, information content",
+        "url": "https://videolectures.net/mackay_course_02/"
+      },
+      {
+        "number": 3,
+        "title": "Entropy and data compression (II): source coding theorem, the bent coin lottery",
+        "url": "https://videolectures.net/mackay_course_03/"
+      },
+      {
+        "number": 4,
+        "title": "Entropy and data compression (III): symbol codes",
+        "url": "https://videolectures.net/mackay_course_04/"
+      },
+      {
+        "number": 5,
+        "title": "Entropy and data compression (IV): arithmetic coding",
+        "url": "https://videolectures.net/mackay_course_05/"
+      },
+      {
+        "number": 6,
+        "title": "Noisy channel coding (I): inference and information measures for noisy channels",
+        "url": "https://videolectures.net/mackay_course_06/"
+      },
+      {
+        "number": 7,
+        "title": "Noisy channel coding (II): the capacity of a noisy channel",
+        "url": "https://videolectures.net/mackay_course_07/"
+      },
+      {
+        "number": 8,
+        "title": "Noisy channel coding (III): the noisy-channel coding theorem",
+        "url": "https://videolectures.net/mackay_course_08/"
+      },
+      {
+        "number": 9,
+        "title": "A noisy channel coding gem, and an introduction to Bayesian inference (I)",
+        "url": "https://videolectures.net/mackay_course_09/"
+      },
+      {
+        "number": 10,
+        "title": "An introduction to Bayesian inference (II): inference of parameters and models",
+        "url": "https://videolectures.net/mackay_course_10/"
+      },
+      {
+        "number": 11,
+        "title": "Approximating probability distributions (I): clustering as an example inference problem",
+        "url": "https://videolectures.net/mackay_course_11/"
+      },
+      {
+        "number": 12,
+        "title": "Approximating probability distributions (II): Monte Carlo methods (I): importance sampling, rejection sampling, Gibbs sampling, Metropolis method",
+        "url": "https://videolectures.net/mackay_course_12/"
+      },
+      {
+        "number": 13,
+        "title": "Approximating probability distributions (III): Monte Carlo methods (II): slice sampling, hybrid Monte Carlo, over-relaxation, exact sampling",
+        "url": "https://videolectures.net/mackay_course_13/"
+      },
+      {
+        "number": 14,
+        "title": "Approximating probability distributions (IV): variational methods",
+        "url": "https://videolectures.net/mackay_course_14/"
+      },
+      {
+        "number": 15,
+        "title": "Data modelling with neural networks (I): feedforward networks",
+        "url": "https://videolectures.net/mackay_course_15/"
+      },
+      {
+        "number": 16,
+        "title": "Data modelling with neural networks (II): content-addressable memories and state-of-the-art error-correcting codes",
+        "url": "https://videolectures.net/mackay_course_16/"
+      }
+    ]
+  },
+  "companions": [
+    {
+      "title": "OpenIntro Statistics",
+      "edition": "4th edition",
+      "authors": "David Diez, Mine Çetinkaya-Rundel, Christopher Barr",
+      "url": "https://www.openintro.org/book/os/",
+      "license": "CC BY-SA 3.0",
+      "use": "Free companion for Part A: classical statistics that ITILA assumes or contrasts with."
+    }
+  ],
+  "parts": [
+    {
+      "id": "A",
+      "title": "Part A · Foundations",
+      "description": "Probability and classical statistics the book assumes, plus the frequentist methods it argues with."
+    },
+    {
+      "id": "B",
+      "title": "Part B · Information, inference and learning (MacKay)",
+      "description": "Core of ITILA: entropy, Bayesian inference, model comparison, maximum likelihood, Monte Carlo, and Bayes vs sampling theory."
+    }
+  ],
+  "passMark": 0.8,
+  "sessions": [
+    "s01-describing-data",
+    "s02-probability",
+    "s03-random-variables-normal",
+    "s04-sampling-clt",
+    "s05-confidence-intervals",
+    "s06-hypothesis-tests",
+    "s07-regression",
+    "s08-information-entropy",
+    "s09-bayesian-bent-coin",
+    "s10-model-comparison-occam",
+    "s11-likelihood-error-bars",
+    "s12-monte-carlo",
+    "s13-bayes-vs-sampling-theory"
+  ],
+  "authorPages": [
+    {
+      "title": "Book home page (PDF, errata, exercise solutions, software)",
+      "url": "https://www.inference.org.uk/mackay/itila/"
+    },
+    {
+      "title": "Lecture course page (2012): videos and course material",
+      "url": "https://www.inference.org.uk/itprnn_lectures/"
+    },
+    {
+      "title": "Lecture slides (2012)",
+      "url": "https://www.inference.org.uk/itprnn/Slides.shtml"
+    },
+    {
+      "title": "A short course in information theory",
+      "url": "https://www.inference.org.uk/mackay/info-theory/course.html"
+    },
+    {
+      "title": "Presentations by David MacKay",
+      "url": "https://www.inference.org.uk/mackay/presentations/"
+    },
+    {
+      "title": "David MacKay's home page",
+      "url": "https://www.inference.org.uk/mackay/"
+    }
+  ]
+}

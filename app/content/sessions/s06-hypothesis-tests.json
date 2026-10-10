@@ -1,0 +1,197 @@
+{
+  "id": "s06",
+  "slug": "hypothesis-tests",
+  "part": "A",
+  "title": "Hypothesis tests and p-values",
+  "summary": "Null and alternative hypotheses, test statistics, p-values, decisions, errors and power - and how not to misread a p-value.",
+  "bookRef": "Contrasted in ITILA ch. 37 (Bayesian Inference and Sampling Theory); see session 13",
+  "companionRef": "OpenIntro Statistics 4e, §5.3",
+  "minutes": 30,
+  "objectives": [
+    "State null and alternative hypotheses for a research question.",
+    "Compute a z test statistic for a proportion and turn it into a p-value.",
+    "Decide at significance level α and phrase the conclusion in context.",
+    "Distinguish Type I and Type II errors and explain power.",
+    "Recognise common misinterpretations of p-values."
+  ],
+  "warmup": [
+    {
+      "id": "s06-w1",
+      "type": "choice",
+      "prompt": "**Predict.** A friend's coin lands heads 33 times in 50 flips. Should you suspect it is unfair?",
+      "options": [
+        "Yes: that would be quite unusual for a fair coin",
+        "No: 33 is close enough to 25",
+        "You can never tell anything from 50 flips"
+      ],
+      "answer": 0,
+      "explain": "For a fair coin, results at least as far from 25 as 33 happen only about 3% of the time. Judging 'how unusual would this be if nothing were going on?' is exactly what a hypothesis test does."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "md": "## The logic of a test\nA hypothesis test is an argument by contradiction:\n\n1. Assume a skeptical claim, the **null hypothesis** $H_0$ - \"nothing is going on\": the coin is fair, the drug does nothing ($p = p_0$).\n2. State the **alternative** $H_A$ you suspect: $p \\ne p_0$ (two-sided), or $p > p_0$ / $p < p_0$ (one-sided, decided *before* seeing the data).\n3. Ask: **if $H_0$ were true, how surprising would data like ours be?**\n4. If very surprising, we have evidence against $H_0$."
+    },
+    {
+      "type": "sim",
+      "sim": "null-sim",
+      "md": "**Predict:** if the coin is fair, how often would you see 33 or more heads (or 17 or fewer) in 50 flips? Simulate, then try 30 heads and 40 heads."
+    },
+    {
+      "type": "text",
+      "md": "## p-values and decisions\nThe **p-value** is the probability, *assuming $H_0$ is true*, of getting data at least as extreme as what we observed.\n\n- Small p-value: our data would be rare under $H_0$ → evidence against $H_0$.\n- Choose a **significance level** $\\alpha$ in advance (often 0.05).\n- If $p \\le \\alpha$: **reject $H_0$** - the data provide convincing evidence for $H_A$.\n- If $p > \\alpha$: **do not reject $H_0$** - the data do not provide convincing evidence. This is *not* proof that $H_0$ is true."
+    },
+    {
+      "type": "text",
+      "md": "## The z test for a proportion\nBecause we assume $H_0$, the standard error uses $p_0$:\n$$z = \\frac{\\hat p - p_0}{\\sqrt{p_0(1-p_0)/n}}$$\n**Conditions:** independent observations and $np_0 \\ge 10$, $n(1-p_0) \\ge 10$. Then $z$ is approximately standard normal under $H_0$, and the p-value is a tail area (doubled for a two-sided test)."
+    },
+    {
+      "type": "example",
+      "title": "Is the coin fair?",
+      "steps": [
+        "$H_0: p = 0.5$, $H_A: p \\ne 0.5$. Data: 33 heads in 50 flips, $\\hat p = 0.66$. Conditions: $50 \\times 0.5 = 25 \\ge 10$.",
+        "$SE_0 = \\sqrt{0.5 \\times 0.5 / 50} = 0.0707$.",
+        "$z = (0.66 - 0.5)/0.0707 = 2.26$.",
+        "One tail: $P(Z > 2.26) = 0.012$; two-sided p-value $= 2 \\times 0.012 = 0.024$.",
+        "$0.024 \\le 0.05$: reject $H_0$. The data provide convincing evidence that the coin is not fair. (The simulation gives about 0.03: counts are whole numbers, so the smooth normal curve is a close but not perfect approximation.)"
+      ]
+    },
+    {
+      "type": "practice",
+      "exercise": "z-test-proportion",
+      "count": 3
+    },
+    {
+      "type": "practice",
+      "exercise": "p-value-two-sided",
+      "count": 2
+    },
+    {
+      "type": "practice",
+      "exercise": "decision",
+      "count": 3
+    },
+    {
+      "type": "callout",
+      "kind": "misconception",
+      "md": "**What a p-value is not** (see the American Statistical Association's 2016 statement):\n- It is **not** the probability that $H_0$ is true.\n- It is **not** the probability that the result is \"due to chance\".\n- \"Not significant\" does **not** mean \"no effect\" - maybe the study was too small.\n- \"Significant\" does **not** mean \"important\": with huge samples, tiny effects become significant. Report the effect size and a confidence interval too."
+    },
+    {
+      "type": "text",
+      "md": "## Two ways to be wrong\n| | $H_0$ true | $H_0$ false |\n|---|---|---|\n| Reject $H_0$ | **Type I error** (false positive) | correct |\n| Do not reject | correct | **Type II error** (false negative) |\n\n- $P(\\text{Type I error}) = \\alpha$: lowering $\\alpha$ protects against false positives...\n- ...but makes Type II errors more likely. $P(\\text{Type II}) = \\beta$.\n- **Power** $= 1 - \\beta$, the chance of detecting a real effect. Power grows with sample size and with the size of the true effect."
+    },
+    {
+      "type": "practice",
+      "exercise": "error-type",
+      "count": 3
+    },
+    {
+      "type": "reflect",
+      "prompt": "A study of 1,000,000 users finds a statistically significant 0.01-percentage-point increase in clicks. Is that an important finding?",
+      "answer": "Probably not. With a million users even a negligible effect is detectable, so the p-value is tiny. Importance depends on the size of the effect (look at the confidence interval) and on what it is worth in practice, not on the p-value alone."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "s06-q1",
+      "type": "generated",
+      "exercise": "z-test-proportion"
+    },
+    {
+      "id": "s06-q2",
+      "type": "generated",
+      "exercise": "p-value-two-sided"
+    },
+    {
+      "id": "s06-q3",
+      "type": "generated",
+      "exercise": "decision"
+    },
+    {
+      "id": "s06-q4",
+      "type": "generated",
+      "exercise": "error-type"
+    },
+    {
+      "id": "s06-q5",
+      "type": "choice",
+      "prompt": "A test gives p-value 0.03. What does that mean?",
+      "options": [
+        "If $H_0$ were true, data at least this extreme would occur about 3% of the time",
+        "There is a 3% probability that $H_0$ is true",
+        "There is a 97% probability that $H_A$ is true",
+        "The effect is small"
+      ],
+      "answer": 0,
+      "explain": "A p-value is computed assuming $H_0$; it is a statement about the data, not about the probability of hypotheses, and says nothing about effect size."
+    },
+    {
+      "id": "s06-q6",
+      "type": "choice",
+      "prompt": "You lower $\\alpha$ from 0.05 to 0.01, keeping the same sample size. What happens?",
+      "options": [
+        "Type I errors become rarer and Type II errors more common",
+        "Both kinds of error become rarer",
+        "Power increases",
+        "Nothing changes"
+      ],
+      "answer": 0,
+      "explain": "A stricter threshold rejects less often: fewer false positives, but more real effects are missed, so power falls. Only more data (or a larger effect) reduces both errors."
+    }
+  ],
+  "cards": [
+    {
+      "id": "s06-c1",
+      "kind": "concept",
+      "front": "Null vs. alternative hypothesis?",
+      "back": "$H_0$: the skeptical 'nothing going on' claim ($p = p_0$). $H_A$: what we suspect ($p \\ne p_0$, or one-sided, chosen before seeing data)."
+    },
+    {
+      "id": "s06-c2",
+      "kind": "concept",
+      "front": "Definition of a p-value?",
+      "back": "The probability, assuming $H_0$ is true, of data at least as extreme as those observed."
+    },
+    {
+      "id": "s06-c3",
+      "kind": "formula",
+      "front": "z test statistic for a proportion?",
+      "back": "$z = (\\hat p - p_0)/\\sqrt{p_0(1-p_0)/n}$ - note $p_0$ in the SE."
+    },
+    {
+      "id": "s06-c4",
+      "kind": "concept",
+      "front": "Decision rule at level $\\alpha$?",
+      "back": "Reject $H_0$ if $p \\le \\alpha$; otherwise do not reject (never 'accept' or 'prove' $H_0$)."
+    },
+    {
+      "id": "s06-c5",
+      "kind": "concept",
+      "front": "Type I vs. Type II error?",
+      "back": "Type I: reject a true $H_0$ (false positive, probability $\\alpha$). Type II: fail to reject a false $H_0$ (false negative, probability $\\beta$)."
+    },
+    {
+      "id": "s06-c6",
+      "kind": "concept",
+      "front": "What is power and what increases it?",
+      "back": "Power $= 1 - \\beta$, the chance of detecting a real effect. It grows with sample size, effect size and $\\alpha$."
+    },
+    {
+      "id": "s06-c7",
+      "kind": "concept",
+      "front": "Name two things a p-value is NOT.",
+      "back": "Not $P(H_0 \\text{ true})$; not a measure of effect size or importance. (Also not 'the chance the result is due to chance'.)"
+    },
+    {
+      "id": "s06-c8",
+      "kind": "exercise",
+      "exercise": "z-test-proportion"
+    },
+    {
+      "id": "s06-c9",
+      "kind": "exercise",
+      "exercise": "error-type"
+    }
+  ]
+}

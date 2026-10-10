@@ -1,0 +1,257 @@
+{
+  "id": "s01",
+  "slug": "describing-data",
+  "part": "A",
+  "title": "Describing data: center and spread",
+  "summary": "Mean, median, skew, standard deviation: the four ideas you need to summarise any list of numbers.",
+  "bookRef": "Prerequisite: ITILA assumes this background and does not cover it",
+  "companionRef": "OpenIntro Statistics 4e, §2.1",
+  "minutes": 25,
+  "objectives": [
+    "Compute and interpret the mean and the median.",
+    "Explain why the median resists outliers and the mean does not.",
+    "Read the shape of a distribution (symmetric, right- or left-skewed) from the mean and median.",
+    "Compute and interpret the sample standard deviation."
+  ],
+  "warmup": [
+    {
+      "id": "s01-w1",
+      "type": "choice",
+      "prompt": "**Predict before you learn.** Nine people in a café each earn about €30k a year. A billionaire walks in. What happens to the 'typical' income in the room?",
+      "options": [
+        "The mean jumps enormously; the median barely moves",
+        "Both the mean and the median jump",
+        "The median jumps; the mean barely moves",
+        "Neither changes"
+      ],
+      "answer": 0,
+      "explain": "The mean adds up every value, so one huge income drags it far up. The median is the middle value of the sorted list, and the middle person still earns about €30k. Keep this picture in mind - it is the whole session in one example."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "md": "## Why summarise?\nA data set is just a list of numbers - commute times, exam scores, salaries. Before you can compare groups or spot change, you need two answers:\n\n1. **Where is the center?** What is a typical value?\n2. **How spread out is it?** Are the values tightly packed or all over the place?\n\nThis session gives you two measures of center (mean, median) and one main measure of spread (standard deviation)."
+    },
+    {
+      "type": "text",
+      "md": "### The mean\nThe **mean** adds all values and divides by how many there are:\n\n$$\\bar x = \\frac{1}{n}\\sum_{i=1}^{n} x_i = \\frac{x_1 + x_2 + \\dots + x_n}{n}$$\n\nRead $\\bar x$ as \"x-bar\". Picture the values as weights on a ruler: the mean is the point where the ruler balances."
+    },
+    {
+      "type": "example",
+      "title": "Mean of five commute times",
+      "steps": [
+        "Data (minutes): 12, 15, 9, 20, 14.",
+        "Add: $12 + 15 + 9 + 20 + 14 = 70$.",
+        "Divide by $n = 5$: $\\bar x = 70/5 = 14$ minutes."
+      ],
+      "reflect": {
+        "prompt": "Why is the mean called the *balance point*? Check it with the deviations $x_i - \\bar x$.",
+        "answer": "The deviations are $-2, +1, -5, +6, 0$. They add to exactly 0: the values below the mean pull as hard as the values above it. That is true for every data set."
+      }
+    },
+    {
+      "type": "text",
+      "md": "### The median\nThe **median** is the middle value after sorting.\n\n- Odd $n$: take the value in the middle position.\n- Even $n$: average the two middle values.\n\nFor 12, 15, 9, 20, 14, sort to 9, 12, **14**, 15, 20: the median is 14. Here mean and median agree - but that is not always so."
+    },
+    {
+      "type": "sim",
+      "sim": "mean-median",
+      "md": "**Predict first:** if the largest salary rises from 40 to 200, how far will the mean move? And the median? Write down your guess, then drag the slider."
+    },
+    {
+      "type": "callout",
+      "kind": "misconception",
+      "md": "**\"The mean is the typical value.\"** Only for roughly symmetric data. For incomes, house prices or waiting times a few huge values pull the mean up, so news reports use the **median** income. A statistic that barely reacts to extreme values is called **resistant**: the median is resistant, the mean is not."
+    },
+    {
+      "type": "practice",
+      "exercise": "mean",
+      "count": 3,
+      "md": "Three quick ones. The first is fully worked; the second gives you a head start; the third is all yours."
+    },
+    {
+      "type": "practice",
+      "exercise": "median",
+      "count": 2
+    },
+    {
+      "type": "text",
+      "md": "### Shape: symmetric or skewed?\n- **Symmetric:** left and right halves look alike; mean $\\approx$ median.\n- **Right-skewed:** a long tail of large values (incomes). The tail drags the mean up: **mean > median**.\n- **Left-skewed:** a long tail of small values (age at retirement, scores on an easy test): **mean < median**.\n\nThe mean always follows the tail."
+    },
+    {
+      "type": "check",
+      "question": {
+        "id": "s01-k1",
+        "type": "choice",
+        "prompt": "Most people have a few hundred social-media followers; a handful have millions. Which is larger?",
+        "options": [
+          "The mean number of followers",
+          "The median number of followers",
+          "They are about equal"
+        ],
+        "answer": 0,
+        "explain": "The few accounts with millions form a long right tail. The tail pulls the mean far above the median.",
+        "feedback": [
+          "Right: the long right tail pulls the mean up.",
+          "The median sits with the many ordinary accounts, so it is the smaller one.",
+          "Equal mean and median would need a symmetric distribution; this one has a long right tail."
+        ]
+      }
+    },
+    {
+      "type": "practice",
+      "exercise": "skew-direction",
+      "count": 2
+    },
+    {
+      "type": "text",
+      "md": "### Spread: the standard deviation\nTwo classes can share a mean of 70 and still differ: in one, everyone scores 65-75; in the other, scores run from 30 to 100. We need a number for spread.\n\nStart with each **deviation** $x_i - \\bar x$. Square them (so negatives do not cancel positives), add the squares, divide by $n-1$, and take the square root:\n\n$$s^2 = \\frac{1}{n-1}\\sum_{i=1}^{n}(x_i - \\bar x)^2 \\qquad s = \\sqrt{s^2}$$\n\n$s^2$ is the **sample variance**, $s$ the **sample standard deviation (SD)**. Read $s$ as *the typical distance of a value from the mean*, in the data's own units.\n\n**Why $n-1$?** The deviations are measured from $\\bar x$, which was fitted to these same values, so they come out slightly too small. Dividing by $n-1$ instead of $n$ corrects that on average."
+    },
+    {
+      "type": "example",
+      "title": "SD of eight values",
+      "steps": [
+        "Data: 2, 4, 4, 4, 5, 5, 7, 9. Mean: $\\bar x = 40/8 = 5$.",
+        "Deviations: $-3, -1, -1, -1, 0, 0, 2, 4$.",
+        "Squares: $9, 1, 1, 1, 0, 0, 4, 16$; sum $= 32$.",
+        "Variance: $s^2 = 32/(8-1) = 4.571$.",
+        "SD: $s = \\sqrt{4.571} = 2.14$. A typical value lies about 2 units from the mean."
+      ]
+    },
+    {
+      "type": "sim",
+      "sim": "sd-explorer",
+      "md": "**Predict:** if every point moves twice as far from the mean, what happens to the SD? Does it double, quadruple, or stay put? Move the slider from ×1 to ×2."
+    },
+    {
+      "type": "practice",
+      "exercise": "sample-sd",
+      "count": 3
+    },
+    {
+      "type": "text",
+      "md": "### A resistant measure of spread\nLike the mean, the SD reacts strongly to outliers. The resistant alternative is the **interquartile range**: sort the data, find the first quartile $Q_1$ (25% of values below it) and the third quartile $Q_3$ (75% below), and take $IQR = Q_3 - Q_1$, the width of the middle half. Software uses slightly different rules for quartiles, so small differences are normal.\n\n**Rule of thumb:** report mean and SD for roughly symmetric data; report median and IQR for skewed data or data with outliers."
+    },
+    {
+      "type": "reflect",
+      "prompt": "In your own words: when would you report the median instead of the mean? Give an example from your own life.",
+      "answer": "When the data are skewed or contain outliers - incomes, house prices, waiting times, time spent on social media. The median describes the typical case; the mean is pulled toward the extremes."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "s01-q1",
+      "type": "generated",
+      "exercise": "mean"
+    },
+    {
+      "id": "s01-q2",
+      "type": "generated",
+      "exercise": "median"
+    },
+    {
+      "id": "s01-q3",
+      "type": "choice",
+      "prompt": "You add one new value that is exactly equal to the current mean. What happens?",
+      "options": [
+        "The mean stays the same and the SD shrinks slightly",
+        "The mean and SD both stay exactly the same",
+        "The mean rises and the SD rises",
+        "The mean stays the same and the SD grows"
+      ],
+      "answer": 0,
+      "explain": "The new deviation is 0, so the sum of squared deviations is unchanged while $n - 1$ grows by one. Dividing the same total by a bigger number makes $s$ a little smaller; the balance point does not move."
+    },
+    {
+      "id": "s01-q4",
+      "type": "generated",
+      "exercise": "sample-sd"
+    },
+    {
+      "id": "s01-q5",
+      "type": "choice",
+      "prompt": "Which statistic is resistant to outliers?",
+      "options": [
+        "The median",
+        "The mean",
+        "The standard deviation",
+        "The range (max − min)"
+      ],
+      "answer": 0,
+      "explain": "The median depends only on the middle of the sorted data. Mean, SD and range all use the extreme values directly."
+    },
+    {
+      "id": "s01-q6",
+      "type": "generated",
+      "exercise": "skew-direction"
+    },
+    {
+      "id": "s01-q7",
+      "type": "choice",
+      "prompt": "Two classes both have mean exam score 70. Class A has SD 3; class B has SD 15. Which statement is true?",
+      "options": [
+        "A score of 85 is 5 SDs above the mean in A but only 1 SD above in B",
+        "Class B did better on average",
+        "Class A must have more students",
+        "The two classes must have the same median"
+      ],
+      "answer": 0,
+      "explain": "Same center, different spread. $(85-70)/3 = 5$ and $(85-70)/15 = 1$: the same score is extraordinary in A and ordinary in B."
+    }
+  ],
+  "cards": [
+    {
+      "id": "s01-c1",
+      "kind": "formula",
+      "front": "Formula for the sample mean $\\bar x$?",
+      "back": "$\\bar x = \\frac{1}{n}\\sum_{i=1}^{n} x_i$: add up, divide by $n$. It is the balance point - deviations from it sum to 0."
+    },
+    {
+      "id": "s01-c2",
+      "kind": "concept",
+      "front": "How do you find the median?",
+      "back": "Sort the data. Odd $n$: take the middle value. Even $n$: average the two middle values."
+    },
+    {
+      "id": "s01-c3",
+      "kind": "concept",
+      "front": "The mean is well above the median. What shape is the distribution likely to have?",
+      "back": "Right-skewed: a long tail of large values pulls the mean up. (Mean below median suggests left skew.)"
+    },
+    {
+      "id": "s01-c4",
+      "kind": "formula",
+      "front": "Formulas for the sample variance and SD?",
+      "back": "$s^2 = \\frac{1}{n-1}\\sum (x_i - \\bar x)^2$ and $s = \\sqrt{s^2}$."
+    },
+    {
+      "id": "s01-c5",
+      "kind": "concept",
+      "front": "What does the standard deviation measure, in words?",
+      "back": "The typical distance of the values from their mean, in the data's own units."
+    },
+    {
+      "id": "s01-c6",
+      "kind": "concept",
+      "front": "Which summaries resist outliers, and which do not?",
+      "back": "Resistant: median, IQR. Not resistant: mean, SD, range."
+    },
+    {
+      "id": "s01-c7",
+      "kind": "concept",
+      "front": "Why does the sample variance divide by $n-1$?",
+      "back": "Deviations are measured from $\\bar x$, which is fitted to the same data, so they are slightly too small; dividing by $n-1$ corrects this on average."
+    },
+    {
+      "id": "s01-c8",
+      "kind": "exercise",
+      "exercise": "sample-sd"
+    },
+    {
+      "id": "s01-c9",
+      "kind": "exercise",
+      "exercise": "skew-direction"
+    }
+  ]
+}
