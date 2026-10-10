@@ -8,6 +8,7 @@ import { cardsOf, introduceCards, buildQueue, dueCards, mastery, forecast } from
 import { generate, EXERCISES } from "./exercises.js";
 import { SIMS } from "./sims.js";
 import { makeRng } from "./rng.js";
+import { buildExam, scoreExam, shuffleChoice } from "./exam.js";
 import { load, save, exportJson, importJson, reset } from "./store.js";
 import { buildDailyReminderIcs, shouldNotify, requestNotificationPermission, notify } from "./reminders.js";
 
@@ -26,12 +27,28 @@ async function loadContent() {
 }
 
 const progressOf = (id) => (app.state.sessions[id] ??= {});
-// Each part opens with its first session; inside a part, pass a quiz to unlock the next session.
-function isUnlocked(i) {
-  if (app.state.settings.unlockAll || i === 0) return true;
-  const prev = app.sessions[i - 1];
-  if (app.sessions[i].part !== prev.part) return true;
-  return !!app.state.sessions[prev.id]?.quizPassedAt;
+// Every session is open: learners may jump to any session, step or exam.
+// A lesson left half-way keeps `resume` (the next block); an exam left half-way keeps `exam`.
+
+// The unfinished lesson or exam of one session, if any.
+function unfinished(s) {
+  const p = app.state.sessions[s.id] ?? {};
+  const lesson = p.resume && { kind: "lesson", at: p.resume.at, href: `#/s/${s.id}`, where: `step ${p.resume.block + 1}/${s.blocks.length}` };
+  const exam = p.exam && { kind: "exam", at: p.exam.at, href: `#/exam/${s.id}`, where: `exam question ${Math.min(p.exam.answers.length + 1, p.exam.questions.length)}/${p.exam.questions.length}` };
+  return [lesson, exam].filter(Boolean).sort(latestFirst)[0] ?? null;
+}
+const latestFirst = (a, b) => (b.at ?? "").localeCompare(a.at ?? "");
+
+// What the home screen suggests next: the most recently left unfinished work, else the first session not yet passed.
+function continueTarget() {
+  const open = app.sessions.map((s) => ({ s, ...unfinished(s) })).filter((x) => x.kind);
+  if (open.length) {
+    const { s, href, where } = open.sort(latestFirst)[0];
+    return { href, label: `Resume: ${s.title} (${where})` };
+  }
+  const next = app.sessions.find((s) => !app.state.sessions[s.id]?.quizPassedAt);
+  if (!next) return null;
+  return app.state.sessions[next.id]?.completedAt ? { href: `#/exam/${next.id}`, label: `Exam: ${next.title}` } : { href: `#/s/${next.id}`, label: `Start: ${next.title}` };
 }
 const allCards = () => cardsOf(app.sessions);
 const dueCount = () => dueCards(allCards(), app.state.cards).length;
@@ -93,7 +110,7 @@ function viewHome() {
   const root = h("div", { class: "stack" });
   if (!app.state.onboarded) root.append(onboardingCard());
   const due = dueCount();
-  const next = app.sessions.find((s, i) => isUnlocked(i) && !app.state.sessions[s.id]?.quizPassedAt);
+  const next = continueTarget();
   const lp = levelProgress(app.state.game.xp);
   root.append(
     h(
@@ -104,7 +121,7 @@ function viewHome() {
         "div",
         { class: "hero-actions" },
         due ? h("a", { class: "btn primary", href: "#/review" }, `Review ${due} due card${due === 1 ? "" : "s"}`) : h("span", { class: "pill ok" }, "No reviews due ✓"),
-        next ? h("a", { class: `btn ${due ? "" : "primary"}`, href: `#/s/${next.id}` }, app.state.sessions[next.id]?.completedAt ? `Quiz: ${next.title}` : `Continue: ${next.title}`) : h("a", { class: "btn", href: "#/practice" }, "Mixed practice"),
+        next ? h("a", { class: `btn ${due ? "" : "primary"}`, href: next.href }, next.label) : h("a", { class: "btn", href: "#/practice" }, "Mixed practice"),
       ),
     ),
   );
@@ -115,21 +132,21 @@ function viewHome() {
       list.append(h("div", { class: "part-head" }, h("h2", {}, parts[s.part].title), h("p", { class: "muted small" }, parts[s.part].description)));
     }
     const p = app.state.sessions[s.id] ?? {};
-    const unlocked = isUnlocked(i);
     const m = mastery(s, app.state.cards);
-    const status = p.quizPassedAt ? "passed" : p.completedAt ? "quiz" : unlocked ? "open" : "locked";
-    const badge = { passed: "✓ Passed", quiz: "Quiz ready", open: "Start", locked: "🔒 Locked" }[status];
+    const u = unfinished(s);
+    const status = p.quizPassedAt ? "passed" : p.completedAt ? "exam" : "open";
+    const badge = u ? `▶ Resume ${u.where.replace("exam question", "exam")}` : { passed: "✓ Passed", exam: "Exam ready", open: "Start" }[status];
     list.append(
       h(
-        unlocked ? "a" : "div",
-        { class: `session-card ${status}`, href: unlocked ? `#/s/${s.id}` : null, "aria-disabled": unlocked ? null : "true" },
+        "a",
+        { class: `session-card ${status}${u ? " in-progress" : ""}`, href: u?.href ?? `#/s/${s.id}` },
         h("div", { class: "session-num" }, String(i + 1)),
         h(
           "div",
           { class: "session-body" },
           h("div", { class: "session-title" }, s.title),
           h("div", { class: "muted small" }, s.summary),
-          h("div", { class: "session-meta" }, h("span", {}, `${s.minutes} min`), p.quizBest != null ? h("span", {}, `Quiz best ${Math.round(p.quizBest * 100)}%`) : null, p.completedAt ? h("span", { title: "Share of this session's cards remembered for 21+ days" }, `Mastery ${Math.round(m * 100)}%`) : null),
+          h("div", { class: "session-meta" }, h("span", {}, `${s.minutes} min`), p.quizBest != null ? h("span", {}, `Exam best ${Math.round(p.quizBest * 100)}%`) : null, p.completedAt ? h("span", { title: "Share of this session's cards remembered for 21+ days" }, `Mastery ${Math.round(m * 100)}%`) : null),
           p.completedAt ? h("div", { class: "bar" }, h("span", { style: `width:${Math.round(m * 100)}%` })) : null,
         ),
         h("div", { class: "session-status" }, badge),
@@ -187,21 +204,34 @@ function onboardingCard() {
 }
 
 // ----- session (lesson) -----
+// Progress is saved after every block, so a lesson left half-way resumes at the
+// next block. "Jump to step" starts the lesson at any block.
 function viewSession(id) {
   const s = app.byId[id];
-  const idx = app.sessions.indexOf(s);
   if (!s) return h("p", {}, "Session not found.");
-  if (!isUnlocked(idx)) return h("section", { class: "card" }, h("h2", {}, "🔒 Locked"), h("p", {}, "Pass the previous session's mastery quiz to unlock this one (or unlock everything in Settings)."));
+  const idx = app.sessions.indexOf(s);
   const p = progressOf(id);
   p.startedAt ??= new Date().toISOString();
   persist();
+  const resumeAt = Math.min(p.resume?.block ?? 0, s.blocks.length - 1);
+
   const root = h("div", { class: "stack lesson" });
+  const bar = h("div", { class: "progress-line" }, h("span"));
+  const setBar = (blocksDone) => (bar.firstChild.style.width = `${Math.round((blocksDone / s.blocks.length) * 100)}%`);
+  const jump = h(
+    "select",
+    { "aria-label": "Jump to step", onchange: (e) => begin(Number(e.target.value), { scroll: true, intro: false }) },
+    s.blocks.map((b, k) => h("option", { value: k }, `${k + 1}. ${blockLabel(b)}`)),
+  );
+  const notice = h("div", { class: "resume-note", hidden: true });
   root.append(
+    bar,
     h(
       "section",
       { class: "card" },
       h("div", { class: "eyebrow" }, `Session ${idx + 1} · ${s.minutes} min`),
       h("h1", {}, s.title),
+      notice,
       h(
         "div",
         { class: "refs small" },
@@ -210,36 +240,109 @@ function viewSession(id) {
         (s.lectures ?? []).map((l) => h("div", {}, "🎥 ", h("a", { href: l.url, target: "_blank", rel: "noopener" }, `MacKay lecture ${l.number}`), `: ${l.title}`)),
       ),
       h("div", { class: "objectives" }, h("strong", {}, "You will be able to:"), h("ul", {}, s.objectives.map((o) => h("li", {}, mdInline(o))))),
-      p.completedAt ? h("div", { class: "actions" }, h("a", { class: "btn", href: `#/quiz/${id}` }, "Skip to the mastery quiz")) : null,
+      h(
+        "div",
+        { class: "lesson-tools" },
+        h("label", { class: "jump" }, "Jump to step ", jump),
+        h("button", { class: "btn small", type: "button", onclick: () => begin(0, { scroll: true }) }, "↺ Start over"),
+        h("a", { class: "btn small", href: `#/exam/${id}` }, p.exam ? "📝 Resume the exam" : "📝 Go to the exam"),
+      ),
     ),
   );
   const flow = h("div", { class: "stack" });
   root.append(flow);
 
-  const steps = [];
-  // Retrieval warm-up: one fresh problem from each of up to two earlier sessions.
-  const earlier = app.sessions.slice(0, idx).filter((x) => app.state.sessions[x.id]?.completedAt);
-  for (const e of app.rng.shuffle(earlier).slice(0, 2)) {
-    const exIds = Object.keys(EXERCISES).filter((k) => EXERCISES[k].session === e.id);
-    steps.push({ kind: "recall", exercise: app.rng.pick(exIds), from: e.title });
-  }
-  for (const q of s.warmup ?? []) steps.push({ kind: "warmup", question: q });
-  for (const b of s.blocks) steps.push({ kind: "block", block: b });
+  // Each call starts a new run; `run` lets callbacks from an abandoned run do nothing.
+  // `intro` adds the recall and prediction warm-ups before the first block.
+  let run = 0;
+  function begin(from, { scroll = false, intro = from === 0 } = {}) {
+    const token = ++run;
+    flow.replaceChildren();
+    if (from > 0) {
+      p.resume = { block: from, at: new Date().toISOString() };
+      flow.append(recapView(s.blocks.slice(0, from)));
+    } else {
+      delete p.resume;
+    }
+    persist();
+    notice.hidden = !(token === 1 && from > 0);
+    notice.replaceChildren(`▶ Welcome back: you continue at step ${from + 1} of ${s.blocks.length}. Earlier steps are in the recap below.`);
+    jump.value = String(from);
+    setBar(from);
 
-  const bar = h("div", { class: "progress-line" }, h("span"));
-  root.prepend(bar);
-  let i = 0;
-  const advance = () => {
-    bar.firstChild.style.width = `${Math.round((i / steps.length) * 100)}%`;
-    if (i >= steps.length) return flow.append(completion(s));
-    const step = steps[i++];
-    const node = renderStep(step, advance);
-    flow.append(node);
-    node.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-  advance();
+    const steps = [];
+    if (intro) {
+      // Retrieval warm-up: one fresh problem from each of up to two earlier sessions.
+      const earlier = app.sessions.slice(0, idx).filter((x) => app.state.sessions[x.id]?.completedAt);
+      for (const e of app.rng.shuffle(earlier).slice(0, 2)) {
+        const exIds = Object.keys(EXERCISES).filter((k) => EXERCISES[k].session === e.id);
+        steps.push({ kind: "recall", exercise: app.rng.pick(exIds), from: e.title });
+      }
+      for (const q of s.warmup ?? []) steps.push({ kind: "warmup", question: q });
+    }
+    s.blocks.slice(from).forEach((block, k) => steps.push({ kind: "block", block, index: from + k }));
+
+    let i = 0;
+    const advance = () => {
+      if (token !== run) return;
+      const done = steps[i - 1];
+      if (done?.kind === "block") {
+        p.resume = { block: done.index + 1, at: new Date().toISOString() };
+        persist();
+        setBar(done.index + 1);
+      }
+      if (i >= steps.length) return flow.append(completion(s));
+      const step = steps[i++];
+      if (step.kind === "block") jump.value = String(step.index);
+      const node = renderStep(step, advance);
+      flow.append(node);
+      if (i > 1 || scroll) node.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    advance();
+  }
+  begin(resumeAt);
   return root;
 }
+
+// A short name for a block, used in the "Jump to step" list.
+function blockLabel(b) {
+  const plain = (text) => text.replace(/\$|\*\*|\\(?=[a-z])/gi, "").replace(/\s+/g, " ").trim();
+  switch (b.type) {
+    case "text": {
+      const heading = b.md.match(/^#+\s*(.+)$/m);
+      return plain(heading ? heading[1] : b.md).slice(0, 60);
+    }
+    case "example":
+      return `Worked example: ${plain(b.title)}`;
+    case "sim":
+      return `Simulation: ${SIMS[b.sim]?.title ?? b.sim}`;
+    case "practice":
+      return `Practice: ${EXERCISES[b.exercise]?.title ?? b.exercise}`;
+    case "check":
+      return "Check your understanding";
+    case "reflect":
+      return "Explain it in your own words";
+    case "callout":
+      return { tip: "Tip", warning: "Watch out", misconception: "Common misconception" }[b.kind] ?? "Note";
+  }
+  return b.type;
+}
+
+// The reading from earlier blocks, collapsed, so a resumed lesson keeps its context.
+function recapView(blocks) {
+  const body = h("div", { class: "recap-body" });
+  for (const b of blocks) {
+    if (b.type === "text") body.append(md(b.md));
+    else if (b.type === "callout") body.append(h("div", { class: `callout ${b.kind}` }, md(b.md)));
+    else if (b.type === "example") body.append(h("h3", {}, `📝 ${b.title}`), b.md ? md(b.md) : null, h("ol", {}, b.steps.map((t) => h("li", {}, mdInline(t)))));
+    else if (b.type === "reflect") body.append(md(b.prompt), h("div", { class: "model-answer" }, h("strong", {}, "Model answer: "), mdInline(b.answer)));
+    else body.append(h("p", { class: "muted small" }, `${blockLabel(b)} (step done)`));
+  }
+  return h("details", { class: "card recap" }, h("summary", {}, `Recap of steps 1-${blocks.length}`), body);
+}
+
+// Hand-written choice questions list the right answer first; show the options in random order.
+const mixed = (q) => (q.type === "choice" ? shuffleChoice(q, app.rng) : q);
 
 function renderStep(step, next) {
   const wrap = h("section", { class: "card step" });
@@ -258,7 +361,7 @@ function renderStep(step, next) {
   }
   if (step.kind === "warmup") {
     wrap.append(
-      questionView(step.question, {
+      questionView(mixed(step.question), {
         label: "🤔 Predict first: a wrong guess is fine",
         continueLabel: "Start the lesson",
         onDone: () => {
@@ -314,7 +417,7 @@ function renderStep(step, next) {
       break;
     case "check":
       wrap.append(
-        questionView(b.question, {
+        questionView(mixed(b.question), {
           label: "✅ Check your understanding",
           onDone: (r) => {
             if (r.ok) {
@@ -389,6 +492,7 @@ function practiceSet(block, next) {
 
 function completion(s) {
   const p = progressOf(s.id);
+  delete p.resume;
   const first = !p.completedAt;
   if (first) {
     p.completedAt = new Date().toISOString();
@@ -402,46 +506,70 @@ function completion(s) {
     { class: "card done" },
     h("h2", {}, "🎉 Session complete"),
     h("p", {}, first ? `${s.cards.length} flashcards from this session joined your review deck. They will come back just before you would forget them.` : "You revisited this session. Your flashcards keep their schedule."),
-    h("div", { class: "actions" }, h("a", { class: "btn primary", href: `#/quiz/${s.id}` }, "Take the mastery quiz"), h("a", { class: "btn", href: "#/review" }, "Review cards")),
+    h("div", { class: "actions" }, h("a", { class: "btn primary", href: `#/exam/${s.id}` }, "Take the session exam"), h("a", { class: "btn", href: "#/review" }, "Review cards")),
   );
 }
 
-// ----- quiz -----
-function viewQuiz(id) {
+// ----- exam -----
+// Multiple choice only, no hints. Each answer is saved at once, so an exam
+// left half-way resumes at the next question.
+function viewExam(id) {
   const s = app.byId[id];
-  if (!s) return h("p", {}, "Quiz not found.");
+  if (!s) return h("p", {}, "Exam not found.");
   const pass = app.course.passMark ?? 0.8;
+  const p = progressOf(id);
+  const resumed = !!p.exam;
+  if (!resumed) p.exam = { questions: buildExam(s, app.rng), answers: [], at: new Date().toISOString() };
+  persist();
+  const exam = p.exam;
+  const n = exam.questions.length;
+
   const root = h("div", { class: "stack" });
-  const head = h("section", { class: "card" }, h("div", { class: "eyebrow" }, "Mastery quiz"), h("h1", {}, s.title), h("p", { class: "muted" }, `${s.quiz.length} questions · pass mark ${Math.round(pass * 100)}% · numbers change on every attempt`));
-  const stage = h("section", { class: "card" });
   const bar = h("div", { class: "progress-line" }, h("span"));
+  const restart = () => {
+    delete p.exam;
+    persist();
+    route();
+  };
+  const head = h(
+    "section",
+    { class: "card" },
+    h("div", { class: "eyebrow" }, `Session ${app.sessions.indexOf(s) + 1} · exam`),
+    h("h1", {}, s.title),
+    h("p", { class: "muted" }, `${n} multiple-choice questions · pass mark ${Math.round(pass * 100)}% · no hints · new questions and numbers on every attempt`),
+    resumed && exam.answers.length ? h("div", { class: "resume-note exam-note" }, `▶ Welcome back: you continue at question ${exam.answers.length + 1} of ${n}.`) : null,
+    h("div", { class: "lesson-tools" }, h("a", { class: "btn small", href: `#/s/${id}` }, "← Back to the lesson"), h("button", { class: "btn small", type: "button", onclick: restart }, "↺ Start a new exam")),
+  );
+  const stage = h("section", { class: "card" });
   root.append(bar, head, stage);
-  const questions = app.rng.shuffle(s.quiz).map((q) => (q.type === "generated" ? generate(q.exercise, app.rng) : q));
-  let i = 0;
-  let correct = 0;
+
   const show = () => {
-    bar.firstChild.style.width = `${Math.round((i / questions.length) * 100)}%`;
-    if (i >= questions.length) return finish();
-    const q = questions[i];
+    const i = exam.answers.length;
+    bar.firstChild.style.width = `${Math.round((i / n) * 100)}%`;
+    if (i >= n) return finish();
     stage.replaceChildren(
-      questionView(q, {
-        label: `Question ${i + 1} of ${questions.length}`,
-        continueLabel: i + 1 < questions.length ? "Next question" : "See result",
-        onDone: (r) => {
+      questionView(exam.questions[i], {
+        label: `Question ${i + 1} of ${n}`,
+        hints: false,
+        continueLabel: i + 1 < n ? "Next question" : "See result",
+        onAnswer: (r) => {
+          exam.answers.push(r.value);
+          exam.at = new Date().toISOString();
           if (r.ok) {
-            correct++;
             app.state.game.counters.correct++;
-            award(XP.correct);
-          }
-          i++;
-          show();
+            award(XP.correct); // award() also saves the answer
+          } else persist();
         },
+        onDone: show,
       }),
     );
+    if (i > 0) stage.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+
   const finish = () => {
-    const score = correct / questions.length;
-    const p = progressOf(id);
+    const { correct, score } = scoreExam(exam.questions, exam.answers);
+    delete p.exam;
+    head.querySelector(".exam-note")?.remove();
     p.quizBest = Math.max(p.quizBest ?? 0, score);
     const passed = score >= pass;
     if (passed && !p.quizPassedAt) {
@@ -460,11 +588,27 @@ function viewQuiz(id) {
       award(XP.quizPerfect);
     }
     persist();
-    const idx = app.sessions.indexOf(s);
-    const nextS = app.sessions[idx + 1];
+    const nextS = app.sessions[app.sessions.indexOf(s) + 1];
+    const review = exam.questions.map((q, k) => {
+      const ok = exam.answers[k] === q.answer;
+      return h(
+        "li",
+        { class: ok ? "ok" : "bad" },
+        md(q.prompt, "prose review-prompt"),
+        h("div", { class: "small" }, ok ? "✓ " : "✗ Your answer: ", ok ? null : mdInline(q.options[exam.answers[k]] ?? "-"), ok ? mdInline(q.options[q.answer]) : [" · correct: ", mdInline(q.options[q.answer])]),
+      );
+    });
     stage.replaceChildren(
-      h("div", { class: "center" }, h("div", { class: `score ${passed ? "ok" : "bad"}` }, `${Math.round(score * 100)}%`), h("h2", {}, passed ? (score === 1 ? "Perfect! 🎯" : "Passed ✓") : score >= 0.6 ? "Almost there" : "Not yet"), h("p", { class: "muted" }, passed ? "You have mastered this session's core skills. Your flashcards will keep them fresh." : `You need ${Math.round(pass * 100)}% to unlock the next session. Re-read the worked examples, then retry: you will get new numbers.`)),
-      h("div", { class: "actions center" }, h("button", { class: "btn", onclick: () => route() }, "Retake with new numbers"), passed && nextS ? h("a", { class: "btn primary", href: `#/s/${nextS.id}` }, `Next: ${nextS.title}`) : null, h("a", { class: "btn", href: "#/" }, "Home")),
+      h(
+        "div",
+        { class: "center" },
+        h("div", { class: `score ${passed ? "ok" : "bad"}` }, `${Math.round(score * 100)}%`),
+        h("p", { class: "muted" }, `${correct} of ${n} correct`),
+        h("h2", {}, passed ? (score === 1 ? "Perfect! 🎯" : "Passed ✓") : score >= 0.6 ? "Almost there" : "Not yet"),
+        h("p", { class: "muted" }, passed ? "You have mastered this session's core skills. Your flashcards will keep them fresh." : `You need ${Math.round(pass * 100)}% to pass. Re-read the worked examples, then retry: you will get new questions and numbers.`),
+      ),
+      h("div", { class: "actions center" }, h("button", { class: "btn", onclick: () => route() }, "Retake with new questions"), nextS ? h("a", { class: `btn ${passed ? "primary" : ""}`, href: `#/s/${nextS.id}` }, `Next: ${nextS.title}`) : null, h("a", { class: "btn", href: "#/" }, "Home")),
+      h("details", { class: "exam-review", open: !passed }, h("summary", {}, "Review your answers"), h("ol", {}, review)),
     );
     renderHeader();
   };
@@ -558,7 +702,7 @@ function nextDueText() {
 
 // ----- mixed practice (interleaving) -----
 function viewPractice() {
-  const available = app.sessions.filter((s, i) => app.state.sessions[s.id]?.completedAt || (isUnlocked(i) && i === 0));
+  const available = app.sessions.filter((s, i) => app.state.sessions[s.id]?.completedAt || i === 0);
   const chosen = new Set(available.map((s) => s.id));
   const root = h("div", { class: "stack" });
   const chips = h("div", { class: "topic-chips" });
@@ -735,7 +879,6 @@ function viewSettings() {
   const time = h("input", { type: "time", value: st.reminderTime, onchange: (e) => set("reminderTime", e.target.value || "19:00") });
   const minutes = h("select", { onchange: (e) => set("reminderMinutes", Number(e.target.value)) }, [5, 10, 15, 20, 30].map((v) => h("option", { value: v, selected: v === st.reminderMinutes }, `${v} min`)));
   const retention = h("select", { onchange: (e) => set("desiredRetention", Number(e.target.value)) }, [0.8, 0.85, 0.9, 0.95].map((v) => h("option", { value: v, selected: v === st.desiredRetention }, `${Math.round(v * 100)}%`)));
-  const unlock = h("input", { type: "checkbox", checked: st.unlockAll, onchange: (e) => set("unlockAll", e.target.checked) });
   const fileInput = h("input", { type: "file", accept: "application/json", hidden: true });
   fileInput.addEventListener("change", async () => {
     try {
@@ -782,7 +925,7 @@ function viewSettings() {
       "section",
       { class: "card" },
       h("h2", {}, "Learning"),
-      h("div", { class: "form-grid" }, h("label", {}, "Target recall (FSRS desired retention)", retention), h("label", { class: "check" }, unlock, " Unlock all sessions (skip mastery gating)")),
+      h("div", { class: "form-grid" }, h("label", {}, "Target recall (FSRS desired retention)", retention)),
       h("p", { class: "muted small" }, "Higher target recall means more frequent reviews. 90% is the usual sweet spot between effort and memory."),
     ),
     h(
@@ -819,7 +962,7 @@ function viewSettings() {
 function route() {
   const hash = location.hash || "#/";
   const [, view, arg] = hash.split("/");
-  const views = { "": viewHome, s: () => viewSession(arg), quiz: () => viewQuiz(arg), review: viewReview, practice: viewPractice, progress: viewProgress, book: viewBook, settings: viewSettings };
+  const views = { "": viewHome, s: () => viewSession(arg), exam: () => viewExam(arg), quiz: () => viewExam(arg), review: viewReview, practice: viewPractice, progress: viewProgress, book: viewBook, settings: viewSettings };
   const render = views[view] ?? viewHome;
   main().replaceChildren(render());
   window.scrollTo(0, 0);

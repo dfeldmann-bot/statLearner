@@ -130,7 +130,7 @@ textarea { width: 100%; resize: vertical; }
   background: var(--surface); border: 1px solid var(--border); color: var(--text); text-decoration: none; box-shadow: var(--shadow);
 }
 a.session-card:hover { border-color: var(--accent); }
-.session-card.locked { opacity: 0.55; }
+.session-card.in-progress { border-color: var(--accent); }
 .session-num { flex: 0 0 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; background: var(--accent-soft); color: var(--accent); }
 .session-card.passed .session-num { background: var(--ok-soft); color: var(--ok); }
 .session-body { flex: 1; min-width: 0; }
@@ -156,6 +156,20 @@ table.map th, table.map td { border-bottom: 1px solid var(--border); padding: 6p
 .progress-line { position: sticky; top: 52px; z-index: 5; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
 .progress-line span { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.3s; }
 .objectives ul { margin: 0.3em 0 0; padding-left: 1.2em; }
+.lesson-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.lesson-tools .jump { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; min-width: 0; flex: 1 1 260px; }
+.lesson-tools select { min-width: 0; flex: 1; max-width: 100%; font-size: 0.9rem; padding: 5px 8px; }
+.resume-note { margin: 8px 0; padding: 8px 12px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: 0.9rem; }
+.recap summary { cursor: pointer; font-weight: 700; }
+.recap-body { margin-top: 8px; }
+.recap-body .callout { padding-left: 12px; }
+.exam-review { margin-top: 14px; }
+.exam-review summary { cursor: pointer; font-weight: 700; }
+.exam-review ol { padding-left: 1.3em; }
+.exam-review li { margin: 10px 0; padding-left: 4px; }
+.exam-review li.bad::marker { color: var(--danger); }
+.exam-review li.ok::marker { color: var(--ok); }
+.review-prompt p { margin: 0.2em 0; }
 .step { animation: rise 0.25s ease-out; }
 @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
 .prose p { margin: 0.6em 0; }
@@ -186,8 +200,25 @@ code.tex-display { display: block; padding: 8px; }
 .option.correct { border-color: var(--ok); background: var(--ok-soft); }
 .option.chosen-wrong { border-color: var(--danger); background: var(--danger-soft); }
 .option:disabled { cursor: default; }
-.num-row { margin-top: 8px; }
-.num-input { width: 100%; max-width: 240px; font-size: 1.1rem; }
+.num-row { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.num-input { flex: 1 1 160px; max-width: 240px; font-size: 1.1rem; }
+
+/* calculator */
+.calc { margin-top: 10px; padding: 12px; max-width: 360px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); }
+.calc-history { min-height: 1.2em; text-align: right; overflow-wrap: anywhere; }
+.calc-expr { width: 100%; font: 600 1.15rem/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-align: right; background: var(--surface); }
+.calc-preview { min-height: 1.4em; margin: 2px 2px 8px; text-align: right; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.calc-preview.error { color: var(--danger); font-weight: 600; font-size: 0.9rem; }
+.calc-fns { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 6px; }
+.calc-fns .calc-key { min-height: 34px; font-size: 0.85rem; }
+.calc-pad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.calc-key { min-height: 40px; padding: 6px 0; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; font-weight: 600; cursor: pointer; touch-action: manipulation; }
+.calc-key:hover { background: var(--accent-soft); }
+.calc-key:active { transform: translateY(1px); }
+.calc-key.op { color: var(--accent); }
+.calc-key.fn { color: var(--danger); }
+.calc-key.eq { background: var(--accent); border-color: var(--accent); color: #fff; }
+.calc .actions { margin-top: 10px; }
 .worked { margin: 10px 0; padding: 10px 14px; border-radius: 10px; background: var(--surface-2); border: 1px dashed var(--border); }
 .worked-title { font-weight: 700; font-size: 0.85rem; color: var(--accent); }
 .hint { margin-top: 8px; padding: 8px 12px; border-radius: 8px; background: color-mix(in srgb, var(--accent-2) 15%, var(--surface)); }
