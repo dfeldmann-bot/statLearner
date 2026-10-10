@@ -1,11 +1,21 @@
 // Simulations for Part B (MacKay's ITILA). Same "predict, then observe" contract as sims.js.
 
-import { entropy, betaPdf, binomPmf, choose, normalPdf, histogram, bayesFactorCoin } from "./stats.js";
+import { entropy, betaPdf, binomPmf, choose, normalPdf, histogram, bayesFactorCoin, responsibilities, updateMeans, clusterObjective, mixtureLogLik } from "./stats.js";
 import { colors, frame, f2 } from "./simkit.js";
 
 const f3 = (x) => Number(x).toFixed(3);
 // Compact number for readouts: 0.000123 -> "1.23e-4", 26817356775 -> "2.68e+10".
 const num = (x) => (x !== 0 && (Math.abs(x) < 1e-3 || Math.abs(x) >= 1e4) ? x.toExponential(2) : Number(x.toPrecision(3)).toString());
+
+const argmax = (row) => row.reduce((best, v, k) => (v > row[best] ? k : best), 0);
+const BETAS = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20]; // stiffness choices for the K-means sim
+// "#4f46e5" or "#abc" -> [r, g, b]; null for anything else (then points get their top cluster's colour).
+function toRgb(color) {
+  const m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(color).trim());
+  if (!m) return null;
+  const hex = m[1].length === 3 ? [...m[1]].map((ch) => ch + ch).join("") : m[1];
+  return [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
+}
 
 // Central 95% interval of a Beta(a, b) by numeric integration on a grid.
 function betaInterval(a, b, mass = 0.95) {
@@ -264,6 +274,209 @@ export const SIMS_BOOK = {
         f.readout.textContent = `Observed: 9 heads and 3 tails. One-sided p-value if the plan was 12 tosses: ${f3(pBinom)}; if the plan was "stop at the 3rd tail": ${f3(pNeg)}. Only the second is below 0.05. The likelihood, p⁹(1−p)³, is the same in both cases, so a Bayesian reaches the same conclusion either way.`;
       };
       f.onChange(draw);
+      draw();
+    },
+  },
+
+  // K-means and soft K-means (ITILA ch. 20, 22), with MacKay's distance d = ½·(squared distance).
+  kmeans: {
+    title: "K-means and soft K-means on three blobs",
+    mount(root, rng) {
+      const H = 320;
+      const f = frame(
+        root,
+        [
+          { type: "range", id: "K", label: "Clusters K", min: 1, max: 6, value: 3 },
+          { type: "button", id: "assign", label: "Assign" },
+          { type: "button", id: "update", label: "Update" },
+          { type: "button", id: "run", label: "Run to the end" },
+          { type: "button", id: "start", label: "New start" },
+          { type: "button", id: "unlucky", label: "Unlucky start" },
+          { type: "button", id: "data", label: "New data" },
+          { type: "checkbox", id: "soft", label: "Soft", value: false },
+          { type: "range", id: "b", label: "Stiffness β", min: 0, max: BETAS.length - 1, value: BETAS.indexOf(0.5), format: (i) => String(BETAS[i]) },
+        ],
+        H,
+      );
+      // Same scale on both axes, so the nearest mean also looks nearest.
+      const W = f.plot.ctx.canvas.width / (window.devicePixelRatio || 1);
+      const yMax = 10;
+      const xMax = (yMax * (W - 52)) / (H - 40);
+      const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+      let pts = [];
+      let centres = [];
+      let blobs = []; // indices of the points in each blob
+      let means = [];
+      let trail = [];
+      let r = null; // responsibilities r[n][k] for the current means, or null before the first Assign
+      let rounds = 0;
+      let converged = false;
+      let best = {}; // lowest converged hard-K-means J for each K on these data
+      let msg = "";
+      const K = () => f.values.K;
+      const soft = () => f.values.soft;
+      const beta = () => BETAS[f.values.b];
+
+      // Three Gaussian blobs (sd 0.7) of different sizes: two fairly close (centres at least 3.4 apart),
+      // the third at least 1.8 times as far. That layout guarantees K = 3 has a bad local optimum.
+      const makeData = () => {
+        let score = -1;
+        for (let t = 0; t < 5000 && score < 1; t++) {
+          const c = [0, 1, 2].map(() => [1.4 + rng.next() * (xMax - 2.8), 1.4 + rng.next() * (yMax - 2.8)]);
+          const ds = [[0, 1], [0, 2], [1, 2]].map(([i, j]) => Math.hypot(c[i][0] - c[j][0], c[i][1] - c[j][1])).sort((p, q) => p - q);
+          const s = Math.min(ds[0] / 3.4, ds[1] / (1.8 * ds[0]));
+          if (s > score) [centres, score] = [c, s];
+        }
+        pts = [];
+        blobs = centres.map((c, i) =>
+          Array.from({ length: [44, 24, 16][i] }, () => pts.push([clamp(c[0] + 0.7 * rng.normal(), 0.1, xMax - 0.1), clamp(c[1] + 0.7 * rng.normal(), 0.1, yMax - 0.1)]) - 1),
+        );
+        best = {};
+      };
+      // A start puts the K means on K different data points.
+      const startAt = (indices) => {
+        means = indices.map((n) => pts[n].slice());
+        trail = means.map((m) => [m.slice()]);
+        r = null;
+        rounds = 0;
+        converged = false;
+      };
+      const newStart = () => startAt(rng.shuffle(pts.map((_, n) => n)).slice(0, K()));
+      // Unlucky: K − 1 means inside the far blob, one mean in one of the two close blobs. For K = 3
+      // this almost always ends with the far blob split in two and the close pair merged.
+      const unluckyStart = () => {
+        const dist = (i, j) => Math.hypot(centres[i][0] - centres[j][0], centres[i][1] - centres[j][1]);
+        const [b, , a] = [[0, 1, 2], [0, 2, 1], [1, 2, 0]].reduce((p, q) => (dist(q[0], q[1]) < dist(p[0], p[1]) ? q : p));
+        const inA = rng.shuffle(blobs[a]).slice(0, Math.max(1, K() - 1));
+        startAt(K() === 1 ? inA : [...inA, rng.pick(blobs[b])]);
+      };
+      const shiftOf = (next) => Math.max(...next.map((m, k) => Math.hypot(m[0] - means[k][0], m[1] - means[k][1])));
+      const assign = () => {
+        const old = r;
+        r = responsibilities(pts, means, soft() ? beta() : Infinity);
+        // Converged when an update would no longer move any mean.
+        converged = shiftOf(updateMeans(pts, r, means)) < (soft() ? 1e-4 : 1e-9);
+        if (converged && !soft()) best[K()] = Math.min(best[K()] ?? Infinity, clusterObjective(pts, means, r));
+        return old ? r.filter((row, n) => argmax(row) !== argmax(old[n])).length : pts.length;
+      };
+      const update = () => {
+        const next = updateMeans(pts, r, means);
+        const moved = shiftOf(next) > 1e-12;
+        means = next;
+        if (moved) {
+          means.forEach((m, k) => trail[k].push(m.slice()));
+          rounds++;
+        }
+        return moved;
+      };
+
+      const act = (id) => {
+        if (id === "data") {
+          makeData();
+          newStart();
+          msg = `New data, and ${K()} means (rings) on randomly chosen points. Press Assign, then Update, and repeat.`;
+        } else if (id === "start" || id === "K") {
+          newStart();
+          msg = `New start: ${K()} mean${K() === 1 ? "" : "s"} (rings) on randomly chosen points. Press Assign, then Update, and repeat.`;
+        } else if (id === "unlucky") {
+          unluckyStart();
+          msg =
+            K() === 1
+              ? "With K = 1 there is nothing to be unlucky about: every start ends at the overall mean."
+              : `Unlucky start: ${K() - 1} mean${K() > 2 ? "s" : ""} inside one blob, 1 in another. Run it, then compare J with ordinary starts.`;
+        } else if (id === "assign") {
+          const changed = assign();
+          msg = soft() ? "Assignment step: responsibilities recomputed; colours mix in proportion to them." : `Assignment step: ${changed} point${changed === 1 ? "" : "s"} changed cluster.`;
+        } else if (id === "update") {
+          if (!r) msg = "Press Assign first: the update step needs the clusters.";
+          else if (update()) msg = `Update step: each mean moved to the ${soft() ? "responsibility-weighted " : ""}average of its points.`;
+          else msg = "The means already sit at the averages of their clusters. Press Assign.";
+        } else if (id === "run") {
+          if (!r) assign();
+          let it = 0;
+          while (!converged && it < 2000) {
+            update();
+            assign();
+            it++;
+          }
+          msg = converged ? "Ran to the end." : "Stopped after 2,000 rounds: the means are still creeping.";
+        } else if (id === "soft" || id === "b") {
+          if (id === "b" && !soft()) msg = "β only matters for soft K-means: tick Soft.";
+          else {
+            if (r) assign();
+            msg = soft() ? `Soft K-means with β = ${num(beta())}.${r ? " Responsibilities recomputed." : ""}` : `Hard K-means again.${r ? " Each point belongs to its nearest mean." : ""}`;
+          }
+        }
+        draw();
+      };
+
+      const draw = () => {
+        const c = colors();
+        const pal = [c.a, c.b, c.ok, "#ec4899", "#06b6d4", c.bad];
+        const rgb = pal.map(toRgb);
+        const { ctx, X, Y } = f.plot;
+        f.plot.clear([0, xMax], [0, yMax], { integerStep: 5, yTicks: 2 });
+        pts.forEach((p, n) => {
+          let col = c.muted;
+          if (r) {
+            col = pal[argmax(r[n])];
+            if (rgb.every(Boolean)) col = `rgb(${[0, 1, 2].map((i) => Math.round(r[n].reduce((s, rk, k) => s + rk * rgb[k][i], 0))).join(",")})`;
+          }
+          ctx.fillStyle = col;
+          ctx.beginPath();
+          ctx.arc(X(p[0]), Y(p[1]), 3.6, 0, 2 * Math.PI);
+          ctx.fill();
+        });
+        means.forEach((m, k) => {
+          for (let i = 1; i < trail[k].length; i++) f.plot.segment(trail[k][i - 1][0], trail[k][i - 1][1], trail[k][i][0], trail[k][i][1], pal[k], 1.5);
+          if (soft()) {
+            // Dashed circle of radius σ = 1/√β: the length scale of each soft cluster.
+            ctx.save();
+            ctx.setLineDash([4, 4]);
+            ctx.strokeStyle = pal[k];
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.arc(X(m[0]), Y(m[1]), X(1 / Math.sqrt(beta())) - X(0), 0, 2 * Math.PI);
+            ctx.stroke();
+            ctx.restore();
+          }
+          // A hollow ring, so a point under the mean stays visible.
+          for (const [color, width] of [[c.text, 5], [pal[k], 2.5]]) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.beginPath();
+            ctx.arc(X(m[0]), Y(m[1]), 8, 0, 2 * Math.PI);
+            ctx.stroke();
+          }
+        });
+
+        const out = [msg];
+        if (r && !soft()) {
+          const J = clusterObjective(pts, means, r);
+          out.push(`Objective J = ${J.toFixed(1)} (½ × squared distance from each point to its own mean, summed).`);
+          if (converged) {
+            const b = best[K()];
+            out.push(`Converged after ${rounds} round${rounds === 1 ? "" : "s"}: no point will change cluster again.`);
+            if (J > b * 1.02) out.push(`Stuck in a local optimum: an earlier start reached J = ${b.toFixed(1)}.`);
+            if (means.some((_, k) => !r.some((row) => row[k] === 1))) out.push("A mean with no points stays where it is.");
+            const list = Object.keys(best)
+              .sort((a, b2) => a - b2)
+              .map((k) => `K = ${k}: ${best[k].toFixed(1)}`)
+              .join(" · ");
+            out.push(`Lowest J found so far: ${list}.`);
+          }
+        } else if (r) {
+          const shared = r.filter((row) => Math.max(...row) < 0.9).length;
+          out.push(`Length scale σ = 1/√β = ${num(1 / Math.sqrt(beta()))} (dashed circles). ${shared} of ${pts.length} points are shared: no cluster takes 90% of them. Mixture log-likelihood ${mixtureLogLik(pts, means, beta()).toFixed(1)}; an update never lowers it.`);
+          if (converged) out.push(`The means have stopped moving (${rounds} round${rounds === 1 ? "" : "s"}).`);
+        }
+        f.readout.textContent = out.join(" ");
+      };
+
+      makeData();
+      newStart();
+      msg = `The ${K()} means (rings) start on randomly chosen data points. Press Assign, then Update, and repeat, or Run to the end.`;
+      f.onChange(act);
       draw();
     },
   },

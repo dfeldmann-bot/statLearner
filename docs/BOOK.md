@@ -39,7 +39,7 @@ Sixteen recorded lectures cover the core of the book: [VideoLectures.net](https:
 | 8 | [Noisy channel coding (III): the noisy-channel coding theorem](https://videolectures.net/mackay_course_08/) | - |
 | 9 | [A noisy channel coding gem, and an introduction to Bayesian inference (I)](https://videolectures.net/mackay_course_09/) | 2, 9 |
 | 10 | [An introduction to Bayesian inference (II): inference of parameters and models](https://videolectures.net/mackay_course_10/) | 9, 10 |
-| 11 | [Approximating probability distributions (I): clustering as an example inference problem](https://videolectures.net/mackay_course_11/) | 11; brief for 14 |
+| 11 | [Approximating probability distributions (I): clustering as an example inference problem](https://videolectures.net/mackay_course_11/) | 11, 14 |
 | 12 | [Approximating probability distributions (II): Monte Carlo methods (I)](https://videolectures.net/mackay_course_12/) | 12 |
 | 13 | [Approximating probability distributions (III): Monte Carlo methods (II)](https://videolectures.net/mackay_course_13/) | 12 |
 | 14 | [Approximating probability distributions (IV): variational methods](https://videolectures.net/mackay_course_14/) | planned |
@@ -73,6 +73,7 @@ Titles of lectures 2-5, 7 and 8 follow the 2012 slide list; the others follow th
 | 11 | Maximum likelihood, error bars, the Gaussian | ch. 22, 24, 27 | 11 |
 | 12 | Monte Carlo methods | ch. 29 | 12, 13 |
 | 13 | Bayesian inference vs sampling theory | ch. 37, 36 | - |
+| 14 | Clustering as inference: K-means and soft K-means | ch. 20, 22 | 11 |
 
 Part A keeps *OpenIntro Statistics* (free, CC BY-SA 3.0) as a companion, because ITILA assumes basic probability and argues against, but does not teach, classical confidence intervals and tests. Each part opens unlocked, so a learner who already knows the basics can start with Part B.
 
@@ -87,7 +88,6 @@ Part A keeps *OpenIntro Statistics* (free, CC BY-SA 3.0) as a companion, because
 
 | Session | Topic | ITILA | Lecture | Brief |
 |---|---|---|---|---|
-| 14 | Clustering and soft K-means as inference | ch. 20, 22 | 11 | `authoring/briefs/s14-clustering.json` |
 | 15 | Symbol codes and Huffman coding | ch. 5 | 4 | to write |
 | 16 | Noisy channels, mutual information, capacity | ch. 8-10 | 6-8 | to write |
 | 17 | Variational methods | ch. 33 | 14 | to write |

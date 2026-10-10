@@ -147,3 +147,62 @@ test("lgamma, Beta density, entropy and coin Bayes factor", async () => {
   assert.ok(Math.abs(bayesFactorCoin(10, 9) - 9.309) < 1e-3);
   assert.ok(Math.abs(1 / bayesFactorCoin(10000, 5100) - 10.80) < 0.01, "Lindley example");
 });
+
+test("K-means helpers reproduce the session 14 worked examples", async () => {
+  const { halfSqDist, responsibilities, updateMeans, clusterObjective } = await import("../app/src/stats.js");
+  assert.equal(halfSqDist([1, 2], [4, 6]), 12.5, "half the squared distance");
+  // Data 1, 3, 4, 8, 9, 11 from means 1 and 6: J = 23 -> 14 -> 8 -> 4.67, then converged.
+  const pts = [1, 3, 4, 8, 9, 11].map((x) => [x]);
+  let means = [[1], [6]];
+  const Js = [];
+  for (let round = 0; round < 3; round++) {
+    const r = responsibilities(pts, means);
+    Js.push(clusterObjective(pts, means, r));
+    means = updateMeans(pts, r, means);
+    Js.push(clusterObjective(pts, means, r));
+  }
+  assert.deepEqual(Js.slice(0, 4).map((J) => Number(J.toFixed(2))), [23, 14, 8, 4.67]);
+  assert.deepEqual(means.map((m) => Number(m[0].toFixed(3))), [2.667, 9.333]);
+  // Local optimum: three groups, all means started in the first group.
+  const groups = [1, 2, 3, 10, 11, 12, 20, 21, 22].map((x) => [x]);
+  let m = [[1], [2], [3]];
+  for (let i = 0; i < 20; i++) m = updateMeans(groups, responsibilities(groups, m), m);
+  assert.deepEqual(m.map((v) => v[0]), [1, 2.5, 16]);
+  assert.equal(clusterObjective(groups, m, responsibilities(groups, m)), 77.25);
+  // Soft responsibilities: x = 3.5 between means 2 and 6 with beta = 1.
+  const [r] = responsibilities([[3.5]], [[2], [6]], 1);
+  assert.ok(Math.abs(r[0] - 0.8808) < 1e-4 && Math.abs(r[0] + r[1] - 1) < 1e-12);
+  // A mean with no points stays put.
+  assert.deepEqual(updateMeans([[0], [1]], [[1, 0], [1, 0]], [[0], [50]])[1], [50]);
+});
+
+test("K-means never raises J; soft K-means never lowers the mixture likelihood", async () => {
+  const { responsibilities, updateMeans, clusterObjective, mixtureLogLik } = await import("../app/src/stats.js");
+  for (let seed = 1; seed <= 25; seed++) {
+    const rng = makeRng(`kmeans-${seed}`);
+    const pts = Array.from({ length: 60 }, (_, n) => [rng.normal(3 * (n % 3), 1), rng.normal(2 * (n % 2), 1)]);
+    const K = rng.int(2, 5);
+    const start = Array.from({ length: K }, () => [rng.float(-2, 8), rng.float(-2, 4)]);
+    let means = start;
+    let prev = Infinity;
+    for (let i = 0; i < 15; i++) {
+      const r = responsibilities(pts, means);
+      const afterAssign = clusterObjective(pts, means, r);
+      means = updateMeans(pts, r, means);
+      const afterUpdate = clusterObjective(pts, means, r);
+      assert.ok(afterAssign <= prev + 1e-9 && afterUpdate <= afterAssign + 1e-9, "J went up");
+      prev = afterUpdate;
+    }
+    const beta = rng.pick([0.1, 0.5, 2, 20]);
+    means = start;
+    let L = -Infinity;
+    for (let i = 0; i < 15; i++) {
+      const r = responsibilities(pts, means, beta);
+      for (const row of r) assert.ok(Math.abs(row.reduce((a, b) => a + b, 0) - 1) < 1e-9);
+      means = updateMeans(pts, r, means);
+      const now = mixtureLogLik(pts, means, beta);
+      assert.ok(now >= L - 1e-7, "log-likelihood went down");
+      L = now;
+    }
+  }
+});

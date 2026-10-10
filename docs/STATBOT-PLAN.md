@@ -36,7 +36,7 @@ The only way to get a model whose *weights* contain nothing but curated text is 
 
 | Phase | What you build | Hardware | Cost | Effort |
 |---|---|---|---|---|
-| **0. Retrieval baseline** (built) | BM25 search over the 13 course sessions and a glossary, extractive answers with citations, refusals, eval set (98% hit@3 on 42 questions, 7 of 8 refusals) | Any computer, Python 3.9+ | $0 | done |
+| **0. Retrieval baseline** (built) | BM25 search over the 14 course sessions and a glossary, extractive answers with citations, refusals, eval set (98% hit@3 on 44 questions, 7 of 8 refusals) | Any computer, Python 3.9+ | $0 | done |
 | **1. Grow the corpus** | Add 2-3 openly licensed books (e.g. OpenStax *Introductory Statistics*, CC BY 4.0), split by section; extend the eval to 150-200 questions, including 50 that must be refused | Any computer | $0 | 2-4 weekends |
 | **2. Local RAG** | Hybrid retrieval (BM25 + embeddings), small local LLM via Ollama or llama.cpp, citation check, refusal | 8 GB RAM (3B model, CPU); 16 GB RAM or Apple Silicon for 7-8B models; 5-10 GB disk | $0 | 1-2 weekends |
 | **3. Fine-tune (optional)** | LoRA on 1,000-3,000 verified Q&A pairs, so the model answers in the course's style and refuses more reliably | Rented GPU with 24 GB VRAM, 1-3 hours per run | $10-40 total | 1 weekend |

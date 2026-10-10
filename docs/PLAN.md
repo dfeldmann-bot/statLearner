@@ -8,16 +8,16 @@ statLearner teaches statistics and inference in short daily sessions, following 
 
 | Part | Status | Where |
 |---|---|---|
-| Course app (PWA) | 13 sessions in two parts (foundations; MacKay's ITILA), 46 exercise generators, 17 simulations, mastery quizzes, 118 flashcards | `app/` |
+| Course app (PWA) | 14 sessions in two parts (foundations; MacKay's ITILA), 49 exercise generators, 18 simulations, mastery quizzes, 128 flashcards | `app/` |
 | Book integration | Book tab with the PDF link, MacKay's 16 lectures, session-to-chapter map; `npm run fetch-book` for a local copy | `docs/BOOK.md`, `tools/fetch-book.mjs` |
 | Spaced repetition | FSRS-6 scheduler, interleaved review queue, mastery per session | `app/src/fsrs.js`, `app/src/srs.js` |
 | Gamification | XP, levels, daily goal, streaks with freezes, 11 badges | `app/src/game.js` |
 | Reminders | Daily calendar reminder (.ics), browser notifications | `app/src/reminders.js` |
 | Offline | Service worker caches everything, including the vendored KaTeX math renderer | `app/sw.js` |
 | Authoring pipeline | Claude drafts, ChatGPT reviews, Claude revises, both cross-check answer keys; manual copy-paste mode | `authoring/`, [AUTHORING.md](AUTHORING.md) |
-| StatBot phase 0 | BM25 retrieval, cited extractive answers, refusals, eval set (98% hit@3 on 42 questions) | `statbot/`, [STATBOT-PLAN.md](STATBOT-PLAN.md) |
+| StatBot phase 0 | BM25 retrieval, cited extractive answers, refusals, eval set (98% hit@3 on 44 questions) | `statbot/`, [STATBOT-PLAN.md](STATBOT-PLAN.md) |
 | Research basis | 13 learning-science methods mapped to features | [LEARNING-DESIGN.md](LEARNING-DESIGN.md) |
-| Tests | 92 JavaScript tests, 7 Python tests, browser walk-through of all 13 sessions | `tests/`, `statbot/tests/` |
+| Tests | 98 JavaScript tests, 7 Python tests, browser walk-through of all 14 sessions | `tests/`, `statbot/tests/` |
 
 ## Architecture
 
@@ -56,7 +56,7 @@ flowchart LR
 |---|---|---|---|
 | **M1: Try it yourself** | Work through a few sessions for a week (start with Part B if the basics are familiar); note confusing spots; tune the daily goal | 1 week of 15 min/day | $0 |
 | **M2: Publish** | Enable GitHub Pages (Settings → Pages → Source: GitHub Actions); the included workflow deploys `app/` | 15 minutes | $0 |
-| **M3: More book chapters** | Sessions 14-18 via the pipeline: clustering (brief included), symbol codes, noisy channels and mutual information, variational methods, learning as inference (see [BOOK.md](BOOK.md)); add the generators they propose | 1 evening per session | ~$2 per session in API fees |
+| **M3: More book chapters** | Session 14 (clustering) is done. Sessions 15-18 via the pipeline: symbol codes, noisy channels and mutual information, variational methods, learning as inference (see [BOOK.md](BOOK.md)); add the generators they propose | 1 evening per session | ~$2 per session in API fees |
 | **M4: Personal FSRS** | Fit FSRS parameters to the learner's own review log after ~1,000 reviews | 1 weekend | $0 |
 | **M5: StatBot phases 1-2** | Ingest open textbooks, add embeddings and a local 3B model with citation checks | 3-6 weekends | $0 |
 | **M6 (optional)** | StatBot in the browser (BM25 in JavaScript), true push reminders (needs a small server), StatBot fine-tuning | as needed | $0-40 once; a push server costs ~$5/month |

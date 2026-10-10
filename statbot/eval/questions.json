@@ -266,6 +266,18 @@
       ]
     },
     {
+      "q": "How does the K-means clustering algorithm work?",
+      "expect": [
+        "s14:"
+      ]
+    },
+    {
+      "q": "What is a responsibility in soft K-means?",
+      "expect": [
+        "s14:"
+      ]
+    },
+    {
       "q": "What is the capital of France?",
       "outOfScope": true
     },

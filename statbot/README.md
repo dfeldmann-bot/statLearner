@@ -36,7 +36,7 @@ I can't answer that from my curated statistics sources. ...
 3. **Answer or refuse** (`statbot/answer.py`): if the best passage scores high enough *and* contains at least half of the question's terms, StatBot quotes its best-matching sentences with citations. Otherwise it refuses.
 4. **Optional local LLM:** with `--llm ollama:llama3.2:3b` (requires [Ollama](https://ollama.com) running locally), the same passages go to a small local model. The model is told to use nothing else, and any answer without a citation is discarded.
 
-Current baseline (`python3 -m statbot eval`): **98% hit@3** on 42 in-scope questions, **88% correct refusals** on 8 out-of-scope questions. Lexical retrieval misses paraphrases and can be fooled by shared words: "weather tomorrow" matches "hot weather" in the confounder example. Phase 2 of the plan targets exactly these weaknesses.
+Current baseline (`python3 -m statbot eval`): **98% hit@3** on 44 in-scope questions, **88% correct refusals** on 8 out-of-scope questions. Lexical retrieval misses paraphrases and can be fooled by shared words: "weather tomorrow" matches "hot weather" in the confounder example. Phase 2 of the plan targets exactly these weaknesses.
 
 ## Adding curated sources
 

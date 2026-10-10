@@ -1,0 +1,291 @@
+{
+  "id": "s14",
+  "slug": "clustering",
+  "part": "B",
+  "title": "Clustering as inference: K-means and soft K-means",
+  "summary": "K-means by hand, soft K-means and its responsibilities, why responsibilities are Bayes' theorem, soft K-means as maximum likelihood for a mixture of Gaussians, and three ways clustering goes wrong.",
+  "bookRef": "ITILA ch. 20 (An Example Inference Task: Clustering), ch. 22 (Maximum Likelihood and Clustering)",
+  "lectures": [
+    {
+      "number": 11,
+      "title": "Approximating probability distributions (I): clustering as an example inference problem",
+      "url": "https://videolectures.net/mackay_course_11/"
+    }
+  ],
+  "minutes": 30,
+  "objectives": [
+    "Run the K-means algorithm by hand: assignment step, then update step.",
+    "Compute soft K-means responsibilities and explain them as posterior probabilities of cluster membership.",
+    "Connect soft K-means to maximum likelihood for a mixture of Gaussians.",
+    "Recognise the failure modes: local optima, choosing K by the fit alone, and the collapsing Gaussian of maximum likelihood."
+  ],
+  "warmup": [
+    {
+      "id": "s14-w1",
+      "type": "choice",
+      "prompt": "**Predict.** You run K-means twice on the same data with $K = 3$, starting the three cluster centres at different random places. Will both runs end with the same three clusters?",
+      "options": [
+        "Yes: K-means always finds the best clustering",
+        "Not necessarily: different starts can get stuck in different clusterings",
+        "Yes, as long as each run continues until nothing changes",
+        "No: K-means makes random choices at every step"
+      ],
+      "answer": 1,
+      "explain": "Every K-means step is fully determined by where the centres are, so the start decides where the run ends. The algorithm only ever moves downhill on its score and stops in the first valley it reaches, a **local optimum**. In practice you run it from several starts and keep the best result. The simulation in this session lets you watch it happen."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "md": "## Clustering is inference\n**Clustering** sorts data points into groups, called **clusters**, that nobody labelled: think of beetle lengths from two species bunching into two piles. Each point's cluster is a **hidden variable**, inferred from the data as session 9 inferred a coin's bias. That is why MacKay presents clustering as an inference problem.\n\nWrite the data as $x^{(1)}, \\dots, x^{(N)}$; each of $K$ clusters has a **mean** $m^{(k)}$ at its centre. Following MacKay, closeness is **half** the squared distance:\n$$d(x, m) = \\tfrac12 \\sum_i (x_i - m_i)^2 \\qquad (\\text{in one dimension, } \\tfrac12 (x - m)^2).$$\nBooks that drop the $\\tfrac12$ get the same clusters and means; only $J$ and $\\beta$ below change scale."
+    },
+    {
+      "type": "text",
+      "md": "## K-means: two steps, repeated\nPlace the $K$ means somewhere, for example at random, then alternate:\n\n1. **Assignment step:** each point joins the cluster of its nearest mean.\n2. **Update step:** each mean moves to the average of its points (a mean with no points stays put).\n\nStop when no point changes cluster. The **objective** scores the result:\n$$J = \\sum_{n=1}^{N} d\\big(x^{(n)}, m^{(k_n)}\\big),$$\nwhere $k_n$ is the cluster of point $n$. A small $J$ means tight clusters."
+    },
+    {
+      "type": "example",
+      "title": "Two clusters in one dimension",
+      "steps": [
+        "Data: 1, 3, 4, 8, 9, 11. Start with $m_1 = 1$ and $m_2 = 6$.",
+        "**Assign.** The midpoint is 3.5, so cluster 1 gets 1 and 3, cluster 2 gets 4, 8, 9 and 11: $J = \\tfrac12(0 + 4 + 4 + 4 + 9 + 25) = 23$.",
+        "**Update.** $m_1 = (1 + 3)/2 = 2$ and $m_2 = (4 + 8 + 9 + 11)/4 = 8$. Same clusters, new means: $J = \\tfrac12(1 + 1 + 16 + 0 + 1 + 9) = 14$.",
+        "**Assign.** The midpoint is now 5, so point 4 switches to cluster 1: $J = \\tfrac12(1 + 1 + 4 + 0 + 1 + 9) = 8$.",
+        "**Update.** $m_1 = 8/3 = 2.67$ and $m_2 = 28/3 = 9.33$, so $J = 4.67$. Another assignment changes nothing: converged."
+      ],
+      "reflect": {
+        "prompt": "Point 4 never moved, yet it switched clusters in the second round. Why?",
+        "answer": "The means moved: the first update pulled $m_2$ up to 8, so point 4 became closer to $m_1 = 2$. Clusters depend on means and means on clusters, which is why K-means alternates."
+      }
+    },
+    {
+      "type": "practice",
+      "exercise": "kmeans-update",
+      "count": 3
+    },
+    {
+      "type": "text",
+      "md": "## It always stops, but maybe in the wrong place\nNeither step can raise $J$: assignment picks each point's nearest mean, and an average is the value with the smallest total squared distance to its points (session 11's closing reflection). With finitely many ways to split the points, K-means must settle.\n\nBut it settles at a **local optimum** that depends on the start. Data 1 to 3, 10 to 12 and 20 to 22 with $K = 3$: starting at 1, 11, 21 ends at 2, 11, 21 with $J = 3$; starting at 1, 2, 3 ends at 1, 2.5, 16 with $J = 77.25$, two means sharing the first group."
+    },
+    {
+      "type": "sim",
+      "sim": "kmeans",
+      "md": "**Predict:** with $K = 3$ and *Soft* unticked, will every start find the three blobs? Press **Run to the end** and note $J$. Then try **New start** a few times, and **Unlucky start**. Finally raise $K$: how does the lowest $J$ change?"
+    },
+    {
+      "type": "text",
+      "md": "## Soft K-means: sharing points\nHard assignment is overconfident: a point near the halfway line still goes 100% to one cluster. **Soft K-means** gives every cluster a share of every point, its **responsibility**:\n$$r_k(x) = \\frac{e^{-\\beta\\, d(m^{(k)}, x)}}{\\sum_j e^{-\\beta\\, d(m^{(j)}, x)}}.$$\nA point's responsibilities are positive and add up to 1. Each mean then moves to the responsibility-weighted average, $m^{(k)} = \\sum_n r_k^{(n)} x^{(n)} \\big/ \\sum_n r_k^{(n)}$ with $r_k^{(n)} = r_k(x^{(n)})$.\n\nThe **stiffness** $\\beta$ sets how sharp the split is: a large $\\beta$ gives back hard K-means, a small $\\beta$ shares points almost equally. $\\sigma = 1/\\sqrt{\\beta}$ acts as each cluster's width."
+    },
+    {
+      "type": "example",
+      "title": "A point between two clusters",
+      "steps": [
+        "Means $m_1 = 2$ and $m_2 = 6$, a point at $x = 3.5$, stiffness $\\beta = 1$.",
+        "Distances: $d_1 = \\tfrac12(3.5 - 2)^2 = 1.125$ and $d_2 = \\tfrac12(3.5 - 6)^2 = 3.125$.",
+        "$r_1 = \\dfrac{e^{-1.125}}{e^{-1.125} + e^{-3.125}} = \\dfrac{0.3247}{0.3247 + 0.0439} = 0.881$ and $r_2 = 0.119$, where hard K-means says 1 and 0.",
+        "Shortcut: $r_1 = 1/(1 + e^{-\\beta(d_2 - d_1)})$, with $d_2 - d_1 = 2$ here. Then $\\beta = 0.25$ gives $r_1 = 0.622$, and $\\beta = 4$ gives $r_1 = 0.9997$."
+      ]
+    },
+    {
+      "type": "practice",
+      "exercise": "soft-responsibility",
+      "count": 3
+    },
+    {
+      "type": "text",
+      "md": "## Responsibilities are Bayes' theorem\nSuppose each point was made by picking cluster $k$ with probability $\\pi_k$ (its **weight**), then drawing from a Gaussian with mean $m^{(k)}$ and standard deviation $\\sigma$: a **mixture of Gaussians**. Bayes' theorem, as with session 9's bag of coins, gives\n$$P(k \\mid x) = \\frac{\\pi_k\\, P(x \\mid k)}{\\sum_j \\pi_j\\, P(x \\mid j)}, \\qquad P(x \\mid k) \\propto e^{-d(m^{(k)}, x)/\\sigma^2},$$\nthe Gaussian shape, because $d$ is half the squared distance. With equal weights and widths everything else cancels, leaving the soft K-means responsibility with $\\beta = 1/\\sigma^2$. So **a responsibility is a posterior probability**. Unequal weights add a prior factor: $r_k \\propto \\pi_k\\, e^{-\\beta d_k}$."
+    },
+    {
+      "type": "practice",
+      "exercise": "mixture-posterior",
+      "count": 2
+    },
+    {
+      "type": "text",
+      "md": "## Soft K-means is maximum likelihood\nSession 11 fitted one Gaussian by maximum likelihood; chapter 22 fits a mixture. With equal weights and a known $\\sigma$, the likelihood of the means is\n$$L = \\prod_{n=1}^{N} \\sum_{k=1}^{K} \\frac{1}{K}\\, \\mathcal N\\big(x^{(n)};\\, m^{(k)}, \\sigma^2\\big),$$\nwhere $\\mathcal N$ is the Gaussian density. Setting the derivative of $\\log L$ with respect to $m^{(k)}$ to zero gives exactly the soft K-means update, weighted by the posterior responsibilities. Because the responsibilities depend on the means, we alternate the two steps, and no round lowers the likelihood. This alternation is the **EM algorithm** (expectation-maximisation)."
+    },
+    {
+      "type": "sim",
+      "sim": "kmeans",
+      "md": "**Predict:** tick *Soft*. Which points will get mixed colours? What happens to the means at very low $\\beta$, and at high $\\beta$? Press **Run to the end** after each change."
+    },
+    {
+      "type": "check",
+      "question": {
+        "id": "s14-k1",
+        "type": "numeric",
+        "prompt": "Soft K-means, update step. Three points $x = 1, 4, 9$ have responsibilities $0.9$, $0.5$ and $0.1$ for cluster 1. Where does $m^{(1)}$ move to? Round to 2 decimals.",
+        "answer": 2.5333,
+        "explain": "Weighted average: $\\dfrac{0.9 \\times 1 + 0.5 \\times 4 + 0.1 \\times 9}{0.9 + 0.5 + 0.1} = \\dfrac{3.8}{1.5} = 2.53$. The far point 9 pulls only a little, because cluster 1 is responsible for just 10% of it.",
+        "tolerance": 0.01
+      }
+    },
+    {
+      "type": "text",
+      "md": "## When maximum likelihood blows up\nThe simulation showed the extremes: a tiny $\\beta$ merges all the means at the overall average; a large $\\beta$ acts like hard K-means.\n\nNow let each cluster also learn its own width $\\sigma_k$ and weight $\\pi_k$ (chapter 22). Put one mean on a single data point and shrink its width: that point's density, $\\pi_k/(\\sigma_k\\sqrt{2\\pi})$, grows without limit while another cluster covers the rest. The likelihood goes to **infinity** for a useless spike, the failure flagged in session 11. A prior that makes widths near zero implausible removes it."
+    },
+    {
+      "type": "callout",
+      "kind": "misconception",
+      "md": "**\"More clusters always give a better model.\"** The best achievable $J$ only falls as $K$ grows (with $K = N$, $J = 0$), and a mixture's maximum likelihood never falls either; the simulation showed it. But a fit that memorises the points predicts new data badly. Compare values of $K$ as session 10 compared coins: by the **evidence** $P(D \\mid K)$, which averages the fit over the prior and so charges an Occam penalty for clusters the data do not need."
+    },
+    {
+      "type": "reflect",
+      "prompt": "Why is clustering an *inference* problem? Name the hidden quantities, the model of how the data arise, and what Bayes' theorem gives you.",
+      "answer": "Hidden: each point's cluster label, plus the clusters' means, widths and weights. Model: pick cluster $k$ with probability $\\pi_k$, then draw the point from its Gaussian. Bayes' theorem inverts this into each label's posterior probability, the responsibility. Maximising the likelihood over the means gives soft K-means; sensible priors on the parameters and on $K$ also prevent collapsing clusters and too many clusters."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "s14-q1",
+      "type": "generated",
+      "exercise": "kmeans-update"
+    },
+    {
+      "id": "s14-q2",
+      "type": "generated",
+      "exercise": "soft-responsibility"
+    },
+    {
+      "id": "s14-q3",
+      "type": "generated",
+      "exercise": "mixture-posterior"
+    },
+    {
+      "id": "s14-q4",
+      "type": "choice",
+      "prompt": "You run K-means with $K = 3$ from 10 random starts and get 10 different final values of the objective $J$. Which result should you keep?",
+      "options": [
+        "The average of the 10 sets of means",
+        "The first run, because later runs only add noise",
+        "The run with the lowest $J$: each run stopped at a local optimum, and lower $J$ means tighter clusters",
+        "Any of them, because K-means always reaches the same global minimum"
+      ],
+      "answer": 2,
+      "explain": "K-means never increases $J$, so each run stops at a local optimum that depends on its start. Comparing runs by $J$ is fair because they all use the same data and the same $K$; keep the lowest.",
+      "feedback": [
+        "Averaging means from different runs can put a mean between clusters, where there are no data. Different runs may also number the same clusters in a different order.",
+        "Every start is equally valid; there is nothing special about the first.",
+        "Right.",
+        "Then all 10 values of $J$ would be equal. Different values show that some runs stopped at worse local optima."
+      ]
+    },
+    {
+      "id": "s14-q5",
+      "type": "choice",
+      "prompt": "In the probabilistic reading of soft K-means, the responsibility $r_k(x)$ is:",
+      "options": [
+        "The posterior probability that point $x$ came from cluster $k$",
+        "The prior weight $\\pi_k$ of cluster $k$",
+        "The likelihood $P(x \\mid k)$ of the point under cluster $k$",
+        "The distance from $x$ to the mean $m^{(k)}$"
+      ],
+      "answer": 0,
+      "explain": "$r_k(x) = \\pi_k P(x \\mid k) / \\sum_j \\pi_j P(x \\mid j)$: prior weight times Gaussian likelihood, normalised over the clusters. With equal weights and widths this is $e^{-\\beta d_k} / \\sum_j e^{-\\beta d_j}$ with $\\beta = 1/\\sigma^2$.",
+      "feedback": [
+        "Right.",
+        "The weight is cluster $k$'s share before seeing $x$. The responsibility updates it using $x$.",
+        "The likelihood is one ingredient. Multiplied by the prior weight and normalised over the clusters, it becomes the responsibility.",
+        "The distance enters through $e^{-\\beta d}$, but a responsibility is a probability between 0 and 1, and the responsibilities for one point add up to 1."
+      ]
+    },
+    {
+      "id": "s14-q6",
+      "type": "choice",
+      "prompt": "You fit a mixture of two Gaussians, each with its own mean, width and weight, by maximum likelihood. The optimiser reports a gigantic likelihood: one component sits exactly on a single data point, with width 0.0001. What happened?",
+      "options": [
+        "The optimiser found the best model of these data",
+        "The data really contain a cluster with one member",
+        "A rounding error that a more precise computer would remove",
+        "The singularity of maximum likelihood: a component shrinking onto one point makes the likelihood grow without limit"
+      ],
+      "answer": 3,
+      "explain": "The spike gives its point the density $\\pi_k/(\\sigma_k\\sqrt{2\\pi})$, which grows without limit as $\\sigma_k \\to 0$, while the other component keeps every other point's probability above zero. A prior that makes tiny widths implausible repairs this.",
+      "feedback": [
+        "The highest likelihood is not the best model here: this one predicts new data terribly, because one component bets everything on a single value.",
+        "The spike could sit on any data point equally well, so it tells you nothing about the data.",
+        "It is not a numerical problem: the exact likelihood really goes to infinity as the width goes to zero.",
+        "Right."
+      ]
+    },
+    {
+      "id": "s14-q7",
+      "type": "choice",
+      "prompt": "Raising $K$ from 3 to 4 lowers the best K-means objective from $J = 45$ to $J = 37$. What can you conclude?",
+      "options": [
+        "Four clusters describe the data better than three",
+        "Not much: the best $J$ always falls when $K$ grows, so compare values of $K$ by their evidence instead",
+        "The data contain four real groups",
+        "Three clusters are better, because $J$ fell by less than half"
+      ],
+      "answer": 1,
+      "explain": "Adding a mean can never make the best achievable $J$ worse; with $K = N$, $J = 0$. So the fit alone always prefers more clusters. The evidence $P(D \\mid K)$ from session 10 balances fit against complexity.",
+      "feedback": [
+        "A lower $J$ only means a closer fit, and adding a mean guarantees a closer (or equal) best fit.",
+        "Right.",
+        "With $K = N$ the best $J$ is 0, but that does not mean every point is its own group.",
+        "There is no such rule. Use a principled comparison such as the evidence, which includes an Occam penalty."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "id": "s14-c1",
+      "kind": "concept",
+      "front": "What are the two steps of K-means?",
+      "back": "**Assignment:** each point joins its nearest mean. **Update:** each mean moves to the average of its points. Repeat until no point changes cluster."
+    },
+    {
+      "id": "s14-c2",
+      "kind": "concept",
+      "front": "Why does K-means always stop, and what is the catch?",
+      "back": "Neither step can increase the objective $J = \\sum_n d(x^{(n)}, m^{(k_n)})$, so it settles down. But it stops at a local optimum that depends on the start: run several starts and keep the lowest $J$."
+    },
+    {
+      "id": "s14-c3",
+      "kind": "formula",
+      "front": "Soft K-means responsibilities, with MacKay's distance?",
+      "back": "$r_k(x) = \\dfrac{e^{-\\beta d(m^{(k)}, x)}}{\\sum_j e^{-\\beta d(m^{(j)}, x)}}$ with $d(x, m) = \\tfrac12 \\sum_i (x_i - m_i)^2$, half the squared distance. Positive, and they add up to 1 over the clusters."
+    },
+    {
+      "id": "s14-c4",
+      "kind": "formula",
+      "front": "Soft K-means update step?",
+      "back": "$m^{(k)} = \\dfrac{\\sum_n r_k^{(n)} x^{(n)}}{\\sum_n r_k^{(n)}}$: the responsibility-weighted average of all the points."
+    },
+    {
+      "id": "s14-c5",
+      "kind": "concept",
+      "front": "What does the stiffness $\\beta$ do in soft K-means?",
+      "back": "Large $\\beta$: responsibilities near 0 or 1, as in hard K-means. Small $\\beta$: points are shared almost equally and the means drift towards the overall average. $\\beta = 1/\\sigma^2$ for clusters of width $\\sigma$."
+    },
+    {
+      "id": "s14-c6",
+      "kind": "concept",
+      "front": "Why is a responsibility a posterior probability?",
+      "back": "In a mixture of Gaussians, $r_k(x) = P(k \\mid x) \\propto \\pi_k\\, P(x \\mid k)$: prior weight × Gaussian likelihood, normalised. Equal weights and widths give soft K-means with $\\beta = 1/\\sigma^2$."
+    },
+    {
+      "id": "s14-c7",
+      "kind": "concept",
+      "front": "How does maximum likelihood for a mixture of Gaussians fail?",
+      "back": "A component can sit on one data point and shrink its width to 0: the likelihood goes to infinity and the model is useless. A prior against tiny widths prevents it."
+    },
+    {
+      "id": "s14-c8",
+      "kind": "concept",
+      "front": "Why can't the fit alone choose the number of clusters $K$?",
+      "back": "The best achievable fit always improves as $K$ grows ($J = 0$ when $K = N$). Compare values of $K$ by the evidence, which includes an Occam penalty (session 10)."
+    },
+    {
+      "id": "s14-c9",
+      "kind": "exercise",
+      "exercise": "kmeans-update"
+    },
+    {
+      "id": "s14-c10",
+      "kind": "exercise",
+      "exercise": "soft-responsibility"
+    }
+  ]
+}

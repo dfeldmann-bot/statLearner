@@ -49,7 +49,7 @@ The Claude provider streams responses (long sessions would otherwise hit HTTP ti
 
 ## Writing a new session
 
-1. **Write a brief.** Copy `authoring/briefs/s14-clustering.json` (the next chapter of the book; more planned sessions are listed in [BOOK.md](BOOK.md)). List objectives, key ideas, misconceptions and the book sections, **in your own words**.
+1. **Write a brief.** Copy `authoring/briefs/s14-clustering.json` (the brief behind session 14, which is now part of the course; the planned sessions are listed in [BOOK.md](BOOK.md)). The commands below use it as the example; for a new session, use your own brief and session number. List objectives, key ideas, misconceptions and the book sections, **in your own words**.
 2. **Run the pipeline:**
    ```bash
    npm run author -- run authoring/briefs/s14-clustering.json

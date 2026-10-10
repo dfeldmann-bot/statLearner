@@ -11,7 +11,7 @@ Two companions:
 
 ```bash
 npm run serve          # http://localhost:8080 - no install needed (Node.js 20+)
-npm test               # 92 JavaScript tests
+npm test               # 98 JavaScript tests
 npm run validate       # check all course content against the schema
 npm run fetch-book     # optional: personal offline copy of the book (git-ignored)
 ```
@@ -37,6 +37,7 @@ Open the app, pick a daily goal and a reminder time, and start. The **Book** tab
 | 11 | Maximum likelihood, error bars and the Gaussian | ch. 22, 24, 27 | 11 |
 | 12 | Monte Carlo methods | ch. 29 | 12, 13 |
 | 13 | Bayesian inference vs sampling theory | ch. 36, 37 | - |
+| 14 | Clustering as inference: K-means and soft K-means | ch. 20, 22 | 11 |
 
 Each part starts unlocked: learners who know the basics can begin with Part B. Details, the book's copyright terms and the full lecture list are in [docs/BOOK.md](docs/BOOK.md).
 
@@ -45,7 +46,7 @@ Every session follows the same research-based rhythm (details in [docs/LEARNING-
 1. **Recall warm-up** from earlier sessions (spaced retrieval, interleaving).
 2. **Predict first:** a question before the explanation (pretesting effect).
 3. **Short explanations alternating with active steps:** checks, simulations ("predict, then observe"), self-explanation prompts.
-4. **Worked examples revealed step by step,** then **faded practice:** study a full solution, finish a half-solved one, then solve alone. 46 generators create fresh numbers, so practice never runs out.
+4. **Worked examples revealed step by step,** then **faded practice:** study a full solution, finish a half-solved one, then solve alone. 49 generators create fresh numbers, so practice never runs out.
 5. **Mastery quiz** (80% unlocks the next session), new numbers on every retake.
 6. **Flashcards** for concepts and equations join a review deck scheduled by **FSRS-6**, a modern memory model, just before you would forget them.
 
