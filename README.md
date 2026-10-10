@@ -18,6 +18,26 @@ npm run fetch-book     # optional: personal offline copy of the book (git-ignore
 
 Open the app, pick a daily goal and a reminder time, and start. The **Book** tab links the book, MacKay's 16 recorded lectures, and a map from sessions to chapters.
 
+## Use on Android (Brave)
+
+Open **https://dfeldmann-bot.github.io/statLearner/** in a regular Brave tab.
+In Brave's menu (⋮), choose **Add to Home screen** (or **Install app**, depending
+on the browser version) and confirm. The course also works directly in the browser.
+
+Visit **Settings → Use on your phone** and wait for **Course ready offline**
+before going offline. Lessons, exercises, exams and flashcards work offline;
+external book and video links require an internet connection.
+
+Progress stays in this browser on this device. Avoid private tabs or clearing
+the site's data; use **Settings → Export progress** for backups and transfer.
+For reliable scheduled reminders, use the calendar reminder in Settings.
+Android can pause browser timers when the app is in the background.
+
+Updates download while online and take effect after closing all statLearner
+tabs and its home-screen window, then reopening. Developers: bump `VERSION`
+in `app/sw.js` whenever an app file changes, so the next installation caches
+the full release. GitHub Pages publishes `app/` on pushes to `main`.
+
 ## The course
 
 | # | Session | Book (ITILA) | MacKay lecture |
