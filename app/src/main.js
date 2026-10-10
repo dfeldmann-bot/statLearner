@@ -867,6 +867,16 @@ function viewBook() {
 // ----- settings -----
 function viewSettings() {
   const st = app.state.settings;
+  const offline = h("p", { id: "offline-status", class: "muted small", role: "status" }, "Preparing offline access. Keep the app open with an internet connection for the first visit.");
+  if (app.offlineError) {
+    offline.textContent = "Offline setup failed. Check your connection and reload to try again.";
+  } else if ("serviceWorker" in navigator && window.isSecureContext) {
+    navigator.serviceWorker.ready.then(() => {
+      offline.textContent = "Course ready offline. Lessons, practice, exams and flashcards are saved on this device. External books and videos still need an internet connection.";
+    });
+  } else {
+    offline.textContent = "Offline access is unavailable here. Open the HTTPS site in a regular browser tab.";
+  }
   const set = (k, v) => {
     st[k] = v;
     persist();
@@ -896,9 +906,17 @@ function viewSettings() {
     h(
       "section",
       { class: "card" },
+      h("h2", {}, "Use on your phone"),
+      h("p", {}, "In Brave on Android, open the browser menu (⋮) and choose Add to Home screen or Install app, then follow the confirmation. You can also keep learning in this browser."),
+      offline,
+      h("p", { class: "muted small" }, "Updates download when you are online. Close all statLearner tabs and its home-screen window, then reopen to use a downloaded update."),
+    ),
+    h(
+      "section",
+      { class: "card" },
       h("h2", {}, "Habit & reminders"),
       h("div", { class: "form-grid" }, h("label", {}, "Daily XP goal", goal), h("label", {}, "Reminder time", time), h("label", {}, "Session length", minutes)),
-      h("p", { class: "muted small" }, "The calendar reminder works on every device your calendar syncs to, with no account or server. Browser notifications only fire while the app is open or installed."),
+      h("p", { class: "muted small" }, "Use a calendar reminder for reliable daily notifications. Browser reminders only run while the app is open, and Android may pause them in the background."),
       h(
         "div",
         { class: "actions" },
@@ -930,7 +948,7 @@ function viewSettings() {
       "section",
       { class: "card" },
       h("h2", {}, "Your data"),
-      h("p", { class: "muted small" }, "Progress lives only in this browser. Export it to back up or move to another device."),
+      h("p", { class: "muted small" }, "Progress lives only in this browser. Use a regular tab, not a private tab, and keep this site's data when closing Brave. Export progress to back up or move to another device or browser."),
       h(
         "div",
         { class: "actions" },
@@ -990,7 +1008,11 @@ async function boot() {
   route();
   checkReminder();
   setInterval(checkReminder, 5 * 60_000);
-  if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("sw.js").catch(() => {});
+  if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("sw.js").catch(() => {
+    app.offlineError = true;
+    const status = document.getElementById("offline-status");
+    if (status) status.textContent = "Offline setup failed. Check your connection and reload to try again.";
+  });
 }
 
 boot();
