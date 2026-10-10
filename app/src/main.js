@@ -2,6 +2,7 @@
 
 import { h, md, mdInline, toast, download } from "./dom.js";
 import { questionView } from "./question.js";
+import { calculatorPanel } from "./calculator.js";
 import { createScheduler, formatInterval, GRADE } from "./fsrs.js";
 import { awardXp, checkBadges, levelProgress, localDay, BADGES, XP } from "./game.js";
 import { cardsOf, introduceCards, buildQueue, dueCards, mastery, forecast } from "./srs.js";
@@ -538,7 +539,8 @@ function viewExam(id) {
     h("div", { class: "lesson-tools" }, h("a", { class: "btn small", href: `#/s/${id}` }, "← Back to the lesson"), h("button", { class: "btn small", type: "button", onclick: restart }, "↺ Start a new exam")),
   );
   const stage = h("section", { class: "card" });
-  root.append(bar, head, stage);
+  const calculator = h("details", { class: "card" }, h("summary", {}, "🧮 Exam calculator"), calculatorPanel());
+  root.append(bar, head, stage, calculator);
 
   const show = () => {
     const i = exam.answers.length;
