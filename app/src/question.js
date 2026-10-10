@@ -5,10 +5,11 @@
 //   "independent" - learner solves alone (hint available)
 
 import { h, md, mdInline } from "./dom.js";
-import { checkQuestion } from "./check.js";
+import { checkQuestion, shuffleChoice } from "./check.js";
 import { fmt } from "./exercises.js";
 
 export function questionView(q, { onDone, mode = "independent", label = "", continueLabel = "Continue" } = {}) {
+  q = shuffleChoice(q);
   const root = h("div", { class: `question ${mode}` });
   if (label) root.append(h("div", { class: "q-label" }, label));
   root.append(md(q.prompt, "prose q-prompt"));

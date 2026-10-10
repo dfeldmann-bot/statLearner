@@ -206,3 +206,22 @@ test("K-means never raises J; soft K-means never lowers the mixture likelihood",
     }
   }
 });
+
+test("shuffleChoice keeps the answer key and feedback attached to their options", async () => {
+  const { shuffleChoice } = await import("../app/src/check.js");
+  const { makeRng } = await import("../app/src/rng.js");
+  const q = { id: "x", type: "choice", prompt: "p", options: ["right", "b", "c", "d"], answer: 0, feedback: ["fr", "fb", "fc", "fd"], explain: "e" };
+  const rng = makeRng(3);
+  const firstPositions = new Set();
+  for (let i = 0; i < 50; i++) {
+    const s = shuffleChoice(q, () => rng.next());
+    assert.equal(s.options[s.answer], "right");
+    s.options.forEach((o, k) => assert.equal(s.feedback[k], `f${o === "right" ? "r" : o}`));
+    assert.deepEqual([...s.options].sort(), [...q.options].sort());
+    firstPositions.add(s.answer);
+  }
+  assert.ok(firstPositions.size >= 3, "the correct option moves around");
+  assert.equal(q.answer, 0, "input untouched");
+  const numeric = { type: "numeric", answer: 2 };
+  assert.equal(shuffleChoice(numeric), numeric);
+});

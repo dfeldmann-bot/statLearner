@@ -17,7 +17,7 @@ statLearner teaches statistics and inference in short daily sessions, following 
 | Authoring pipeline | Claude drafts, ChatGPT reviews, Claude revises, both cross-check answer keys; manual copy-paste mode | `authoring/`, [AUTHORING.md](AUTHORING.md) |
 | StatBot phase 0 | BM25 retrieval, cited extractive answers, refusals, eval set (98% hit@3 on 44 questions) | `statbot/`, [STATBOT-PLAN.md](STATBOT-PLAN.md) |
 | Research basis | 13 learning-science methods mapped to features | [LEARNING-DESIGN.md](LEARNING-DESIGN.md) |
-| Tests | 98 JavaScript tests, 7 Python tests, browser walk-through of all 14 sessions | `tests/`, `statbot/tests/` |
+| Tests | 99 JavaScript tests, 7 Python tests, browser walk-through of all 14 sessions | `tests/`, `statbot/tests/` |
 
 ## Architecture
 

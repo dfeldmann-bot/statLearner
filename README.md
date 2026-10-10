@@ -11,7 +11,7 @@ Two companions:
 
 ```bash
 npm run serve          # http://localhost:8080 - no install needed (Node.js 20+)
-npm test               # 98 JavaScript tests
+npm test               # 99 JavaScript tests
 npm run validate       # check all course content against the schema
 npm run fetch-book     # optional: personal offline copy of the book (git-ignored)
 ```
@@ -81,8 +81,12 @@ tools/               serve.mjs, validate-content.mjs
 ```bash
 npm install
 export ANTHROPIC_API_KEY=... OPENAI_API_KEY=...
-npm run author -- run authoring/briefs/s14-clustering.json
-npm run author -- promote authoring/out/s14/session.json
+# have ChatGPT review a Claude-written session and blind-check its answer keys
+npm run author -- review app/content/sessions/s14-clustering.json --brief authoring/briefs/s14-clustering.json
+npm run author -- crosscheck app/content/sessions/s14-clustering.json
+# write a new session from your own brief
+npm run author -- run authoring/briefs/<your-brief>.json
+npm run author -- promote authoring/out/<id>/session.json
 ```
 
 No API keys? Add `--drafter manual --reviewer manual --solvers manual`: the CLI writes each prompt to a file for you to paste into claude.ai or chatgpt.com. See [docs/AUTHORING.md](docs/AUTHORING.md).

@@ -59,10 +59,10 @@ The Claude provider streams responses (long sessions would otherwise hit HTTP ti
 4. **Implement proposed generators.** If the drafter needed a practice type that does not exist yet (for example "one K-means update step"), it lists it under *Proposed exercise generators*. Add it to `app/src/exercises.js`; the tests will check it automatically.
 5. **Promote:**
    ```bash
-   npm run author -- promote authoring/out/s14/session.json
+   npm run author -- promote authoring/out/s14/session.json   # add --force to replace an existing session
    npm test && npm run serve      # check it in the app (Settings → unlock all)
    ```
-   `promote` validates the session, adds it to `course.json`, and updates the offline cache list in `app/sw.js`.
+   `promote` validates the session, adds it to `course.json`, and updates the offline cache list in `app/sw.js`. It refuses to overwrite a session that already exists unless you pass `--force`.
 
 ### Other commands
 
