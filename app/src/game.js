@@ -28,7 +28,7 @@ export const TITLES = [
 
 export const BADGES = [
   { id: "first-steps", icon: "👣", name: "First steps", desc: "Complete your first session.", test: (g) => g.counters.sessionsDone >= 1 },
-  { id: "perfect", icon: "🎯", name: "Bullseye", desc: "Score 100% on a mastery quiz.", test: (g) => g.counters.perfectQuizzes >= 1 },
+  { id: "perfect", icon: "🎯", name: "Bullseye", desc: "Score 100% on a session exam.", test: (g) => g.counters.perfectQuizzes >= 1 },
   { id: "streak-7", icon: "🔥", name: "One-week streak", desc: "Practise 7 days in a row.", test: (g) => g.streak.best >= 7 },
   { id: "streak-30", icon: "🌋", name: "Habit formed", desc: "Practise 30 days in a row.", test: (g) => g.streak.best >= 30 },
   { id: "reviews-100", icon: "🧠", name: "Memory builder", desc: "Do 100 flashcard reviews.", test: (g) => g.counters.reviews >= 100 },
@@ -36,7 +36,7 @@ export const BADGES = [
   { id: "solver-50", icon: "🧮", name: "Problem solver", desc: "Solve 50 exercises correctly.", test: (g) => g.counters.correct >= 50 },
   { id: "interleaver", icon: "🔀", name: "Interleaver", desc: "Solve 20 problems in mixed practice.", test: (g) => g.counters.mixedSolved >= 20 },
   { id: "mastery", icon: "⭐", name: "Long-term memory", desc: "Reach 80% mastery in one session's cards.", test: (g, ctx) => (ctx.masteredSessions ?? 0) >= 1 },
-  { id: "graduate", icon: "🎓", name: "Graduate", desc: "Pass every mastery quiz.", test: (g, ctx) => ctx.totalSessions > 0 && g.counters.quizzesPassed >= ctx.totalSessions },
+  { id: "graduate", icon: "🎓", name: "Graduate", desc: "Pass every session exam.", test: (g, ctx) => ctx.totalSessions > 0 && g.counters.quizzesPassed >= ctx.totalSessions },
   { id: "comeback", icon: "🌱", name: "Comeback", desc: "Return after a break of 3+ days.", test: (g) => g.counters.comebacks >= 1 },
 ];
 

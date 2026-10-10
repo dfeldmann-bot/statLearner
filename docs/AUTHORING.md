@@ -60,7 +60,7 @@ The Claude provider streams responses (long sessions would otherwise hit HTTP ti
 5. **Promote:**
    ```bash
    npm run author -- promote authoring/out/s14/session.json
-   npm test && npm run serve      # check it in the app (Settings → unlock all)
+   npm test && npm run serve      # check it in the app
    ```
    `promote` validates the session, adds it to `course.json`, and updates the offline cache list in `app/sw.js`.
 
