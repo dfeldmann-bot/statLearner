@@ -23,14 +23,36 @@ const casella = {
   s14: ["§4.4: Mixture distributions (background)", 163, 189],
 };
 
+// Section anchors follow the bookdown source at github.com/StatsWithR/book.
+const statsWithR = {
+  s02: [["the-basics-of-bayesian-statistics.html#bayes-rule", "§1.1: Bayes' rule and diagnostic testing"]],
+  s05: [["bayesian-inference.html#credible-intervals", "§2.3.2: Credible intervals, the Bayesian counterpart"]],
+  s06: [["losses-and-decision-making.html#minimizing-expected-loss-for-hypothesis-testing", "§3.4: Minimizing expected loss for hypothesis testing"],
+    ["hypothesis-testing-with-normal-populations.html#sec:known-var", "§5.1: Bayes factors for testing a normal mean"]],
+  s07: [["introduction-to-bayesian-regression.html#sec:simple-linear", "§6.1: Bayesian simple linear regression"]],
+  s09: [["the-basics-of-bayesian-statistics.html#inference-for-a-proportion", "§1.2: Inference for a proportion"],
+    ["bayesian-inference.html#inference-on-a-binomial-proportion", "§2.2.1: The beta-binomial conjugate family"]],
+  s10: [["losses-and-decision-making.html#sec:bayes-factors", "§3.5: Posterior probabilities of hypotheses and Bayes factors"],
+    ["bayesian-model-choice.html#sec:BIC", "§7.1: Bayesian information criterion"]],
+  s11: [["bayesian-inference.html#sec:normal-normal", "§2.2.3: The normal-normal conjugate family"],
+    ["inference-and-decision-making-with-multiple-parameters.html#sec:normal-gamma", "§4.1: The normal-gamma conjugate family"]],
+  s12: [["inference-and-decision-making-with-multiple-parameters.html#sec:NG-MC", "§4.2: Monte Carlo inference"],
+    ["inference-and-decision-making-with-multiple-parameters.html#sec:NG-MCMC", "§4.6: Markov chain Monte Carlo"]],
+  s13: [["the-basics-of-bayesian-statistics.html#frequentist-vs.-bayesian-inference", "§1.3: Frequentist vs. Bayesian inference"],
+    ["losses-and-decision-making.html", "Ch. 3: Losses and decision making"]],
+};
+
 let personalPdfUrl;
 
-export function deepDiveView(session) {
-  const section = h("section", { class: "deep-dive" }, h("h3", {}, "Deep dive"));
+export function deepDiveView(session, { heading = true } = {}) {
+  const section = h("section", { class: "deep-dive" }, heading ? h("h3", {}, "Deep dive") : null);
   const link = (href, label) => h("a", { href, target: "_blank", rel: "noopener noreferrer" }, label);
   if (session.companionRef) section.append(h("p", {}, link("https://www.openintro.org/book/os/", session.companionRef)));
   const chapter = mackay[session.id];
   if (chapter) section.append(h("p", {}, link(`https://www.inference.org.uk/itprnn/book.pdf#page=${chapter[1]}`, `MacKay · chapter ${chapter[0]} (PDF page ${chapter[1]})`), h("br"), h("small", { class: "muted" }, session.bookRef)));
+  const sections = statsWithR[session.id];
+  if (sections) section.append(h("p", {}, h("strong", {}, "Clyde et al. · An Introduction to Bayesian Thinking"),
+    ...sections.flatMap(([path, label]) => [h("br"), link(`https://statswithr.github.io/book/${path}`, label)])));
   const reference = casella[session.id];
   if (reference) {
     const [title, printedPage, pdfPage] = reference;
