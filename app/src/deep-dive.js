@@ -44,8 +44,8 @@ const statsWithR = {
 
 let personalPdfUrl;
 
-export function deepDiveView(session) {
-  const section = h("section", { class: "deep-dive" }, h("h3", {}, "Deep dive"));
+export function deepDiveView(session, { heading = true } = {}) {
+  const section = h("section", { class: "deep-dive" }, heading ? h("h3", {}, "Deep dive") : null);
   const link = (href, label) => h("a", { href, target: "_blank", rel: "noopener noreferrer" }, label);
   if (session.companionRef) section.append(h("p", {}, link("https://www.openintro.org/book/os/", session.companionRef)));
   const chapter = mackay[session.id];

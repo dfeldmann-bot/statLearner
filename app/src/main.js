@@ -4,6 +4,7 @@ import { h, md, mdInline, toast, download } from "./dom.js";
 import { questionView } from "./question.js";
 import { calculatorPanel } from "./calculator.js";
 import { showLessonReview } from "./lesson-review.js";
+import { deepDiveView } from "./deep-dive.js";
 import { createScheduler, formatInterval, GRADE } from "./fsrs.js";
 import { awardXp, checkBadges, levelProgress, localDay, BADGES, XP } from "./game.js";
 import { cardsOf, introduceCards, buildQueue, dueCards, mastery, forecast } from "./srs.js";
@@ -249,6 +250,7 @@ function viewSession(id) {
         h("button", { class: "btn small", type: "button", onclick: () => begin(0, { scroll: true }) }, "↺ Start over"),
         h("a", { class: "btn small", href: `#/exam/${id}` }, p.exam ? "📝 Resume the exam" : "📝 Go to the exam"),
       ),
+      h("details", { class: "deep-dive-panel" }, h("summary", {}, "📚 Deep dive: further reading"), deepDiveView(s, { heading: false })),
     ),
   );
   const flow = h("div", { class: "stack" });
@@ -343,7 +345,19 @@ function recapView(blocks) {
   return h("details", { class: "card recap" }, h("summary", {}, `Recap of steps 1-${blocks.length}`), body);
 }
 
-function renderStep(step, next, session) {
+// Skip leaves no XP. Steps call `next` at most once, so a control left over
+// after a skip cannot advance the lesson a second time.
+function skipButton(onSkip) {
+  return h("button", { type: "button", class: "btn", onclick: (e) => (e.target.closest(".actions").remove(), onSkip()) }, "Skip");
+}
+
+function renderStep(step, advance, session) {
+  let advanced = false;
+  const next = () => {
+    if (advanced) return;
+    advanced = true;
+    advance();
+  };
   const wrap = h("section", { class: "card step" });
   if (step.kind === "recall") {
     wrap.append(
@@ -376,7 +390,7 @@ function renderStep(step, next, session) {
     return wrap;
   }
   const b = step.block;
-  const cont = (label = "Continue") => h("div", { class: "actions" }, h("button", { class: "btn primary", onclick: (e) => (e.target.closest(".actions").remove(), next()) }, label));
+  const cont = (label = "Continue", skip = false) => h("div", { class: "actions" }, h("button", { class: "btn primary", onclick: (e) => (e.target.closest(".actions").remove(), next()) }, label), skip ? skipButton(next) : null);
   switch (b.type) {
     case "text":
       wrap.append(md(b.md), cont());
@@ -391,7 +405,7 @@ function renderStep(step, next, session) {
       wrap.append(h("h3", {}, `🧪 ${sim.title}`));
       if (b.md) wrap.append(md(b.md));
       const host = h("div", { class: "sim-host" });
-      wrap.append(host, cont("I made my prediction and checked it"));
+      wrap.append(host, cont("I made my prediction and checked it", true));
       requestAnimationFrame(() => sim.mount(host, app.rng));
       break;
     }
@@ -410,7 +424,7 @@ function renderStep(step, next, session) {
         if (b.reflect) wrap.append(reflectBox(b.reflect.prompt, b.reflect.answer, next));
         else btnRow.append(h("button", { class: "btn primary", onclick: () => (btnRow.remove(), next()) }, "Continue"));
       };
-      btnRow.append(h("button", { class: "btn", onclick: reveal }, "Next step ▸"));
+      btnRow.append(h("button", { class: "btn", onclick: reveal }, "Next step ▸"), skipButton(next));
       wrap.append(btnRow);
       reveal();
       break;
@@ -457,6 +471,7 @@ function reflectBox(prompt, answer, next) {
       },
       "Compare with model answer",
     ),
+    skipButton(next),
   );
   box.append(ta, actions);
   return box;
@@ -471,8 +486,15 @@ function practiceSet(block, next) {
   const holder = h("div");
   box.append(holder);
   let k = 0;
+  const skipRest = h("div", { class: "actions" }, h("button", { type: "button", class: "btn small", onclick: () => {
+    k = modes.length;
+    holder.replaceChildren(h("p", { class: "muted small" }, "Practice skipped."));
+    skipRest.remove();
+    next();
+  } }, "Skip this practice set"));
+  box.append(skipRest);
   const one = () => {
-    if (k >= modes.length) return next();
+    if (k >= modes.length) return (skipRest.remove(), next());
     const mode = modes[k];
     const label = `${k + 1} / ${modes.length} · ${{ worked: "study the example", partial: "finish the solution", independent: "your turn" }[mode]}`;
     k++;
