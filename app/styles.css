@@ -298,6 +298,14 @@ details.solution summary { cursor: pointer; font-weight: 600; }
   .mastery-row { grid-template-columns: 1fr 70px 36px; }
   .progress-line { top: 88px; }
 }
+.lesson-review { width: min(760px, calc(100% - 24px)); max-height: 85dvh; padding: 0 18px 18px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); color: var(--text); overflow-y: auto; }
+.lesson-review::backdrop { background: rgb(0 0 0 / 55%); }
+.lesson-review-header { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px 0; background: var(--surface); border-bottom: 1px solid var(--border); }
+.lesson-review-header h2 { flex: 1 1 240px; margin: 0; }
+.lesson-review-header .btn { min-height: 44px; }
+.lesson-review-reading { overflow-wrap: anywhere; }
+.deep-dive { border-bottom: 1px solid var(--border); margin-bottom: 20px; padding-bottom: 12px; overflow-wrap: anywhere; }
+
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }

@@ -2,7 +2,7 @@
 // Keep a complete release together. A new worker waits until existing app tabs
 // close before activating. Bump VERSION whenever any app file changes.
 const CACHE_PREFIX = `statlearner:${self.registration.scope}:`;
-const VERSION = `${CACHE_PREFIX}v7`;
+const VERSION = `${CACHE_PREFIX}v9`;
 const PRECACHE = [
   "./",
   "index.html",
@@ -37,6 +37,8 @@ const PRECACHE = [
   "src/fsrs.js",
   "src/game.js",
   "src/main.js",
+  "src/lesson-review.js",
+  "src/deep-dive.js",
   "src/markdown.js",
   "src/question.js",
   "src/reminders.js",
