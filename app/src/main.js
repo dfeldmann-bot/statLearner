@@ -3,6 +3,7 @@
 import { h, md, mdInline, toast, download } from "./dom.js";
 import { questionView } from "./question.js";
 import { calculatorPanel } from "./calculator.js";
+import { showLessonReview } from "./lesson-review.js";
 import { createScheduler, formatInterval, GRADE } from "./fsrs.js";
 import { awardXp, checkBadges, levelProgress, localDay, BADGES, XP } from "./game.js";
 import { cardsOf, introduceCards, buildQueue, dueCards, mastery, forecast } from "./srs.js";
@@ -295,7 +296,7 @@ function viewSession(id) {
       if (i >= steps.length) return flow.append(completion(s));
       const step = steps[i++];
       if (step.kind === "block") jump.value = String(step.index);
-      const node = renderStep(step, advance);
+      const node = renderStep(step, advance, s);
       flow.append(node);
       if (i > 1 || scroll) node.scrollIntoView({ behavior: "smooth", block: "start" });
     };
@@ -342,12 +343,13 @@ function recapView(blocks) {
   return h("details", { class: "card recap" }, h("summary", {}, `Recap of steps 1-${blocks.length}`), body);
 }
 
-function renderStep(step, next) {
+function renderStep(step, next, session) {
   const wrap = h("section", { class: "card step" });
   if (step.kind === "recall") {
     wrap.append(
       questionView(generate(step.exercise, app.rng), {
         label: `🔁 Quick recall from "${step.from}"`,
+        onReview: () => showLessonReview(app.byId[EXERCISES[step.exercise].session]),
         onDone: (r) => {
           if (r.ok) award(r.hinted ? XP.correct / 2 : XP.correct);
           if (r.ok) app.state.game.counters.correct++;
@@ -361,6 +363,7 @@ function renderStep(step, next) {
     wrap.append(
       questionView(step.question, {
         label: "🤔 Predict first: a wrong guess is fine",
+        onReview: () => showLessonReview(session),
         continueLabel: "Start the lesson",
         onDone: () => {
           award(XP.warmup);
@@ -417,6 +420,7 @@ function renderStep(step, next) {
       wrap.append(
         questionView(b.question, {
           label: "✅ Check your understanding",
+          onReview: () => showLessonReview(session),
           onDone: (r) => {
             if (r.ok) {
               app.state.game.counters.correct++;
@@ -474,6 +478,7 @@ function practiceSet(block, next) {
         mode,
         label,
         continueLabel: k < modes.length ? "Next problem" : "Continue",
+        onReview: () => showLessonReview(app.byId[ex.session]),
         onDone: (r) => {
           if (!r.worked && r.ok) {
             app.state.game.counters.correct++;
@@ -549,6 +554,7 @@ function viewExam(id) {
     stage.replaceChildren(
       questionView(exam.questions[i], {
         label: `Question ${i + 1} of ${n}`,
+        onReview: () => showLessonReview(s),
         hints: false,
         shuffle: false, // buildExam shuffled the options; answers are saved as indexes into that order
         continueLabel: i + 1 < n ? "Next question" : "See result",
@@ -595,6 +601,7 @@ function viewExam(id) {
         "li",
         { class: ok ? "ok" : "bad" },
         md(q.prompt, "prose review-prompt"),
+        !ok ? h("button", { type: "button", class: "btn small", onclick: () => showLessonReview(s) }, "Review learning session") : null,
         h("div", { class: "small" }, ok ? "✓ " : "✗ Your answer: ", ok ? null : mdInline(q.options[exam.answers[k]] ?? "-"), ok ? mdInline(q.options[q.answer]) : [" · correct: ", mdInline(q.options[q.answer])]),
       );
     });
@@ -671,6 +678,7 @@ function viewReview() {
         tag,
         questionView(q, {
           continueLabel: "Rate it",
+          onReview: () => showLessonReview(session),
           onDone: (r) => {
             if (!r.ok) return grade(card, GRADE.AGAIN);
             app.state.game.counters.correct++;
@@ -685,7 +693,7 @@ function viewReview() {
     const hintText = h("p", { class: "muted small" }, "Recall the answer in your head (or say it aloud) before revealing.");
     stage.replaceChildren(tag, front, hintText, h("div", { class: "actions" }, reveal));
     const showBack = () => {
-      stage.replaceChildren(tag, front, h("hr"), md(card.back, "prose card-back"), h("p", { class: "muted small" }, "Be honest: Again costs nothing and schedules the card sooner."), gradeButtons(card));
+      stage.replaceChildren(tag, front, h("hr"), md(card.back, "prose card-back"), h("button", { type: "button", class: "btn", onclick: () => showLessonReview(session) }, "Review learning session"), h("p", { class: "muted small" }, "Be honest: Again costs nothing and schedules the card sooner."), gradeButtons(card));
     };
     reveal.focus({ preventScroll: true });
   };
@@ -730,6 +738,7 @@ function viewPractice() {
     stage.replaceChildren(
       questionView(generate(id, app.rng), {
         label: `${EXERCISES[id].title} · from "${app.byId[EXERCISES[id].session].title}"`,
+        onReview: () => showLessonReview(app.byId[EXERCISES[id].session]),
         continueLabel: "Next problem",
         onDone: (r) => {
           tried++;
