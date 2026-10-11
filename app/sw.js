@@ -2,7 +2,7 @@
 // Keep a complete release together. A new worker waits until existing app tabs
 // close before activating. Bump VERSION whenever any app file changes.
 const CACHE_PREFIX = `statlearner:${self.registration.scope}:`;
-const VERSION = `${CACHE_PREFIX}v12`;
+const VERSION = `${CACHE_PREFIX}v13`;
 const PRECACHE = [
   "./",
   "index.html",
@@ -50,6 +50,7 @@ const PRECACHE = [
   "src/srs.js",
   "src/stats.js",
   "src/store.js",
+  "src/users.js",
   "vendor/katex/fonts/KaTeX_AMS-Regular.woff2",
   "vendor/katex/fonts/KaTeX_Caligraphic-Bold.woff2",
   "vendor/katex/fonts/KaTeX_Caligraphic-Regular.woff2",

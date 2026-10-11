@@ -12,7 +12,8 @@ import { generate, EXERCISES } from "./exercises.js";
 import { SIMS } from "./sims.js";
 import { makeRng } from "./rng.js";
 import { buildExam, scoreExam } from "./exam.js";
-import { load, save, exportJson, importJson, reset } from "./store.js";
+import { load, save, exportJson, importJson, reset, useUser } from "./store.js";
+import { MAX_USERS, canRegister, currentUser, login, logout, register, userCount } from "./users.js";
 import { buildDailyReminderIcs, shouldNotify, requestNotificationPermission, notify } from "./reminders.js";
 
 const app = { course: null, sessions: [], byId: {}, state: null, rng: makeRng(Date.now()) };
@@ -81,6 +82,10 @@ function checkAllBadges() {
 
 // ---------- header ----------
 function renderHeader() {
+  if (!app.user) {
+    document.getElementById("header").replaceChildren(h("span", { class: "brand" }, h("img", { src: "icon.svg", alt: "", width: 28, height: 28 }), h("span", {}, "statLearner")));
+    return;
+  }
   const g = app.state.game;
   const lp = levelProgress(g.xp);
   const today = g.xpByDay[localDay()] ?? 0;
@@ -104,6 +109,7 @@ function renderHeader() {
       h("span", { class: "chip", title: `${lp.into} / ${lp.needed} XP to level ${lp.level + 1}` }, `Lv ${lp.level}`, h("span", { class: "mini-bar" }, h("span", { style: `width:${Math.round(lp.fraction * 100)}%` }))),
       h("span", { class: "chip", title: `Streak; best ${g.streak.best} days${g.streak.freezes ? `; ${g.streak.freezes} freeze(s)` : ""}` }, `🔥 ${g.streak.lastDay === localDay() || g.streak.lastDay === localDay(Date.now() - 864e5) ? g.streak.current : 0}`),
       h("span", { class: "chip", title: "Today's XP / daily goal" }, `🎯 ${Math.min(today, goal)}/${goal}`),
+      h("button", { class: "chip", title: "Log out", onclick: signOut }, `👤 ${app.user} · Log out`),
     ),
   );
 }
@@ -1018,8 +1024,66 @@ function viewSettings() {
   );
 }
 
+// ---------- accounts ----------
+function startAs(name, opts) {
+  app.user = name;
+  useUser(name, opts);
+  app.state = load();
+  route();
+}
+
+function signOut() {
+  logout();
+  app.user = null;
+  location.hash = "#/";
+  route();
+}
+
+function viewLogin() {
+  const name = h("input", { type: "text", autocomplete: "username", required: true, autocapitalize: "off" });
+  const password = h("input", { type: "password", autocomplete: "current-password", required: true });
+  const error = h("p", { class: "error small", role: "alert" });
+  const full = !canRegister();
+  const attempt = async (action) => {
+    error.textContent = "";
+    try {
+      if (action === "register") {
+        const { name: user, first } = await register(name.value, password.value);
+        startAs(user, { adoptLegacy: first });
+        toast(`Welcome, ${user}!`, "info", 2500);
+      } else startAs(await login(name.value, password.value));
+    } catch (e) {
+      error.textContent = e.message;
+    }
+  };
+  return h(
+    "section",
+    { class: "card login" },
+    h("h2", {}, "Log in"),
+    h(
+      "form",
+      { class: "form-grid", onsubmit: (e) => (e.preventDefault(), attempt("login")) },
+      h("label", {}, "User name", name),
+      h("label", {}, "Password", password),
+      h(
+        "div",
+        { class: "actions" },
+        h("button", { class: "btn primary", type: "submit" }, "Log in"),
+        h("button", { class: "btn", type: "button", disabled: full, onclick: () => attempt("register") }, "Register"),
+      ),
+    ),
+    error,
+    h("p", { class: "muted small" }, full ? `Registration is closed: this device has the maximum of ${MAX_USERS} users.` : `${userCount()} of ${MAX_USERS} users registered. Accounts and progress stay in this browser on this device.`),
+  );
+}
+
 // ---------- router ----------
 function route() {
+  if (!app.user) {
+    main().replaceChildren(viewLogin());
+    renderHeader();
+    return;
+  }
   const hash = location.hash || "#/";
   const [, view, arg] = hash.split("/");
   const views = { "": viewHome, s: () => viewSession(arg), exam: () => viewExam(arg), quiz: () => viewExam(arg), review: viewReview, practice: viewPractice, progress: viewProgress, book: viewBook, settings: viewSettings };
@@ -1030,6 +1094,7 @@ function route() {
 }
 
 function checkReminder() {
+  if (!app.user) return;
   const st = app.state;
   const now = new Date();
   if (!st.settings.notifications) return;
@@ -1041,6 +1106,8 @@ function checkReminder() {
 }
 
 async function boot() {
+  app.user = currentUser();
+  if (app.user) useUser(app.user);
   app.state = load();
   try {
     await loadContent();

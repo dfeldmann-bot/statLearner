@@ -83,7 +83,8 @@ h3 { font-size: 1.05rem; }
 .nav a { flex: 0 0 auto; }
 .nav a { padding: 6px 10px; border-radius: 999px; color: var(--muted); text-decoration: none; font-weight: 600; font-size: 0.92rem; }
 .nav a.active, .nav a:hover { background: var(--accent-soft); color: var(--accent); }
-.chips { display: flex; gap: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+button.chip { font: inherit; font-size: 0.85rem; color: var(--text); cursor: pointer; }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
 .mini-bar { width: 40px; height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; display: inline-block; }
 .mini-bar span { display: block; height: 100%; background: var(--accent); }
@@ -115,12 +116,16 @@ h3 { font-size: 1.05rem; }
 .hero { display: flex; flex-direction: column; gap: 8px; background: linear-gradient(135deg, var(--accent-soft), var(--surface) 70%); }
 .hero h1 { margin-bottom: 0.1em; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.login { max-width: 420px; margin: 24px auto 0; width: 100%; }
+.login .form-grid { flex-direction: column; }
+.login .error { color: var(--danger); font-weight: 600; margin: 0; }
+.login .error:empty { display: none; }
 .welcome .how { padding-left: 1.2em; }
 .welcome .how li { margin: 0.35em 0; }
 .form-row, .form-grid { display: flex; flex-wrap: wrap; gap: 12px 20px; margin: 10px 0; }
 .form-grid label, .form-row label { display: flex; flex-direction: column; gap: 4px; font-weight: 600; font-size: 0.9rem; }
 .form-grid label.check { flex-direction: row; align-items: center; gap: 8px; }
-select, input[type="time"], input[type="text"], textarea {
+select, input[type="time"], input[type="text"], input[type="password"], textarea {
   font: inherit; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px;
 }
 textarea { width: 100%; resize: vertical; }

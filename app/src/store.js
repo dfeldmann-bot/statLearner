@@ -3,7 +3,25 @@
 
 import { newGame } from "./game.js";
 
-const KEY = "statlearner:v1";
+const LEGACY_KEY = "statlearner:v1"; // progress saved before user accounts existed
+let KEY = LEGACY_KEY;
+
+// Switch progress storage to one user. The first user registered on a device
+// inherits progress saved before accounts existed.
+export function useUser(name, { adoptLegacy = false } = {}) {
+  KEY = `${LEGACY_KEY}:user:${name.toLowerCase()}`;
+  memory = null;
+  if (!adoptLegacy) return;
+  try {
+    const legacy = localStorage.getItem(LEGACY_KEY);
+    if (legacy && !localStorage.getItem(KEY)) {
+      localStorage.setItem(KEY, legacy);
+      localStorage.removeItem(LEGACY_KEY);
+    }
+  } catch {
+    /* storage unavailable */
+  }
+}
 
 export function defaultState(now = new Date()) {
   return {

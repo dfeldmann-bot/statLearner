@@ -11,7 +11,7 @@ Two companions:
 
 ```bash
 npm run serve          # http://localhost:8080 - no install needed (Node.js 20+)
-npm test               # 110 JavaScript tests
+npm test               # JavaScript tests
 npm run validate       # check all course content against the schema
 npm run fetch-book     # optional: personal offline copy of the book (git-ignored)
 ```
@@ -27,6 +27,12 @@ on the browser version) and confirm. The course also works directly in the brows
 Visit **Settings → Use on your phone** and wait for **Course ready offline**
 before going offline. Lessons, exercises, exams and flashcards work offline;
 external book and video links require an internet connection.
+
+On first open, **Register** a user name and password, then **Log in**. Each user
+keeps separate progress. A device holds at most 10 users; after that, the
+Register button turns off. Accounts are local to the browser (there is no
+server), so they separate learners on a shared device but do not protect
+progress from someone with access to the device.
 
 Progress stays in this browser on this device. Avoid private tabs or clearing
 the site's data; use **Settings → Export progress** for backups and transfer.
