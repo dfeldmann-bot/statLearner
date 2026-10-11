@@ -1,4 +1,5 @@
 import { h, md, mdInline } from "./dom.js";
+import { deepDiveView } from "./deep-dive.js";
 
 // Reading only: opening a reference must never advance a lesson or award XP.
 export function showLessonReview(session) {
@@ -17,6 +18,7 @@ export function showLessonReview(session) {
       h("h2", { id: "lesson-review-title" }, session.title),
       h("button", { type: "button", class: "btn primary", autofocus: true, onclick: () => dialog.close() }, "Back to question")),
     h("p", { class: "muted small" }, "Review the explanations and worked examples. Your answer and place in the activity stay unchanged."),
+    deepDiveView(session),
     reading);
   const close = () => dialog.close();
   dialog.addEventListener("close", () => {

@@ -12,7 +12,7 @@ import { calculatorPanel } from "./calculator.js";
 // onAnswer fires as soon as the learner answers; onDone when they press Continue.
 // Choice options appear in a fresh random order unless `shuffle` is false (the
 // exam fixes its order when it is built, so a resumed exam looks the same).
-export function questionView(q, { onDone, onAnswer, onReview, mode = "independent", label = "", continueLabel = "Continue", hints = true, shuffle = true } = {}) {
+export function questionView(q, { onDone, onAnswer, onReview, onSkip, mode = "independent", label = "", continueLabel = "Continue", hints = true, shuffle = true } = {}) {
   if (shuffle) q = shuffleChoice(q);
   const root = h("div", { class: `question ${mode}` });
   if (label) root.append(h("div", { class: "q-label" }, label));
@@ -140,6 +140,11 @@ export function questionView(q, { onDone, onAnswer, onReview, mode = "independen
     actions.append(hb);
     root.append(hintBox);
   }
+  if (onSkip) actions.append(h("button", { type: "button", class: "btn", onclick: () => {
+    if (answered) return;
+    answered = true;
+    onSkip();
+  } }, "Skip"));
   root.append(actions, feedback);
   return root;
 }

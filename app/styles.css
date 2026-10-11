@@ -304,6 +304,7 @@ details.solution summary { cursor: pointer; font-weight: 600; }
 .lesson-review-header h2 { flex: 1 1 240px; margin: 0; }
 .lesson-review-header .btn { min-height: 44px; }
 .lesson-review-reading { overflow-wrap: anywhere; }
+.deep-dive { border-bottom: 1px solid var(--border); margin-bottom: 20px; padding-bottom: 12px; overflow-wrap: anywhere; }
 
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }

@@ -348,6 +348,7 @@ function renderStep(step, next, session) {
   if (step.kind === "recall") {
     wrap.append(
       questionView(generate(step.exercise, app.rng), {
+        onSkip: next,
         label: `🔁 Quick recall from "${step.from}"`,
         onReview: () => showLessonReview(app.byId[EXERCISES[step.exercise].session]),
         onDone: (r) => {
@@ -362,6 +363,7 @@ function renderStep(step, next, session) {
   if (step.kind === "warmup") {
     wrap.append(
       questionView(step.question, {
+        onSkip: next,
         label: "🤔 Predict first: a wrong guess is fine",
         onReview: () => showLessonReview(session),
         continueLabel: "Start the lesson",
@@ -419,6 +421,7 @@ function renderStep(step, next, session) {
     case "check":
       wrap.append(
         questionView(b.question, {
+          onSkip: next,
           label: "✅ Check your understanding",
           onReview: () => showLessonReview(session),
           onDone: (r) => {
@@ -477,6 +480,7 @@ function practiceSet(block, next) {
       questionView(generate(block.exercise, app.rng), {
         mode,
         label,
+        onSkip: one,
         continueLabel: k < modes.length ? "Next problem" : "Continue",
         onReview: () => showLessonReview(app.byId[ex.session]),
         onDone: (r) => {
@@ -539,7 +543,7 @@ function viewExam(id) {
     { class: "card" },
     h("div", { class: "eyebrow" }, `Session ${app.sessions.indexOf(s) + 1} · exam`),
     h("h1", {}, s.title),
-    h("p", { class: "muted" }, `${n} multiple-choice questions · pass mark ${Math.round(pass * 100)}% · no hints · new questions and numbers on every attempt`),
+    h("p", { class: "muted" }, `${n} multiple-choice questions · pass mark ${Math.round(pass * 100)}% · no hints · Skip moves a question to the end · new questions and numbers on every attempt`),
     resumed && exam.answers.length ? h("div", { class: "resume-note exam-note" }, `▶ Welcome back: you continue at question ${exam.answers.length + 1} of ${n}.`) : null,
     h("div", { class: "lesson-tools" }, h("a", { class: "btn small", href: `#/s/${id}` }, "← Back to the lesson"), h("button", { class: "btn small", type: "button", onclick: restart }, "↺ Start a new exam")),
   );
@@ -554,6 +558,11 @@ function viewExam(id) {
     stage.replaceChildren(
       questionView(exam.questions[i], {
         label: `Question ${i + 1} of ${n}`,
+        onSkip: i + 1 < n ? () => {
+          exam.questions.push(...exam.questions.splice(i, 1));
+          persist();
+          show();
+        } : undefined,
         onReview: () => showLessonReview(s),
         hints: false,
         shuffle: false, // buildExam shuffled the options; answers are saved as indexes into that order
@@ -678,6 +687,7 @@ function viewReview() {
         tag,
         questionView(q, {
           continueLabel: "Rate it",
+          onSkip: showNext,
           onReview: () => showLessonReview(session),
           onDone: (r) => {
             if (!r.ok) return grade(card, GRADE.AGAIN);
@@ -691,7 +701,7 @@ function viewReview() {
     const front = md(card.front, "prose card-front");
     const reveal = h("button", { class: "btn primary", onclick: () => showBack() }, "Show answer");
     const hintText = h("p", { class: "muted small" }, "Recall the answer in your head (or say it aloud) before revealing.");
-    stage.replaceChildren(tag, front, hintText, h("div", { class: "actions" }, reveal));
+    stage.replaceChildren(tag, front, hintText, h("div", { class: "actions" }, reveal, h("button", { type: "button", class: "btn", onclick: showNext }, "Skip")));
     const showBack = () => {
       stage.replaceChildren(tag, front, h("hr"), md(card.back, "prose card-back"), h("button", { type: "button", class: "btn", onclick: () => showLessonReview(session) }, "Review learning session"), h("p", { class: "muted small" }, "Be honest: Again costs nothing and schedules the card sooner."), gradeButtons(card));
     };
@@ -740,6 +750,7 @@ function viewPractice() {
         label: `${EXERCISES[id].title} · from "${app.byId[EXERCISES[id].session].title}"`,
         onReview: () => showLessonReview(app.byId[EXERCISES[id].session]),
         continueLabel: "Next problem",
+        onSkip: one,
         onDone: (r) => {
           tried++;
           if (r.ok) {
