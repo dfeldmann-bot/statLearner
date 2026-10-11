@@ -13,13 +13,13 @@ import { SIMS } from "./sims.js";
 import { makeRng } from "./rng.js";
 import { buildExam, scoreExam } from "./exam.js";
 import { load, save, exportJson, importJson, reset, useUser } from "./store.js";
-import { MAX_USERS, canRegister, currentUser, login, logout, register, userCount } from "./users.js";
+import { MAX_USERS, MIN_PASSWORD, canRegister, currentUser, login, logout, register, userCount } from "./users.js";
 import { buildDailyReminderIcs, shouldNotify, requestNotificationPermission, notify } from "./reminders.js";
 
 const app = { course: null, sessions: [], byId: {}, state: null, rng: makeRng(Date.now()) };
 const main = () => document.getElementById("main");
 const scheduler = () => createScheduler({ desiredRetention: app.state.settings.desiredRetention });
-const persist = () => save(app.state);
+const persist = () => app.user && save(app.state);
 
 // ---------- content ----------
 async function loadContent() {
@@ -1042,16 +1042,17 @@ function signOut() {
 function viewLogin() {
   const name = h("input", { type: "text", autocomplete: "username", required: true, autocapitalize: "off" });
   const password = h("input", { type: "password", autocomplete: "current-password", required: true });
+  const remember = h("input", { type: "checkbox" });
   const error = h("p", { class: "error small", role: "alert" });
   const full = !canRegister();
   const attempt = async (action) => {
     error.textContent = "";
     try {
       if (action === "register") {
-        const { name: user, first } = await register(name.value, password.value);
+        const { name: user, first } = await register(name.value, password.value, { remember: remember.checked });
         startAs(user, { adoptLegacy: first });
         toast(`Welcome, ${user}!`, "info", 2500);
-      } else startAs(await login(name.value, password.value));
+      } else startAs(await login(name.value, password.value, { remember: remember.checked }));
     } catch (e) {
       error.textContent = e.message;
     }
@@ -1065,6 +1066,7 @@ function viewLogin() {
       { class: "form-grid", onsubmit: (e) => (e.preventDefault(), attempt("login")) },
       h("label", {}, "User name", name),
       h("label", {}, "Password", password),
+      h("label", { class: "check" }, remember, "Stay logged in on this device"),
       h(
         "div",
         { class: "actions" },
@@ -1073,7 +1075,7 @@ function viewLogin() {
       ),
     ),
     error,
-    h("p", { class: "muted small" }, full ? `Registration is closed: this device has the maximum of ${MAX_USERS} users.` : `${userCount()} of ${MAX_USERS} users registered. Accounts and progress stay in this browser on this device.`),
+    h("p", { class: "muted small" }, full ? `Registration is closed: this device has the maximum of ${MAX_USERS} users.` : `${userCount()} of ${MAX_USERS} users registered. New passwords need at least ${MIN_PASSWORD} characters; use one you use nowhere else. Accounts and progress stay in this browser on this device.`),
   );
 }
 

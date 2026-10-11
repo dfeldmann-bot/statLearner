@@ -30,9 +30,12 @@ external book and video links require an internet connection.
 
 On first open, **Register** a user name and password, then **Log in**. Each user
 keeps separate progress. A device holds at most 10 users; after that, the
-Register button turns off. Accounts are local to the browser (there is no
-server), so they separate learners on a shared device but do not protect
-progress from someone with access to the device.
+Register button turns off. Passwords need at least 8 characters; five wrong
+passwords in a row lock that account for 30 seconds, doubling with each further
+failure. A login lasts until the tab closes unless you tick **Stay logged in on
+this device**. Accounts are local to the browser (there is no server), so they
+separate learners on a shared device but do not protect progress from someone
+who opens the browser's developer tools.
 
 Progress stays in this browser on this device. Avoid private tabs or clearing
 the site's data; use **Settings → Export progress** for backups and transfer.
