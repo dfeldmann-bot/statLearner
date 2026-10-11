@@ -34,6 +34,7 @@ export function deepDiveView(session) {
   const reference = casella[session.id];
   if (reference) {
     const [title, printedPage, pdfPage] = reference;
+    section.append(h("p", {}, link(`https://pages.stat.wisc.edu/~shao/stat610/Casella_Berger_Statistical_Inference.pdf#page=${pdfPage}`, `Read Casella–Berger online · PDF page ${pdfPage}`)));
     const open = link("#", `Open your PDF at page ${pdfPage}`);
     open.hidden = !personalPdfUrl;
     if (personalPdfUrl) open.href = `${personalPdfUrl}#page=${pdfPage}`;
@@ -53,7 +54,7 @@ export function deepDiveView(session) {
         status.textContent = error.message;
       }
     });
-    section.append(h("p", {}, h("strong", {}, "Casella–Berger · Statistical Inference, 2nd edition"), h("br"), `${title}, printed p. ${printedPage} (PDF page ${pdfPage} in your supplied scan).`),
+    section.append(h("p", {}, h("strong", {}, "Casella–Berger · Statistical Inference, 2nd edition"), h("br"), `${title}, printed p. ${printedPage} (PDF page ${pdfPage} in the linked edition).`),
       h("div", { class: "actions" }, h("button", { type: "button", class: "btn small", onclick: () => input.click() }, "Choose your Casella–Berger PDF"), open, input), status,
       h("p", { class: "muted small" }, "Choose your copy on this device; it stays local and is not uploaded. Select it again after reloading. Other editions or scans can have different PDF page numbers."));
   }
